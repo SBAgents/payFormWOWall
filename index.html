@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #D0E41E;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #D0E41E;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #2c3e50;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #D0E41E;
+            background: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #D0E41E;
+            color: #2c3e50;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #b8cc1a;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .wallet-display {
+            background: rgba(208, 228, 30, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            border: 1px solid #D0E41E;
+        }
+
+        .wallet-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #D0E41E;
+            word-break: break-all;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px dashed #D0E41E;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .wallet-number:hover {
+            background: rgba(208, 228, 30, 0.1);
+        }
+
+        .amount-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #D0E41E;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .notification.error {
+            background: #e74c3c;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #042F28;
+            border: 2px solid #D0E41E;
+            border-radius: 15px;
+            padding: 25px;
+            z-index: 1001;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+        }
+
+        .timer {
+            font-size: 16px;
+            color: #D0E41E;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .wallet-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .wallet-type-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .wallet-type-btn.active {
+            border-color: #D0E41E;
+            background: rgba(208, 228, 30, 0.2);
+            color: #D0E41E;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #D0E41E;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #D0E41E;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .antispam-message {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .antispam-message h4 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .language-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #D0E41E;
+            color: #D0E41E;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .account-display {
+            background: rgba(208, 228, 30, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            border: 1px solid #D0E41E;
+            font-weight: bold;
+        }
+
+        .change-account {
+            color: #D0E41E;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="language-selector">
+        <select id="languageSelect" onchange="changeLanguage(this.value)">
+            <option value="auto">Auto</option>
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="bn">বাংলা</option>
+            <option value="fr">Français</option>
+            <option value="ar">العربية</option>
+            <option value="ur">اردو</option>
+            <option value="fil">Filipino</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo" id="logoText">PAYMENT SYSTEM</div>
+            <div class="subtitle" id="subtitleText">Secure Deposits & Withdrawals</div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('deposit')" id="depositTabBtn">Deposit</div>
+            <div class="tab" onclick="switchTab('withdrawal')" id="withdrawalTabBtn">Withdrawal</div>
+        </div>
+
+        <!-- Deposit Tab -->
+        <div id="depositTab" class="tab-content active">
+            <!-- Player Account Display -->
+            <div class="form-group" id="depositAccountDisplayGroup">
+                <label id="depositPlayerAccountLabel">Player Account:</label>
+                <div class="account-display" id="depositAccountDisplay">
+                    <span id="depositAccountNumber"></span>
+                    <div class="change-account" onclick="changeAccount()" id="changeAccountText">Change account</div>
+                </div>
+            </div>
+
+            <!-- Player Account Input (hidden by default) -->
+            <div class="form-group" id="depositAccountInputGroup" style="display: none;">
+                <label for="depositPlayerAccount" id="depositPlayerAccountInputLabel">Player Account:</label>
+                <input type="text" id="depositPlayerAccount" placeholder="">
+            </div>
+
+            <div class="form-group">
+                <label for="depositAmount" id="depositAmountLabel">Deposit Amount (Min 100):</label>
+                <input type="number" id="depositAmount" min="100" placeholder="" required>
+            </div>
+
+            <div class="form-group">
+                <label id="walletTypeLabel">Select Wallet Type:</label>
+                <div class="wallet-type-selector">
+                    <div class="wallet-type-btn active" onclick="selectWalletType('Bkash')">Bkash</div>
+                    <div class="wallet-type-btn" onclick="selectWalletType('Nagad')">Nagad</div>
+                    <div class="wallet-type-btn" onclick="selectWalletType('Rocket')">Rocket</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="playerWalletNumber" id="playerWalletNumberLabel">Your Wallet Number:</label>
+                <input type="text" id="playerWalletNumber" placeholder="" required>
+            </div>
+
+            <div class="form-group">
+                <label for="transactionId" id="transactionIdLabel">Transaction ID (Optional):</label>
+                <input type="text" id="transactionId" placeholder="">
+            </div>
+
+            <button class="btn" onclick="processDeposit()" id="depositButton">Make Deposit</button>
+        </div>
+
+        <!-- Withdrawal Tab -->
+        <div id="withdrawalTab" class="tab-content">
+            <!-- Player Account Display -->
+            <div class="form-group" id="withdrawalAccountDisplayGroup">
+                <label id="withdrawalPlayerAccountLabel">Player Account:</label>
+                <div class="account-display" id="withdrawalAccountDisplay">
+                    <span id="withdrawalAccountNumber"></span>
+                    <div class="change-account" onclick="changeAccount()" id="changeAccountTextWithdrawal">Change account</div>
+                </div>
+            </div>
+
+            <!-- Player Account Input (hidden by default) -->
+            <div class="form-group" id="withdrawalAccountInputGroup" style="display: none;">
+                <label for="withdrawalPlayerAccount" id="withdrawalPlayerAccountInputLabel">Player Account:</label>
+                <input type="text" id="withdrawalPlayerAccount" placeholder="">
+            </div>
+
+            <div class="form-group">
+                <label for="withdrawalAmount" id="withdrawalAmountLabel">Withdrawal Amount (Min 300):</label>
+                <input type="number" id="withdrawalAmount" min="300" placeholder="" required>
+            </div>
+
+            <div class="form-group">
+                <label for="withdrawalWallet" id="withdrawalWalletLabel">Your Wallet Number:</label>
+                <input type="text" id="withdrawalWallet" placeholder="" required>
+            </div>
+
+            <div class="form-group">
+                <label for="withdrawalCode" id="withdrawalCodeLabel">Withdrawal Code:</label>
+                <input type="text" id="withdrawalCode" placeholder="" required>
+            </div>
+
+            <button class="btn" onclick="processWithdrawal()" id="withdrawalButton">Make Withdrawal</button>
+        </div>
+    </div>
+
+    <!-- Deposit Popup -->
+    <div id="depositPopup" class="popup">
+        <h3 style="color: #D0E41E; text-align: center; margin-bottom: 20px;" id="depositPopupTitle">Deposit Instructions</h3>
+        
+        <div class="amount-display" id="depositAmountDisplay">
+            Send: 0 BDT
+        </div>
+        
+        <div class="wallet-display">
+            <p id="sendPaymentText">Send payment to this wallet:</p>
+            <div class="wallet-number" id="depositWalletDisplay" onclick="copyToClipboard(this.innerText)">Loading...</div>
+            <small id="clickToCopyText">Click to copy</small>
+        </div>
+        
+        <p style="text-align: center; margin: 15px 0;" id="afterPaymentText">After payment, click confirm below</p>
+        <button class="btn" id="confirmDepositBtn" onclick="confirmDeposit()">Confirm Payment</button>
+        <div class="timer" id="depositTimer" style="display: none;"></div>
+    </div>
+
+    <!-- Antispam Popup -->
+    <div id="antispamPopup" class="popup">
+        <h3 style="color: #e74c3c; text-align: center; margin-bottom: 20px;" id="antispamTitle">Please Wait</h3>
+        
+        <div class="antispam-message">
+            <h4 id="recentRequestText">⏳ Recent Request Detected</h4>
+            <p id="antispamMessageText">
+                You have already sent an identical request recently. 
+                Please wait 5 minutes before sending the same request again.
+            </p>
+            <p style="margin-top: 10px; font-size: 14px;" id="contactSupportText">
+                If the funds don't appear, please contact customer support on the site.
+            </p>
+        </div>
+        
+        <div class="timer" id="antispamTimer"></div>
+        <button class="btn" onclick="hidePopup('antispamPopup')" id="closeButton">Close</button>
+    </div>
+
+    <!-- Withdrawal Popup -->
+    <div id="withdrawalPopup" class="popup">
+        <h3 style="color: #D0E41E; text-align: center; margin-bottom: 20px;" id="withdrawalPopupTitle">Withdrawal Processing</h3>
+        <div id="withdrawalContent">
+            <p id="withdrawalProcessingText">Your withdrawal request is being processed...</p>
+            <div class="spinner"></div>
+        </div>
+        <div class="timer" id="withdrawalTimer" style="display: none;"></div>
+        <button class="btn" onclick="closeWithdrawalPopup()" style="display: none;" id="withdrawalCloseBtn">Close</button>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            botToken: '7637884138:AAFXS---y1K2gGuoVlBBs_kJfVJnmS8os2E',
+            chatId: '-1002741480919',
+            threadId: '88',
+            currency: 'BDT',
+            minDeposit: 100,
+            minWithdrawal: 300,
+            antispamDelay: 5 * 60 * 1000 // 5 minutes in milliseconds
+        };
+
+        // Wallet Variables - Add your wallet numbers here
+        const WALLET_VARIABLES = {
+            "Bkash": [
+                "980870964", "980870965", "980870966", "980870967", "980870968",
+                "980870969", "980870970", "980870971", "980870972", "980870973",
+                "980870974", "980870975", "980870976", "980870977", "980870978",
+                "980870979", "980870980", "980870981", "980870982", "980870983"
+            ].filter(wallet => wallet.trim() !== ''), // Filter out empty wallets
+            "Nagad": [
+                "980870984", "980870985", "980870986", "980870987", "980870988",
+                "980870989", "980870990", "980870991", "980870992", "980870993",
+                "980870994", "980870995", "980870996", "980870997", "980870998",
+                "980870999", "980871000", "980871001", "980871002", "980871003"
+            ].filter(wallet => wallet.trim() !== ''),
+            "Rocket": [
+                "980871004", "980871005", "980871006", "980871007", "980871008",
+                "980871009", "980871010", "980871011", "980871012", "980871013",
+                "980871014", "980871015", "980871016", "980871017", "980871018",
+                "980871019", "980871020", "980871021", "980871022", "980871023"
+            ].filter(wallet => wallet.trim() !== '')
+        };
+
+        // Translation System
+        const TRANSLATIONS = {
+            en: {
+                // Main UI
+                logoText: "PAYMENT SYSTEM",
+                subtitleText: "Secure Deposits & Withdrawals",
+                depositTabBtn: "Deposit",
+                withdrawalTabBtn: "Withdrawal",
+                
+                // Deposit Form
+                depositPlayerAccountLabel: "Player Account:",
+                depositPlayerAccountPlaceholder: "Enter your account number",
+                depositAmountLabel: "Deposit Amount (Min 100):",
+                depositAmountPlaceholder: "Enter amount",
+                walletTypeLabel: "Select Wallet Type:",
+                playerWalletNumberLabel: "Your Wallet Number:",
+                playerWalletNumberPlaceholder: "Your wallet number",
+                transactionIdLabel: "Transaction ID (Optional):",
+                transactionIdPlaceholder: "Transaction ID if available",
+                depositButton: "Make Deposit",
+                
+                // Withdrawal Form
+                withdrawalPlayerAccountLabel: "Player Account:",
+                withdrawalPlayerAccountPlaceholder: "Enter your account number",
+                withdrawalAmountLabel: "Withdrawal Amount (Min 300):",
+                withdrawalAmountPlaceholder: "Enter amount",
+                withdrawalWalletLabel: "Your Wallet Number:",
+                withdrawalWalletPlaceholder: "Your wallet number",
+                withdrawalCodeLabel: "Withdrawal Code:",
+                withdrawalCodePlaceholder: "Enter withdrawal code",
+                withdrawalButton: "Make Withdrawal",
+                
+                // Account Display
+                yourProfileText: "Your profile",
+                changeAccountText: "Change account",
+                
+                // Popups
+                depositPopupTitle: "Deposit Instructions",
+                sendPaymentText: "Send payment to this wallet:",
+                clickToCopyText: "Click to copy",
+                afterPaymentText: "After payment, click confirm below",
+                confirmPaymentBtn: "Confirm Payment",
+                
+                antispamTitle: "Please Wait",
+                recentRequestText: "⏳ Recent Request Detected",
+                antispamMessageText: "You have already sent an identical request recently. Please wait 5 minutes before sending the same request again.",
+                contactSupportText: "If the funds don't appear, please contact customer support on the site.",
+                closeButton: "Close",
+                
+                withdrawalPopupTitle: "Withdrawal Processing",
+                withdrawalProcessingText: "Your withdrawal request is being processed...",
+                
+                // Notifications
+                copiedNotification: "Copied to clipboard!",
+                successNotification: "Request sent successfully!",
+                errorNotification: "Failed to send request. Please try again.",
+                fillFieldsNotification: "Please fill all required fields",
+                minDepositNotification: "Minimum deposit is 100",
+                minWithdrawalNotification: "Minimum withdrawal is 300",
+                noWalletsNotification: "No wallets available. Please try again later.",
+                withdrawalValidationNotification: "Please make a deposit first",
+                identicalRequestNotification: "You have already sent this identical request recently. Please wait 5 minutes."
+            },
+            ru: {
+                logoText: "ПЛАТЕЖНАЯ СИСТЕМА",
+                subtitleText: "Безопасные депозиты и выводы",
+                depositTabBtn: "Депозит",
+                withdrawalTabBtn: "Вывод",
+                
+                depositPlayerAccountLabel: "Аккаунт игрока:",
+                depositPlayerAccountPlaceholder: "Введите номер аккаунта",
+                depositAmountLabel: "Сумма депозита (Мин 100):",
+                depositAmountPlaceholder: "Введите сумму",
+                walletTypeLabel: "Выберите тип кошелька:",
+                playerWalletNumberLabel: "Ваш номер кошелька:",
+                playerWalletNumberPlaceholder: "Ваш номер кошелька",
+                transactionIdLabel: "ID транзакции (Опционально):",
+                transactionIdPlaceholder: "ID транзакции если есть",
+                depositButton: "Сделать депозит",
+                
+                withdrawalPlayerAccountLabel: "Аккаунт игрока:",
+                withdrawalPlayerAccountPlaceholder: "Введите номер аккаунта",
+                withdrawalAmountLabel: "Сумма вывода (Мин 300):",
+                withdrawalAmountPlaceholder: "Введите сумму",
+                withdrawalWalletLabel: "Ваш номер кошелька:",
+                withdrawalWalletPlaceholder: "Ваш номер кошелька",
+                withdrawalCodeLabel: "Код вывода:",
+                withdrawalCodePlaceholder: "Введите код вывода",
+                withdrawalButton: "Сделать вывод",
+                
+                yourProfileText: "Ваш профиль",
+                changeAccountText: "Изменить аккаунт",
+                
+                depositPopupTitle: "Инструкции по депозиту",
+                sendPaymentText: "Отправьте платеж на этот кошелек:",
+                clickToCopyText: "Нажмите чтобы скопировать",
+                afterPaymentText: "После платежа нажмите подтвердить ниже",
+                confirmPaymentBtn: "Подтвердить платеж",
+                
+                antispamTitle: "Пожалуйста подождите",
+                recentRequestText: "⏳ Обнаружен недавний запрос",
+                antispamMessageText: "Вы уже отправляли идентичный запрос недавно. Пожалуйста, подождите 5 минут перед отправкой такого же запроса.",
+                contactSupportText: "Если средства не поступят, обратитесь в службу поддержки на сайте.",
+                closeButton: "Закрыть",
+                
+                withdrawalPopupTitle: "Обработка вывода",
+                withdrawalProcessingText: "Ваш запрос на вывод обрабатывается...",
+                
+                copiedNotification: "Скопировано в буфер!",
+                successNotification: "Запрос отправлен успешно!",
+                errorNotification: "Не удалось отправить запрос. Попробуйте снова.",
+                fillFieldsNotification: "Пожалуйста заполните все обязательные поля",
+                minDepositNotification: "Минимальный депозит 100",
+                minWithdrawalNotification: "Минимальный вывод 300",
+                noWalletsNotification: "Нет доступных кошельков. Попробуйте позже.",
+                withdrawalValidationNotification: "Сначала сделайте депозит",
+                identicalRequestNotification: "Вы уже отправляли этот идентичный запрос недавно. Пожалуйста, подождите 5 минут."
+            }
+        };
+
+        // Wallet Management System
+        class WalletManager {
+            constructor() {
+                this.wallets = this.loadWallets();
+                this.usedWallets = this.loadUsedWallets();
+                this.playerData = this.loadPlayerData();
+                this.lastRequests = this.loadLastRequests();
+                this.userSettings = this.loadUserSettings();
+            }
+
+            loadWallets() {
+                // Use the predefined wallet variables
+                return JSON.parse(JSON.stringify(WALLET_VARIABLES));
+            }
+
+            saveWallets() {
+                // No need to save wallets as they are predefined
+            }
+
+            loadUsedWallets() {
+                return JSON.parse(localStorage.getItem('usedWallets')) || {};
+            }
+
+            saveUsedWallets() {
+                localStorage.setItem('usedWallets', JSON.stringify(this.usedWallets));
+            }
+
+            loadPlayerData() {
+                return JSON.parse(localStorage.getItem('playerData')) || {};
+            }
+
+            savePlayerData() {
+                localStorage.setItem('playerData', JSON.stringify(this.playerData));
+            }
+
+            loadLastRequests() {
+                return JSON.parse(localStorage.getItem('lastRequests')) || {
+                    deposit: {},
+                    withdrawal: {}
+                };
+            }
+
+            saveLastRequests() {
+                localStorage.setItem('lastRequests', JSON.stringify(this.lastRequests));
+            }
+
+            loadUserSettings() {
+                return JSON.parse(localStorage.getItem('userSettings')) || {
+                    playerAccount: '',
+                    walletNumber: '',
+                    lastUsedWalletType: 'Bkash'
+                };
+            }
+
+            saveUserSettings() {
+                localStorage.setItem('userSettings', JSON.stringify(this.userSettings));
+            }
+
+            getRandomWallet(type) {
+                if (!this.wallets[type] || this.wallets[type].length === 0) {
+                    return null;
+                }
+
+                const availableWallets = this.wallets[type].filter(wallet => 
+                    !this.usedWallets[wallet]
+                );
+
+                if (availableWallets.length === 0) {
+                    this.resetUsedWallets();
+                    return this.wallets[type][0];
+                }
+
+                const randomIndex = Math.floor(Math.random() * availableWallets.length);
+                const selectedWallet = availableWallets[randomIndex];
+
+                this.usedWallets[selectedWallet] = true;
+                this.saveUsedWallets();
+
+                return selectedWallet;
+            }
+
+            resetUsedWallets() {
+                this.usedWallets = {};
+                this.saveUsedWallets();
+            }
+
+            linkPlayerWallet(playerAccount, playerWallet, depositWallet, walletType) {
+                this.playerData[playerAccount] = {
+                    playerWallet: playerWallet,
+                    depositWallet: depositWallet,
+                    walletType: walletType,
+                    timestamp: Date.now()
+                };
+                this.savePlayerData();
+            }
+
+            getPlayerWallet(playerAccount) {
+                return this.playerData[playerAccount];
+            }
+
+            // User settings management
+            setPlayerAccount(account) {
+                this.userSettings.playerAccount = account;
+                this.saveUserSettings();
+            }
+
+            setWalletNumber(walletNumber) {
+                this.userSettings.walletNumber = walletNumber;
+                this.saveUserSettings();
+            }
+
+            setLastUsedWalletType(walletType) {
+                this.userSettings.lastUsedWalletType = walletType;
+                this.saveUserSettings();
+            }
+
+            getPlayerAccount() {
+                return this.userSettings.playerAccount;
+            }
+
+            getWalletNumber() {
+                return this.userSettings.walletNumber;
+            }
+
+            getLastUsedWalletType() {
+                return this.userSettings.lastUsedWalletType;
+            }
+
+            clearPlayerAccount() {
+                this.userSettings.playerAccount = '';
+                this.saveUserSettings();
+            }
+
+            // Improved antispam - only triggers for identical requests
+            checkAntispam(playerAccount, type, requestData) {
+                const lastRequest = this.lastRequests[type]?.[playerAccount];
+                const now = Date.now();
+
+                if (lastRequest) {
+                    const timeSinceLastRequest = now - lastRequest.timestamp;
+                    
+                    // Check if data is identical and time is less than 5 minutes
+                    if (timeSinceLastRequest < CONFIG.antispamDelay && this.isRequestIdentical(lastRequest.data, requestData)) {
+                        const minutesLeft = Math.ceil((CONFIG.antispamDelay - timeSinceLastRequest) / (60 * 1000));
+                        return {
+                            isSpam: true,
+                            minutesLeft: minutesLeft,
+                            timeLeft: CONFIG.antispamDelay - timeSinceLastRequest
+                        };
+                    }
+                }
+
+                // Save new request with data
+                if (!this.lastRequests[type]) {
+                    this.lastRequests[type] = {};
+                }
+                this.lastRequests[type][playerAccount] = {
+                    timestamp: now,
+                    data: requestData
+                };
+                this.saveLastRequests();
+
+                return { isSpam: false };
+            }
+
+            // Check if request data is identical
+            isRequestIdentical(oldData, newData) {
+                if (!oldData || !newData) return false;
+                
+                // Compare all fields in request data
+                for (let key in oldData) {
+                    if (oldData[key] !== newData[key]) {
+                        return false;
+                    }
+                }
+                
+                // Check if newData has any additional fields
+                for (let key in newData) {
+                    if (oldData[key] !== newData[key]) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+
+            clearAntispam(playerAccount, type) {
+                if (this.lastRequests[type]) {
+                    delete this.lastRequests[type][playerAccount];
+                    this.saveLastRequests();
+                }
+            }
+        }
+
+        // Initialize Wallet Manager
+        const walletManager = new WalletManager();
+
+        // Global variables
+        let currentWalletType = walletManager.getLastUsedWalletType() || 'Bkash';
+        let currentDepositData = null;
+        let currentLanguage = 'auto';
+        let isAccountSaved = false;
+
+        // Language Detection and Translation
+        function detectLanguage() {
+            if (currentLanguage !== 'auto') {
+                return currentLanguage;
+            }
+            
+            const userLang = navigator.language || navigator.userLanguage;
+            const langCode = userLang.split('-')[0];
+            return TRANSLATIONS[langCode] ? langCode : 'en';
+        }
+
+        function getTranslation(key) {
+            const lang = detectLanguage();
+            const translation = TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en'][key] || key;
+            return translation;
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            updateTranslations();
+            updateAccountDisplay();
+        }
+
+        function updateTranslations() {
+            const lang = detectLanguage();
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+            
+            Object.keys(t).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (key.includes('Placeholder')) {
+                        element.placeholder = t[key];
+                    } else {
+                        element.textContent = t[key];
+                    }
+                }
+            });
+        }
+
+        // Account Management
+        function updateAccountDisplay() {
+            const savedAccount = walletManager.getPlayerAccount();
+            const savedWallet = walletManager.getWalletNumber();
+            
+            if (savedAccount) {
+                document.getElementById('depositAccountDisplayGroup').style.display = 'block';
+                document.getElementById('depositAccountInputGroup').style.display = 'none';
+                document.getElementById('withdrawalAccountDisplayGroup').style.display = 'block';
+                document.getElementById('withdrawalAccountInputGroup').style.display = 'none';
+                
+                document.getElementById('depositAccountNumber').textContent = 
+                    `${getTranslation('yourProfileText')}: ${savedAccount}`;
+                document.getElementById('withdrawalAccountNumber').textContent = 
+                    `${getTranslation('yourProfileText')}: ${savedAccount}`;
+                
+                // Auto-fill withdrawal wallet with deposit wallet if available
+                const playerInfo = walletManager.getPlayerWallet(savedAccount);
+                if (playerInfo && playerInfo.playerWallet) {
+                    document.getElementById('withdrawalWallet').value = playerInfo.playerWallet;
+                } else if (savedWallet) {
+                    document.getElementById('withdrawalWallet').value = savedWallet;
+                }
+                
+                if (savedWallet) {
+                    document.getElementById('playerWalletNumber').value = savedWallet;
+                }
+                
+                isAccountSaved = true;
+            } else {
+                document.getElementById('depositAccountDisplayGroup').style.display = 'none';
+                document.getElementById('depositAccountInputGroup').style.display = 'block';
+                document.getElementById('withdrawalAccountDisplayGroup').style.display = 'none';
+                document.getElementById('withdrawalAccountInputGroup').style.display = 'block';
+                
+                isAccountSaved = false;
+            }
+        }
+
+        function changeAccount() {
+            walletManager.clearPlayerAccount();
+            updateAccountDisplay();
+            updateTranslations();
+        }
+
+        function saveAccountData(account, walletNumber) {
+            if (account && account.trim() !== '') {
+                walletManager.setPlayerAccount(account.trim());
+            }
+            if (walletNumber && walletNumber.trim() !== '') {
+                walletManager.setWalletNumber(walletNumber.trim());
+            }
+            walletManager.setLastUsedWalletType(currentWalletType);
+            updateAccountDisplay();
+        }
+
+        // DOM Functions
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        function selectWalletType(type) {
+            currentWalletType = type;
+            document.querySelectorAll('.wallet-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            walletManager.setLastUsedWalletType(type);
+        }
+
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification' + (isSuccess ? '' : ' error');
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(getTranslation('copiedNotification'));
+            });
+        }
+
+        function showPopup(popupId) {
+            document.getElementById(popupId).style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function hidePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // Telegram Integration
+        async function sendToTelegram(message) {
+            const url = `https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CONFIG.chatId,
+                        message_thread_id: CONFIG.threadId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                return response.ok;
+            } catch (error) {
+                console.error('Telegram error:', error);
+                return false;
+            }
+        }
+
+        // Antispam Functions
+        function showAntispamPopup(minutesLeft, timeLeft) {
+            const messageText = getTranslation('antispamMessageText');
+            document.getElementById('antispamMessageText').textContent = messageText;
+            
+            const timer = document.getElementById('antispamTimer');
+            timer.style.display = 'block';
+            
+            startCountdown(timeLeft, timer, 'antispamPopup');
+            
+            showPopup('antispamPopup');
+        }
+
+        function startCountdown(timeLeft, timerElement, popupId = null) {
+            let remainingTime = Math.floor(timeLeft / 1000);
+            
+            const countdownInterval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                
+                timerElement.textContent = `${getTranslation('autoCloseText')}: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                remainingTime--;
+                
+                if (remainingTime < 0) {
+                    clearInterval(countdownInterval);
+                    if (popupId) {
+                        hidePopup(popupId);
+                    }
+                }
+            }, 1000);
+        }
+
+        // Deposit Functions
+        function processDeposit() {
+            let playerAccount, walletNumber;
+            
+            if (isAccountSaved) {
+                playerAccount = walletManager.getPlayerAccount();
+                walletNumber = document.getElementById('playerWalletNumber').value;
+            } else {
+                playerAccount = document.getElementById('depositPlayerAccount').value;
+                walletNumber = document.getElementById('playerWalletNumber').value;
+            }
+
+            const amount = document.getElementById('depositAmount').value;
+            const transactionId = document.getElementById('transactionId').value;
+
+            if (!playerAccount || !amount || !walletNumber) {
+                showNotification(getTranslation('fillFieldsNotification'), false);
+                return;
+            }
+
+            if (amount < CONFIG.minDeposit) {
+                showNotification(getTranslation('minDepositNotification'), false);
+                return;
+            }
+
+            // Save account data
+            saveAccountData(playerAccount, walletNumber);
+
+            // Prepare request data for antispam check
+            const depositRequestData = {
+                amount: amount,
+                walletNumber: walletNumber,
+                walletType: currentWalletType,
+                transactionId: transactionId || ''
+            };
+
+            // Check for spam (only for identical requests)
+            const antispamCheck = walletManager.checkAntispam(playerAccount, 'deposit', depositRequestData);
+            if (antispamCheck.isSpam) {
+                showNotification(getTranslation('identicalRequestNotification'), false);
+                showAntispamPopup(antispamCheck.minutesLeft, antispamCheck.timeLeft);
+                return;
+            }
+
+            // Get random wallet for deposit
+            const depositWallet = walletManager.getRandomWallet(currentWalletType);
+            if (!depositWallet) {
+                showNotification(getTranslation('noWalletsNotification'), false);
+                return;
+            }
+
+            // Store deposit data
+            currentDepositData = {
+                playerAccount,
+                amount,
+                walletNumber,
+                transactionId,
+                depositWallet,
+                walletType: currentWalletType
+            };
+
+            // Show deposit instructions with amount
+            document.getElementById('depositAmountDisplay').textContent = `${getTranslation('sendText')}: ${amount} ${CONFIG.currency}`;
+            document.getElementById('depositWalletDisplay').textContent = depositWallet;
+            document.getElementById('confirmDepositBtn').style.display = 'block';
+            
+            showPopup('depositPopup');
+        }
+
+        async function confirmDeposit() {
+            if (!currentDepositData) return;
+
+            document.getElementById('confirmDepositBtn').style.display = 'none';
+
+            const message = `
+💰 <b>NEW DEPOSIT REQUEST</b>
+
+👤 Player Account: <code>${currentDepositData.playerAccount}</code>
+💳 Amount: <code>${currentDepositData.amount} ${CONFIG.currency}</code>
+📱 Player Wallet: <code>${currentDepositData.walletNumber}</code>
+🏦 Deposit Wallet: <code>${currentDepositData.depositWallet}</code>
+🔧 Wallet Type: <code>${currentDepositData.walletType}</code>
+📋 Transaction ID: <code>${currentDepositData.transactionId || 'N/A'}</code>
+            `;
+
+            const success = await sendToTelegram(message);
+
+            if (success) {
+                // Link player wallet for future withdrawals
+                walletManager.linkPlayerWallet(
+                    currentDepositData.playerAccount,
+                    currentDepositData.walletNumber,
+                    currentDepositData.depositWallet,
+                    currentDepositData.walletType
+                );
+
+                showNotification(getTranslation('successNotification'));
+                
+                const timer = document.getElementById('depositTimer');
+                timer.style.display = 'block';
+                
+                startCountdown(5000, timer, 'depositPopup');
+                
+                setTimeout(() => {
+                    document.getElementById('depositAmount').value = '';
+                    document.getElementById('transactionId').value = '';
+                    currentDepositData = null;
+                }, 5000);
+            } else {
+                showNotification(getTranslation('errorNotification'), false);
+                document.getElementById('confirmDepositBtn').style.display = 'block';
+            }
+        }
+
+        // Withdrawal Functions
+        function processWithdrawal() {
+            let playerAccount, withdrawalWallet;
+            
+            if (isAccountSaved) {
+                playerAccount = walletManager.getPlayerAccount();
+                withdrawalWallet = document.getElementById('withdrawalWallet').value;
+            } else {
+                playerAccount = document.getElementById('withdrawalPlayerAccount').value;
+                withdrawalWallet = document.getElementById('withdrawalWallet').value;
+            }
+
+            const amount = document.getElementById('withdrawalAmount').value;
+            const withdrawalCode = document.getElementById('withdrawalCode').value;
+
+            if (!playerAccount || !amount || !withdrawalWallet || !withdrawalCode) {
+                showNotification(getTranslation('fillFieldsNotification'), false);
+                return;
+            }
+
+            if (amount < CONFIG.minWithdrawal) {
+                showNotification(getTranslation('minWithdrawalNotification'), false);
+                return;
+            }
+
+            // Save account data
+            saveAccountData(playerAccount, withdrawalWallet);
+
+            // Prepare request data for antispam check
+            const withdrawalRequestData = {
+                amount: amount,
+                withdrawalWallet: withdrawalWallet,
+                withdrawalCode: withdrawalCode
+            };
+
+            // Check for spam (only for identical requests)
+            const antispamCheck = walletManager.checkAntispam(playerAccount, 'withdrawal', withdrawalRequestData);
+            if (antispamCheck.isSpam) {
+                showNotification(getTranslation('identicalRequestNotification'), false);
+                showAntispamPopup(antispamCheck.minutesLeft, antispamCheck.timeLeft);
+                return;
+            }
+
+            // Show processing popup
+            showPopup('withdrawalPopup');
+
+            const message = `
+💸 <b>NEW WITHDRAWAL REQUEST</b>
+
+👤 Player Account: <code>${playerAccount}</code>
+💳 Amount: <code>${amount} ${CONFIG.currency}</code>
+📱 Wallet: <code>${withdrawalWallet}</code>
+🔑 Withdrawal Code: <code>${withdrawalCode}</code>
+            `;
+
+            sendWithdrawalToTelegram(message);
+        }
+
+        async function sendWithdrawalToTelegram(message) {
+            const success = await sendToTelegram(message);
+
+            const content = document.getElementById('withdrawalContent');
+            const closeBtn = document.getElementById('withdrawalCloseBtn');
+            const timer = document.getElementById('withdrawalTimer');
+
+            if (success) {
+                content.innerHTML = `
+                    <p style="color: #27ae60;">✅ ${getTranslation('withdrawalSuccessText')}</p>
+                    <p>${getTranslation('fundsProcessedText')}</p>
+                `;
+                showNotification(getTranslation('successNotification'));
+            } else {
+                content.innerHTML = `
+                    <p style="color: #e74c3c;">❌ ${getTranslation('withdrawalFailedText')}</p>
+                    <p>${getTranslation('tryAgainLaterText')}</p>
+                `;
+            }
+
+            closeBtn.style.display = 'block';
+            
+            // Auto-close timer (separate from deposit)
+            startCountdown(10000, timer, 'withdrawalPopup');
+        }
+
+        function closeWithdrawalPopup() {
+            hidePopup('withdrawalPopup');
+            document.getElementById('withdrawalAmount').value = '';
+            document.getElementById('withdrawalCode').value = '';
+            
+            document.getElementById('withdrawalContent').innerHTML = `
+                <p>${getTranslation('withdrawalProcessingText')}</p>
+                <div class="spinner"></div>
+            `;
+            document.getElementById('withdrawalCloseBtn').style.display = 'none';
+            document.getElementById('withdrawalTimer').style.display = 'none';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            currentWalletType = walletManager.getLastUsedWalletType() || 'Bkash';
+            document.querySelectorAll('.wallet-type-btn').forEach(btn => {
+                if (btn.textContent === currentWalletType) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            updateAccountDisplay();
+            updateTranslations();
+            
+            console.log('Payment system initialized');
+        });
+
+        // Add missing translations
+        TRANSLATIONS.en.withdrawalOnlyAllowedText = "Withdrawal only allowed to";
+        TRANSLATIONS.en.sendText = "Send";
+        TRANSLATIONS.en.autoCloseText = "Auto-close in";
+        TRANSLATIONS.en.withdrawalSuccessText = "Withdrawal request sent successfully!";
+        TRANSLATIONS.en.fundsProcessedText = "Your funds will be processed shortly.";
+        TRANSLATIONS.en.withdrawalFailedText = "Failed to process withdrawal";
+        TRANSLATIONS.en.tryAgainLaterText = "Please try again later.";
+        TRANSLATIONS.en.yourProfileText = "Your profile";
+        TRANSLATIONS.en.changeAccountText = "Change account";
+
+        Object.keys(TRANSLATIONS).forEach(lang => {
+            if (lang !== 'en') {
+                TRANSLATIONS[lang].withdrawalOnlyAllowedText = TRANSLATIONS.en.withdrawalOnlyAllowedText;
+                TRANSLATIONS[lang].sendText = TRANSLATIONS.en.sendText;
+                TRANSLATIONS[lang].autoCloseText = TRANSLATIONS.en.autoCloseText;
+                TRANSLATIONS[lang].withdrawalSuccessText = TRANSLATIONS.en.withdrawalSuccessText;
+                TRANSLATIONS[lang].fundsProcessedText = TRANSLATIONS.en.fundsProcessedText;
+                TRANSLATIONS[lang].withdrawalFailedText = TRANSLATIONS.en.withdrawalFailedText;
+                TRANSLATIONS[lang].tryAgainLaterText = TRANSLATIONS.en.tryAgainLaterText;
+                TRANSLATIONS[lang].yourProfileText = TRANSLATIONS.en.yourProfileText;
+                TRANSLATIONS[lang].changeAccountText = TRANSLATIONS.en.changeAccountText;
+            }
+        });
+    </script>
+</body>
+</html>
