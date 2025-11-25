@@ -311,9 +311,39 @@
             margin-top: 5px;
             display: inline-block;
         }
+
+        .maintenance-message {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid #e74c3c;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .maintenance-message h3 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .maintenance-message p {
+            color: #fff;
+            font-size: 16px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
+    <!-- Maintenance Message (hidden by default) -->
+    <div class="maintenance-message" id="maintenanceMessage">
+        <h3 id="maintenanceTitle">Temporary Maintenance</h3>
+        <p id="maintenanceText">We are temporarily not working and apologize for any inconvenience caused. Thank you for your understanding.</p>
+    </div>
+
     <div class="language-selector">
         <select id="languageSelect" onchange="changeLanguage(this.value)">
             <option value="auto">Auto</option>
@@ -327,13 +357,13 @@
         </select>
     </div>
 
-    <div class="container">
+    <div class="container" id="mainContainer">
         <div class="header">
             <div class="logo" id="logoText">PAYMENT SYSTEM</div>
             <div class="subtitle" id="subtitleText">Secure Deposits & Withdrawals</div>
         </div>
 
-        <div class="tab-container">
+        <div class="tab-container" id="tabContainer">
             <div class="tab active" onclick="switchTab('deposit')" id="depositTabBtn">Deposit</div>
             <div class="tab" onclick="switchTab('withdrawal')" id="withdrawalTabBtn">Withdrawal</div>
         </div>
@@ -355,26 +385,24 @@
                 <input type="text" id="depositPlayerAccount" placeholder="">
             </div>
 
-            <div class="form-group">
-                <label for="depositAmount" id="depositAmountLabel">Deposit Amount (Min 100):</label>
+            <div class="form-group" id="depositAmountGroup">
+                <label for="depositAmount" id="depositAmountLabel">Deposit Amount (Min <span id="minDepositAmount">100</span> <span id="currencySymbol">BDT</span>):</label>
                 <input type="number" id="depositAmount" min="100" placeholder="" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="walletTypeGroup">
                 <label id="walletTypeLabel">Select Wallet Type:</label>
-                <div class="wallet-type-selector">
-                    <div class="wallet-type-btn active" onclick="selectWalletType('Bkash')">Bkash</div>
-                    <div class="wallet-type-btn" onclick="selectWalletType('Nagad')">Nagad</div>
-                    <div class="wallet-type-btn" onclick="selectWalletType('Rocket')">Rocket</div>
+                <div class="wallet-type-selector" id="walletTypeSelector">
+                    <!-- Wallet buttons will be dynamically generated -->
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="playerWalletNumberGroup">
                 <label for="playerWalletNumber" id="playerWalletNumberLabel">Your Wallet Number:</label>
                 <input type="text" id="playerWalletNumber" placeholder="" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="transactionIdGroup">
                 <label for="transactionId" id="transactionIdLabel">Transaction ID (Optional):</label>
                 <input type="text" id="transactionId" placeholder="">
             </div>
@@ -399,17 +427,17 @@
                 <input type="text" id="withdrawalPlayerAccount" placeholder="">
             </div>
 
-            <div class="form-group">
-                <label for="withdrawalAmount" id="withdrawalAmountLabel">Withdrawal Amount (Min 300):</label>
+            <div class="form-group" id="withdrawalAmountGroup">
+                <label for="withdrawalAmount" id="withdrawalAmountLabel">Withdrawal Amount (Min <span id="minWithdrawalAmount">300</span> <span id="currencySymbolWithdrawal">BDT</span>):</label>
                 <input type="number" id="withdrawalAmount" min="300" placeholder="" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="withdrawalWalletGroup">
                 <label for="withdrawalWallet" id="withdrawalWalletLabel">Your Wallet Number:</label>
                 <input type="text" id="withdrawalWallet" placeholder="" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="withdrawalCodeGroup">
                 <label for="withdrawalCode" id="withdrawalCodeLabel">Withdrawal Code:</label>
                 <input type="text" id="withdrawalCode" placeholder="" required>
             </div>
@@ -423,7 +451,7 @@
         <h3 style="color: #D0E41E; text-align: center; margin-bottom: 20px;" id="depositPopupTitle">Deposit Instructions</h3>
         
         <div class="amount-display" id="depositAmountDisplay">
-            Send: 0 BDT
+            Send: 0 <span id="currencySymbolPopup">BDT</span>
         </div>
         
         <div class="wallet-display">
@@ -479,26 +507,68 @@
             botToken: '7637884138:AAFXS---y1K2gGuoVlBBs_kJfVJnmS8os2E',
             chatId: '-1002741480919',
             threadId: '88',
-            currency: 'BDT',
+            currency: 'BDT', // Change this variable to update currency across the site
             minDeposit: 100,
             minWithdrawal: 300,
-            antispamDelay: 5 * 60 * 1000 // 5 minutes in milliseconds
+            antispamDelay: 5 * 60 * 1000, // 5 minutes in milliseconds
+            
+            // Wallet configuration - enable/disable and custom names
+            wallets: {
+                "Bkash": {
+                    enabled: true,
+                    displayName: "Vodafone"
+                },
+                "Nagad": {
+                    enabled: true,
+                    displayName: "None"
+                },
+                "Rocket": {
+                    enabled: true,
+                    displayName: "None"
+                }
+            },
+            
+            // Block visibility configuration
+            blocks: {
+                mainContainer: true,
+                tabContainer: true,
+                depositTab: true,
+                withdrawalTab: true,
+                depositAccountDisplayGroup: true,
+                depositAccountInputGroup: true,
+                depositAmountGroup: true,
+                walletTypeGroup: false,
+                playerWalletNumberGroup: true,
+                transactionIdGroup: false,
+                withdrawalAccountDisplayGroup: true,
+                withdrawalAccountInputGroup: true,
+                withdrawalAmountGroup: true,
+                withdrawalWalletGroup: true,
+                withdrawalCodeGroup: true,
+                maintenanceMessage: false // Set to true to show maintenance message
+            }
         };
 
         // Wallet Variables - Add your wallet numbers here
         const WALLET_VARIABLES = {
             "Bkash": [
-                "1", "2", "3"
+                "1", "2"
             ].filter(wallet => wallet.trim() !== ''), // Filter out empty wallets
             "Nagad": [
-                "4", "5", "6"
+                "980870984", "980870985", "980870986", "980870987", "980870988",
+                "980870989", "980870990", "980870991", "980870992", "980870993",
+                "980870994", "980870995", "980870996", "980870997", "980870998",
+                "980870999", "980871000", "980871001", "980871002", "980871003"
             ].filter(wallet => wallet.trim() !== ''),
             "Rocket": [
-                "7", "8", "9"
+                "980871004", "980871005", "980871006", "980871007", "980871008",
+                "980871009", "980871010", "980871011", "980871012", "980871013",
+                "980871014", "980871015", "980871016", "980871017", "980871018",
+                "980871019", "980871020", "980871021", "980871022", "980871023"
             ].filter(wallet => wallet.trim() !== '')
         };
 
-        // Translation System
+        // Translation System - Complete translations for all languages
         const TRANSLATIONS = {
             en: {
                 // Main UI
@@ -550,13 +620,17 @@
                 withdrawalPopupTitle: "Withdrawal Processing",
                 withdrawalProcessingText: "Your withdrawal request is being processed...",
                 
+                // Maintenance Message
+                maintenanceTitle: "Temporary Maintenance",
+                maintenanceText: "We are temporarily not working and apologize for any inconvenience caused. Thank you for your understanding.",
+                
                 // Notifications
                 copiedNotification: "Copied to clipboard!",
                 successNotification: "Request sent successfully!",
                 errorNotification: "Failed to send request. Please try again.",
                 fillFieldsNotification: "Please fill all required fields",
-                minDepositNotification: "Minimum deposit is 100",
-                minWithdrawalNotification: "Minimum withdrawal is 300",
+                minDepositNotification: "Minimum deposit is",
+                minWithdrawalNotification: "Minimum withdrawal is",
                 noWalletsNotification: "No wallets available. Please try again later.",
                 withdrawalValidationNotification: "Please make a deposit first",
                 identicalRequestNotification: "You have already sent this identical request recently. Please wait 5 minutes."
@@ -606,15 +680,308 @@
                 withdrawalPopupTitle: "Обработка вывода",
                 withdrawalProcessingText: "Ваш запрос на вывод обрабатывается...",
                 
+                maintenanceTitle: "Временное техническое обслуживание",
+                maintenanceText: "Мы временно не работаем и приносим извинения за доставленные неудобства. Спасибо за ваше понимание.",
+                
                 copiedNotification: "Скопировано в буфер!",
                 successNotification: "Запрос отправлен успешно!",
                 errorNotification: "Не удалось отправить запрос. Попробуйте снова.",
                 fillFieldsNotification: "Пожалуйста заполните все обязательные поля",
-                minDepositNotification: "Минимальный депозит 100",
-                minWithdrawalNotification: "Минимальный вывод 300",
+                minDepositNotification: "Минимальный депозит",
+                minWithdrawalNotification: "Минимальный вывод",
                 noWalletsNotification: "Нет доступных кошельков. Попробуйте позже.",
                 withdrawalValidationNotification: "Сначала сделайте депозит",
                 identicalRequestNotification: "Вы уже отправляли этот идентичный запрос недавно. Пожалуйста, подождите 5 минут."
+            },
+            bn: {
+                logoText: "পেমেন্ট সিস্টেম",
+                subtitleText: "সুরক্ষিত ডিপোজিট ও উত্তোলন",
+                depositTabBtn: "ডিপোজিট",
+                withdrawalTabBtn: "উত্তোলন",
+                
+                depositPlayerAccountLabel: "প্লেয়ার অ্যাকাউন্ট:",
+                depositPlayerAccountPlaceholder: "আপনার অ্যাকাউন্ট নম্বর লিখুন",
+                depositAmountLabel: "ডিপোজিটের পরিমাণ (ন্যূনতম 100):",
+                depositAmountPlaceholder: "পরিমাণ লিখুন",
+                walletTypeLabel: "ওয়ালেটের ধরন নির্বাচন করুন:",
+                playerWalletNumberLabel: "আপনার ওয়ালেট নম্বর:",
+                playerWalletNumberPlaceholder: "আপনার ওয়ালেট নম্বর",
+                transactionIdLabel: "লেনদেন আইডি (ঐচ্ছিক):",
+                transactionIdPlaceholder: "লেনদেন আইডি যদি থাকে",
+                depositButton: "ডিপোজিট করুন",
+                
+                withdrawalPlayerAccountLabel: "প্লেয়ার অ্যাকাউন্ট:",
+                withdrawalPlayerAccountPlaceholder: "আপনার অ্যাকাউন্ট নম্বর লিখুন",
+                withdrawalAmountLabel: "উত্তোলনের পরিমাণ (ন্যূনতম 300):",
+                withdrawalAmountPlaceholder: "পরিমাণ লিখুন",
+                withdrawalWalletLabel: "আপনার ওয়ালেট নম্বর:",
+                withdrawalWalletPlaceholder: "আপনার ওয়ালেট নম্বর",
+                withdrawalCodeLabel: "উত্তোলন কোড:",
+                withdrawalCodePlaceholder: "উত্তোলন কোড লিখুন",
+                withdrawalButton: "উত্তোলন করুন",
+                
+                yourProfileText: "আপনার প্রোফাইল",
+                changeAccountText: "অ্যাকাউন্ট পরিবর্তন করুন",
+                
+                depositPopupTitle: "ডিপোজিট নির্দেশিকা",
+                sendPaymentText: "এই ওয়ালেটে পেমেন্ট পাঠান:",
+                clickToCopyText: "কপি করতে ক্লিক করুন",
+                afterPaymentText: "পেমেন্টের পরে নিচে কনফার্ম ক্লিক করুন",
+                confirmPaymentBtn: "পেমেন্ট নিশ্চিত করুন",
+                
+                antispamTitle: "অনুগ্রহ করে অপেক্ষা করুন",
+                recentRequestText: "⏳ সাম্প্রতিক অনুরোধ সনাক্ত করা হয়েছে",
+                antispamMessageText: "আপনি ইতিমধ্যেই একটি অভিন্ন অনুরোধ পাঠিয়েছেন। একই অনুরোধ আবার পাঠানোর আগে অনুগ্রহ করে 5 মিনিট অপেক্ষা করুন।",
+                contactSupportText: "টাকা না আসলে, সাইটে কাস্টমার সাপোর্টে যোগাযোগ করুন।",
+                closeButton: "বন্ধ করুন",
+                
+                withdrawalPopupTitle: "উত্তোলন প্রক্রিয়াকরণ",
+                withdrawalProcessingText: "আপনার উত্তোলনের অনুরোধ প্রক্রিয়া করা হচ্ছে...",
+                
+                maintenanceTitle: "অস্থায়ী রক্ষণাবেক্ষণ",
+                maintenanceText: "আমরা অস্থায়ীভাবে কাজ করছি না এবং যে কোনও অসুবিধার জন্য আমরা ক্ষমা চাই। আপনার বোঝাপড়ার জন্য ধন্যবাদ।",
+                
+                copiedNotification: "ক্লিপবোর্ডে কপি করা হয়েছে!",
+                successNotification: "অনুরোধ সফলভাবে পাঠানো হয়েছে!",
+                errorNotification: "অনুরোধ পাঠাতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+                fillFieldsNotification: "অনুগ্রহ করে সমস্ত প্রয়োজনীয় ক্ষেত্র পূরণ করুন",
+                minDepositNotification: "ন্যূনতম ডিপোজিট",
+                minWithdrawalNotification: "ন্যূনতম উত্তোলন",
+                noWalletsNotification: "কোনও ওয়ালেট উপলব্ধ নেই। অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
+                withdrawalValidationNotification: "প্রথমে একটি ডিপোজিট করুন",
+                identicalRequestNotification: "আপনি ইতিমধ্যেই এই অভিন্ন অনুরোধ পাঠিয়েছেন। অনুগ্রহ করে 5 মিনিট অপেক্ষা করুন।"
+            },
+            fr: {
+                logoText: "SYSTÈME DE PAIEMENT",
+                subtitleText: "Dépôts et retraits sécurisés",
+                depositTabBtn: "Dépôt",
+                withdrawalTabBtn: "Retrait",
+                
+                depositPlayerAccountLabel: "Compte joueur:",
+                depositPlayerAccountPlaceholder: "Entrez votre numéro de compte",
+                depositAmountLabel: "Montant du dépôt (Min 100):",
+                depositAmountPlaceholder: "Entrez le montant",
+                walletTypeLabel: "Sélectionnez le type de portefeuille:",
+                playerWalletNumberLabel: "Votre numéro de portefeuille:",
+                playerWalletNumberPlaceholder: "Votre numéro de portefeuille",
+                transactionIdLabel: "ID de transaction (Optionnel):",
+                transactionIdPlaceholder: "ID de transaction si disponible",
+                depositButton: "Effectuer un dépôt",
+                
+                withdrawalPlayerAccountLabel: "Compte joueur:",
+                withdrawalPlayerAccountPlaceholder: "Entrez votre numéro de compte",
+                withdrawalAmountLabel: "Montant du retrait (Min 300):",
+                withdrawalAmountPlaceholder: "Entrez le montant",
+                withdrawalWalletLabel: "Votre numéro de portefeuille:",
+                withdrawalWalletPlaceholder: "Votre numéro de portefeuille",
+                withdrawalCodeLabel: "Code de retrait:",
+                withdrawalCodePlaceholder: "Entrez le code de retrait",
+                withdrawalButton: "Effectuer un retrait",
+                
+                yourProfileText: "Votre profil",
+                changeAccountText: "Changer de compte",
+                
+                depositPopupTitle: "Instructions de dépôt",
+                sendPaymentText: "Envoyez le paiement à ce portefeuille:",
+                clickToCopyText: "Cliquez pour copier",
+                afterPaymentText: "Après paiement, cliquez sur confirmer ci-dessous",
+                confirmPaymentBtn: "Confirmer le paiement",
+                
+                antispamTitle: "Veuillez patienter",
+                recentRequestText: "⏳ Demande récente détectée",
+                antispamMessageText: "Vous avez déjà envoyé une demande identique récemment. Veuillez attendre 5 minutes avant d'envoyer à nouveau la même demande.",
+                contactSupportText: "Si les fonds n'apparaissent pas, veuillez contacter le support client sur le site.",
+                closeButton: "Fermer",
+                
+                withdrawalPopupTitle: "Traitement du retrait",
+                withdrawalProcessingText: "Votre demande de retrait est en cours de traitement...",
+                
+                maintenanceTitle: "Maintenance temporaire",
+                maintenanceText: "Nous ne travaillons pas temporairement et nous nous excusons pour tout inconvénient causé. Merci de votre compréhension.",
+                
+                copiedNotification: "Copié dans le presse-papiers!",
+                successNotification: "Demande envoyée avec succès!",
+                errorNotification: "Échec de l'envoi de la demande. Veuillez réessayer.",
+                fillFieldsNotification: "Veuillez remplir tous les champs obligatoires",
+                minDepositNotification: "Le dépôt minimum est",
+                minWithdrawalNotification: "Le retrait minimum est",
+                noWalletsNotification: "Aucun portefeuille disponible. Veuillez réessayer plus tard.",
+                withdrawalValidationNotification: "Veuillez d'abord effectuer un dépôt",
+                identicalRequestNotification: "Vous avez déjà envoyé cette demande identique récemment. Veuillez attendre 5 minutes."
+            },
+            ar: {
+                logoText: "نظام الدفع",
+                subtitleText: "الودائع والسحوبات الآمنة",
+                depositTabBtn: "إيداع",
+                withdrawalTabBtn: "سحب",
+                
+                depositPlayerAccountLabel: "حساب اللاعب:",
+                depositPlayerAccountPlaceholder: "أدخل رقم حسابك",
+                depositAmountLabel: "مبلغ الإيداع (الحد الأدنى 100):",
+                depositAmountPlaceholder: "أدخل المبلغ",
+                walletTypeLabel: "اختر نوع المحفظة:",
+                playerWalletNumberLabel: "رقم محفظتك:",
+                playerWalletNumberPlaceholder: "رقم محفظتك",
+                transactionIdLabel: "معرف المعاملة (اختياري):",
+                transactionIdPlaceholder: "معرف المعاملة إذا كان متاحًا",
+                depositButton: "إجراء إيداع",
+                
+                withdrawalPlayerAccountLabel: "حساب اللاعب:",
+                withdrawalPlayerAccountPlaceholder: "أدخل رقم حسابك",
+                withdrawalAmountLabel: "مبلغ السحب (الحد الأدنى 300):",
+                withdrawalAmountPlaceholder: "أدخل المبلغ",
+                withdrawalWalletLabel: "رقم محفظتك:",
+                withdrawalWalletPlaceholder: "رقم محفظتك",
+                withdrawalCodeLabel: "رمز السحب:",
+                withdrawalCodePlaceholder: "أدخل رمز السحب",
+                withdrawalButton: "إجراء سحب",
+                
+                yourProfileText: "ملفك الشخصي",
+                changeAccountText: "تغيير الحساب",
+                
+                depositPopupTitle: "تعليمات الإيداع",
+                sendPaymentText: "أرسل الدفع إلى هذه المحفظة:",
+                clickToCopyText: "انقر للنسخ",
+                afterPaymentText: "بعد الدفع، انقر على تأكيد أدناه",
+                confirmPaymentBtn: "تأكيد الدفع",
+                
+                antispamTitle: "يرجى الانتظار",
+                recentRequestText: "⏳ تم اكتشاف طلب حديث",
+                antispamMessageText: "لقد أرسلت بالفعل طلبًا مماثلًا مؤخرًا. يرجى الانتظار 5 دقائق قبل إرسال نفس الطلب مرة أخرى.",
+                contactSupportText: "إذا لم تظهر الأموال، يرجى الاتصال بدعم العملاء على الموقع.",
+                closeButton: "إغلاق",
+                
+                withdrawalPopupTitle: "معالجة السحب",
+                withdrawalProcessingText: "طلب السحب الخاص بك قيد المعالجة...",
+                
+                maintenanceTitle: "صيانة مؤقتة",
+                maintenanceText: "نحن لا نعمل مؤقتًا ونعتذر عن أي إزعاج caused. شكرًا لتفهمك.",
+                
+                copiedNotification: "تم النسخ إلى الحافظة!",
+                successNotification: "تم إرسال الطلب بنجاح!",
+                errorNotification: "فشل في إرسال الطلب. يرجى المحاولة مرة أخرى.",
+                fillFieldsNotification: "يرجى ملء جميع الحقول المطلوبة",
+                minDepositNotification: "الحد الأدنى للإيداع هو",
+                minWithdrawalNotification: "الحد الأدنى للسحب هو",
+                noWalletsNotification: "لا توجد محافظ متاحة. يرجى المحاولة مرة أخرى لاحقًا.",
+                withdrawalValidationNotification: "يرجى إجراء إيداع أولاً",
+                identicalRequestNotification: "لقد أرسلت بالفعل هذا الطلب المماثل مؤخرًا. يرجى الانتظار 5 دقائق."
+            },
+            ur: {
+                logoText: "ادائیگی کا نظام",
+                subtitleText: "محفوظ ڈپازٹس اور نکاسی",
+                depositTabBtn: "ڈپازٹ",
+                withdrawalTabBtn: "نکاسی",
+                
+                depositPlayerAccountLabel: "کھلاڑی کا اکاؤنٹ:",
+                depositPlayerAccountPlaceholder: "اپنا اکاؤنٹ نمبر درج کریں",
+                depositAmountLabel: "ڈپازٹ کی رقم (کم از کم 100):",
+                depositAmountPlaceholder: "رقم درج کریں",
+                walletTypeLabel: "والٹ کی قسم منتخب کریں:",
+                playerWalletNumberLabel: "آپ کا والٹ نمبر:",
+                playerWalletNumberPlaceholder: "آپ کا والٹ نمبر",
+                transactionIdLabel: "ٹرانزیکشن آئی ڈی (اختیاری):",
+                transactionIdPlaceholder: "ٹرانزیکشن آئی ڈی اگر دستیاب ہو",
+                depositButton: "ڈپازٹ کریں",
+                
+                withdrawalPlayerAccountLabel: "کھلاڑی کا اکاؤنٹ:",
+                withdrawalPlayerAccountPlaceholder: "اپنا اکاؤنٹ نمبر درج کریں",
+                withdrawalAmountLabel: "نکاسی کی رقم (کم از کم 300):",
+                withdrawalAmountPlaceholder: "رقم درج کریں",
+                withdrawalWalletLabel: "آپ کا والٹ نمبر:",
+                withdrawalWalletPlaceholder: "آپ کا والٹ نمبر",
+                withdrawalCodeLabel: "نکاسی کوڈ:",
+                withdrawalCodePlaceholder: "نکاسی کوڈ درج کریں",
+                withdrawalButton: "نکاسی کریں",
+                
+                yourProfileText: "آپ کا پروفائل",
+                changeAccountText: "اکاؤنٹ تبدیل کریں",
+                
+                depositPopupTitle: "ڈپازٹ کی ہدایات",
+                sendPaymentText: "ادائیگی اس والٹ پر بھیجیں:",
+                clickToCopyText: "کاپی کرنے کے لیے کلک کریں",
+                afterPaymentText: "ادائیگی کے بعد، نیچے تصدیق پر کلک کریں",
+                confirmPaymentBtn: "ادائیگی کی تصدیق کریں",
+                
+                antispamTitle: "براہ کرم انتظار کریں",
+                recentRequestText: "⏳ حالیہ درخواست کا پتہ چلا",
+                antispamMessageText: "آپ نے پہلے ہی حال ہی میں ایک جیسی درخواست بھیجی ہے۔ براہ کرم ایک ہی درخواست دوبارہ بھیجنے سے پہلے 5 منٹ انتظار کریں۔",
+                contactSupportText: "اگر فنڈز نظر نہیں آتے ہیں، تو براہ کرم سائٹ پر کسٹمر سپورٹ سے رابطہ کریں۔",
+                closeButton: "بند کریں",
+                
+                withdrawalPopupTitle: "نکاسی کی کارروائی",
+                withdrawalProcessingText: "آپ کی نکاسی کی درخواست پر کارروائی کی جا رہی ہے...",
+                
+                maintenanceTitle: "عارضی مرمت",
+                maintenanceText: "ہم عارضی طور پر کام نہیں کر رہے ہیں اور کسی بھی تکلیف پر معذرت خواہ ہیں۔ آپ کی سمجھ کے لیے شکریہ۔",
+                
+                copiedNotification: "کلپ بورڈ پر کاپی کر لیا گیا!",
+                successNotification: "درخواست کامیابی سے بھیج دی گئی!",
+                errorNotification: "درخواست بھیجنے میں ناکامی۔ براہ کرم دوبارہ کوشش کریں۔",
+                fillFieldsNotification: "براہ کرم تمام ضروری فیلڈز کو پُر کریں",
+                minDepositNotification: "کم از کم ڈپازٹ",
+                minWithdrawalNotification: "کم از کم نکاسی",
+                noWalletsNotification: "کوئی والٹ دستیاب نہیں ہے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
+                withdrawalValidationNotification: "براہ کرم پہلے ڈپازٹ کریں",
+                identicalRequestNotification: "آپ نے پہلے ہی حال ہی میں یہ جیسی درخواست بھیجی ہے۔ براہ کرم 5 منٹ انتظار کریں۔"
+            },
+            fil: {
+                logoText: "PAYMENT SYSTEM",
+                subtitleText: "Secure Deposits & Withdrawals",
+                depositTabBtn: "Deposit",
+                withdrawalTabBtn: "Withdrawal",
+                
+                depositPlayerAccountLabel: "Player Account:",
+                depositPlayerAccountPlaceholder: "Enter your account number",
+                depositAmountLabel: "Deposit Amount (Min 100):",
+                depositAmountPlaceholder: "Enter amount",
+                walletTypeLabel: "Select Wallet Type:",
+                playerWalletNumberLabel: "Your Wallet Number:",
+                playerWalletNumberPlaceholder: "Your wallet number",
+                transactionIdLabel: "Transaction ID (Optional):",
+                transactionIdPlaceholder: "Transaction ID if available",
+                depositButton: "Make Deposit",
+                
+                withdrawalPlayerAccountLabel: "Player Account:",
+                withdrawalPlayerAccountPlaceholder: "Enter your account number",
+                withdrawalAmountLabel: "Withdrawal Amount (Min 300):",
+                withdrawalAmountPlaceholder: "Enter amount",
+                withdrawalWalletLabel: "Your Wallet Number:",
+                withdrawalWalletPlaceholder: "Your wallet number",
+                withdrawalCodeLabel: "Withdrawal Code:",
+                withdrawalCodePlaceholder: "Enter withdrawal code",
+                withdrawalButton: "Make Withdrawal",
+                
+                yourProfileText: "Your profile",
+                changeAccountText: "Change account",
+                
+                depositPopupTitle: "Deposit Instructions",
+                sendPaymentText: "Send payment to this wallet:",
+                clickToCopyText: "Click to copy",
+                afterPaymentText: "After payment, click confirm below",
+                confirmPaymentBtn: "Confirm Payment",
+                
+                antispamTitle: "Please Wait",
+                recentRequestText: "⏳ Recent Request Detected",
+                antispamMessageText: "You have already sent an identical request recently. Please wait 5 minutes before sending the same request again.",
+                contactSupportText: "If the funds don't appear, please contact customer support on the site.",
+                closeButton: "Close",
+                
+                withdrawalPopupTitle: "Withdrawal Processing",
+                withdrawalProcessingText: "Your withdrawal request is being processed...",
+                
+                maintenanceTitle: "Pansamantalang Pag-aayos",
+                maintenanceText: "Kami ay pansamantalang hindi nagtatrabaho at humihingi ng paumanhin para sa anumang abala na dulot. Salamat sa iyong pang-unawa.",
+                
+                copiedNotification: "Nakopya sa clipboard!",
+                successNotification: "Matagumpay na naipadala ang kahilingan!",
+                errorNotification: "Nabigong magpadala ng kahilingan. Pakisubukan muli.",
+                fillFieldsNotification: "Mangyaring punan ang lahat ng kinakailangang mga field",
+                minDepositNotification: "Minimum na deposito ay",
+                minWithdrawalNotification: "Minimum na withdrawal ay",
+                noWalletsNotification: "Walang available na wallet. Pakisubukan muli mamaya.",
+                withdrawalValidationNotification: "Mangyaring gumawa muna ng deposito",
+                identicalRequestNotification: "Nagpadala ka na ng magkatulad na kahilingan kamakailan. Mangyaring maghintay ng 5 minuto."
             }
         };
 
@@ -821,6 +1188,66 @@
         let currentLanguage = 'auto';
         let isAccountSaved = false;
 
+        // Update currency across the site
+        function updateCurrency() {
+            const currencyElements = document.querySelectorAll('#currencySymbol, #currencySymbolWithdrawal, #currencySymbolPopup');
+            currencyElements.forEach(element => {
+                element.textContent = CONFIG.currency;
+            });
+            
+            // Update min amounts with currency
+            document.getElementById('minDepositAmount').textContent = CONFIG.minDeposit;
+            document.getElementById('minWithdrawalAmount').textContent = CONFIG.minWithdrawal;
+            
+            // Update input placeholders
+            document.getElementById('depositAmount').min = CONFIG.minDeposit;
+            document.getElementById('withdrawalAmount').min = CONFIG.minWithdrawal;
+        }
+
+        // Update block visibility
+        function updateBlockVisibility() {
+            for (const [blockId, isVisible] of Object.entries(CONFIG.blocks)) {
+                const element = document.getElementById(blockId);
+                if (element) {
+                    element.style.display = isVisible ? '' : 'none';
+                }
+            }
+        }
+
+        // Generate wallet buttons based on configuration
+        function generateWalletButtons() {
+            const walletTypeSelector = document.getElementById('walletTypeSelector');
+            walletTypeSelector.innerHTML = '';
+
+            let firstEnabledWallet = null;
+
+            for (const [walletType, config] of Object.entries(CONFIG.wallets)) {
+                if (config.enabled) {
+                    if (!firstEnabledWallet) {
+                        firstEnabledWallet = walletType;
+                    }
+
+                    const walletBtn = document.createElement('div');
+                    walletBtn.className = `wallet-type-btn ${walletType === currentWalletType ? 'active' : ''}`;
+                    walletBtn.textContent = config.displayName;
+                    walletBtn.onclick = () => selectWalletType(walletType);
+                    walletTypeSelector.appendChild(walletBtn);
+                }
+            }
+
+            // If no wallets are enabled, show message
+            if (!firstEnabledWallet) {
+                walletTypeSelector.innerHTML = '<p style="text-align: center; color: #e74c3c;">No wallet types available</p>';
+                return;
+            }
+
+            // Set current wallet type to first enabled wallet if current is disabled
+            if (!CONFIG.wallets[currentWalletType]?.enabled) {
+                currentWalletType = firstEnabledWallet;
+                walletManager.setLastUsedWalletType(firstEnabledWallet);
+            }
+        }
+
         // Language Detection and Translation
         function detectLanguage() {
             if (currentLanguage !== 'auto') {
@@ -858,6 +1285,10 @@
                     }
                 }
             });
+            
+            // Update labels with currency
+            document.getElementById('depositAmountLabel').innerHTML = `${getTranslation('depositAmountLabel').replace('(Min 100)', '')}(Min ${CONFIG.minDeposit} ${CONFIG.currency}):`;
+            document.getElementById('withdrawalAmountLabel').innerHTML = `${getTranslation('withdrawalAmountLabel').replace('(Min 300)', '')}(Min ${CONFIG.minWithdrawal} ${CONFIG.currency}):`;
         }
 
         // Account Management
@@ -1043,7 +1474,7 @@
             }
 
             if (amount < CONFIG.minDeposit) {
-                showNotification(getTranslation('minDepositNotification'), false);
+                showNotification(`${getTranslation('minDepositNotification')} ${CONFIG.minDeposit} ${CONFIG.currency}`, false);
                 return;
             }
 
@@ -1084,7 +1515,7 @@
             };
 
             // Show deposit instructions with amount
-            document.getElementById('depositAmountDisplay').textContent = `${getTranslation('sendText')}: ${amount} ${CONFIG.currency}`;
+            document.getElementById('depositAmountDisplay').innerHTML = `${getTranslation('sendText')}: ${amount} ${CONFIG.currency}`;
             document.getElementById('depositWalletDisplay').textContent = depositWallet;
             document.getElementById('confirmDepositBtn').style.display = 'block';
             
@@ -1103,7 +1534,7 @@
 💳 Amount: <code>${currentDepositData.amount} ${CONFIG.currency}</code>
 📱 Player Wallet: <code>${currentDepositData.walletNumber}</code>
 🏦 Deposit Wallet: <code>${currentDepositData.depositWallet}</code>
-🔧 Wallet Type: <code>${currentDepositData.walletType}</code>
+🔧 Wallet Type: <code>${currentWalletType}</code>
 📋 Transaction ID: <code>${currentDepositData.transactionId || 'N/A'}</code>
             `;
 
@@ -1115,7 +1546,7 @@
                     currentDepositData.playerAccount,
                     currentDepositData.walletNumber,
                     currentDepositData.depositWallet,
-                    currentDepositData.walletType
+                    currentWalletType
                 );
 
                 showNotification(getTranslation('successNotification'));
@@ -1157,7 +1588,7 @@
             }
 
             if (amount < CONFIG.minWithdrawal) {
-                showNotification(getTranslation('minWithdrawalNotification'), false);
+                showNotification(`${getTranslation('minWithdrawalNotification')} ${CONFIG.minWithdrawal} ${CONFIG.currency}`, false);
                 return;
             }
 
@@ -1236,14 +1667,10 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             currentWalletType = walletManager.getLastUsedWalletType() || 'Bkash';
-            document.querySelectorAll('.wallet-type-btn').forEach(btn => {
-                if (btn.textContent === currentWalletType) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
             
+            generateWalletButtons(); // Generate wallet buttons based on config
+            updateCurrency(); // Initialize currency display
+            updateBlockVisibility(); // Initialize block visibility
             updateAccountDisplay();
             updateTranslations();
             
@@ -1261,6 +1688,7 @@
         TRANSLATIONS.en.yourProfileText = "Your profile";
         TRANSLATIONS.en.changeAccountText = "Change account";
 
+        // Add missing translations to all languages
         Object.keys(TRANSLATIONS).forEach(lang => {
             if (lang !== 'en') {
                 TRANSLATIONS[lang].withdrawalOnlyAllowedText = TRANSLATIONS.en.withdrawalOnlyAllowedText;
