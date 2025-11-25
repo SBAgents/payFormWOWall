@@ -507,12 +507,14 @@
             botToken: '7637884138:AAFXS---y1K2gGuoVlBBs_kJfVJnmS8os2E',
             chatId: '-1002741480919',
             threadId: '88',
-            currency: 'BDT', // Change this variable to update currency across the site
+            currency: 'EGP', // Change this variable to update currency across the site
             minDeposit: 100,
             minWithdrawal: 300,
             antispamDelay: 5 * 60 * 1000, // 5 minutes in milliseconds
             
             // Wallet configuration - enable/disable and custom names
+            // IMPORTANT: The keys ("Bkash", "Nagad", "Rocket") are internal identifiers
+            // displayName is what users will see on the website
             wallets: {
                 "Bkash": {
                     enabled: true,
@@ -520,11 +522,11 @@
                 },
                 "Nagad": {
                     enabled: true,
-                    displayName: "None"
+                    displayName: "Nagad"
                 },
                 "Rocket": {
                     enabled: true,
-                    displayName: "None"
+                    displayName: "Rocket"
                 }
             },
             
@@ -539,7 +541,7 @@
                 depositAmountGroup: true,
                 walletTypeGroup: true,
                 playerWalletNumberGroup: true,
-                transactionIdGroup: false,
+                transactionIdGroup: true,
                 withdrawalAccountDisplayGroup: true,
                 withdrawalAccountInputGroup: true,
                 withdrawalAmountGroup: true,
@@ -550,9 +552,10 @@
         };
 
         // Wallet Variables - Add your wallet numbers here
+        // IMPORTANT: Keys must match the keys in CONFIG.wallets
         const WALLET_VARIABLES = {
-            "Vodafone": [
-                "1", "2"
+            "Bkash": [
+                "1", "2", "3"
             ].filter(wallet => wallet.trim() !== ''), // Filter out empty wallets
             "Nagad": [
                 "980870984", "980870985", "980870986", "980870987", "980870988",
@@ -567,6 +570,21 @@
                 "980871019", "980871020", "980871021", "980871022", "980871023"
             ].filter(wallet => wallet.trim() !== '')
         };
+
+        // Helper function to get wallet display name by internal type
+        function getWalletDisplayName(walletType) {
+            return CONFIG.wallets[walletType]?.displayName || walletType;
+        }
+
+        // Helper function to get wallet internal type by display name
+        function getWalletInternalType(displayName) {
+            for (const [internalType, config] of Object.entries(CONFIG.wallets)) {
+                if (config.displayName === displayName && config.enabled) {
+                    return internalType;
+                }
+            }
+            return Object.keys(CONFIG.wallets)[0]; // fallback to first wallet
+        }
 
         // Translation System - Complete translations for all languages
         const TRANSLATIONS = {
@@ -749,7 +767,7 @@
                 minWithdrawalNotification: "ন্যূনতম উত্তোলন",
                 noWalletsNotification: "কোনও ওয়ালেট উপলব্ধ নেই। অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
                 withdrawalValidationNotification: "প্রথমে একটি ডিপোজিট করুন",
-                identicalRequestNotification: "আপনি ইতিমধ্যেই এই অভিন্ন অনুরোধ পাঠিয়েছেন। অনুগ্রহ করে 5 মিনিট অপেক্ষা করুন।"
+                identicalRequestNotification: "আপনি ইতিমধ্যেই এই অভিন্ন অনুরোধ পাঠিয়েছেন। অনুগ্রহ করে 5 মинিট অপেক্ষা করুন।"
             },
             fr: {
                 logoText: "SYSTÈME DE PAIEMENT",
@@ -1035,7 +1053,7 @@
                 return JSON.parse(localStorage.getItem('userSettings')) || {
                     playerAccount: '',
                     walletNumber: '',
-                    lastUsedWalletType: 'Bkash'
+                    lastUsedWalletType: Object.keys(CONFIG.wallets)[0] // Use first enabled wallet
                 };
             }
 
@@ -1043,18 +1061,18 @@
                 localStorage.setItem('userSettings', JSON.stringify(this.userSettings));
             }
 
-            getRandomWallet(type) {
-                if (!this.wallets[type] || this.wallets[type].length === 0) {
+            getRandomWallet(walletType) {
+                if (!this.wallets[walletType] || this.wallets[walletType].length === 0) {
                     return null;
                 }
 
-                const availableWallets = this.wallets[type].filter(wallet => 
+                const availableWallets = this.wallets[walletType].filter(wallet => 
                     !this.usedWallets[wallet]
                 );
 
                 if (availableWallets.length === 0) {
                     this.resetUsedWallets();
-                    return this.wallets[type][0];
+                    return this.wallets[walletType][0];
                 }
 
                 const randomIndex = Math.floor(Math.random() * availableWallets.length);
@@ -1183,7 +1201,7 @@
         const walletManager = new WalletManager();
 
         // Global variables
-        let currentWalletType = walletManager.getLastUsedWalletType() || 'Bkash';
+        let currentWalletType = walletManager.getLastUsedWalletType() || Object.keys(CONFIG.wallets)[0];
         let currentDepositData = null;
         let currentLanguage = 'auto';
         let isAccountSaved = false;
@@ -1220,9 +1238,11 @@
             walletTypeSelector.innerHTML = '';
 
             let firstEnabledWallet = null;
+            let hasEnabledWallets = false;
 
             for (const [walletType, config] of Object.entries(CONFIG.wallets)) {
                 if (config.enabled) {
+                    hasEnabledWallets = true;
                     if (!firstEnabledWallet) {
                         firstEnabledWallet = walletType;
                     }
@@ -1236,7 +1256,7 @@
             }
 
             // If no wallets are enabled, show message
-            if (!firstEnabledWallet) {
+            if (!hasEnabledWallets) {
                 walletTypeSelector.innerHTML = '<p style="text-align: center; color: #e74c3c;">No wallet types available</p>';
                 return;
             }
@@ -1527,6 +1547,8 @@
 
             document.getElementById('confirmDepositBtn').style.display = 'none';
 
+            const walletDisplayName = getWalletDisplayName(currentWalletType);
+
             const message = `
 💰 <b>NEW DEPOSIT REQUEST</b>
 
@@ -1534,7 +1556,7 @@
 💳 Amount: <code>${currentDepositData.amount} ${CONFIG.currency}</code>
 📱 Player Wallet: <code>${currentDepositData.walletNumber}</code>
 🏦 Deposit Wallet: <code>${currentDepositData.depositWallet}</code>
-🔧 Wallet Type: <code>${currentWalletType}</code>
+🔧 Wallet Type: <code>${walletDisplayName}</code>
 📋 Transaction ID: <code>${currentDepositData.transactionId || 'N/A'}</code>
             `;
 
@@ -1666,7 +1688,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            currentWalletType = walletManager.getLastUsedWalletType() || 'Bkash';
+            currentWalletType = walletManager.getLastUsedWalletType() || Object.keys(CONFIG.wallets)[0];
             
             generateWalletButtons(); // Generate wallet buttons based on config
             updateCurrency(); // Initialize currency display
