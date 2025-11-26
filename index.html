@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment System</title>
+    <title>Princess Cash</title>
     <style>
         * {
             margin: 0;
@@ -278,6 +278,7 @@
         }
 
         .language-selector {
+            display: none;
             position: absolute;
             top: 20px;
             right: 20px;
@@ -386,7 +387,7 @@
             </div>
 
             <div class="form-group" id="depositAmountGroup">
-                <label for="depositAmount" id="depositAmountLabel">Deposit Amount (Min <span id="minDepositAmount">100</span> <span id="currencySymbol">BDT</span>):</label>
+                <label for="depositAmount" id="depositAmountLabel">Deposit Amount (<span id="minDepositAmount"></span> <span id="currencySymbol"></span>):</label>
                 <input type="number" id="depositAmount" min="100" placeholder="" required>
             </div>
 
@@ -539,9 +540,9 @@
                 depositAccountDisplayGroup: true,
                 depositAccountInputGroup: true,
                 depositAmountGroup: true,
-                walletTypeGroup: true,
+                walletTypeGroup: false,
                 playerWalletNumberGroup: true,
-                transactionIdGroup: true,
+                transactionIdGroup: false,
                 withdrawalAccountDisplayGroup: true,
                 withdrawalAccountInputGroup: true,
                 withdrawalAmountGroup: true,
@@ -555,7 +556,7 @@
         // IMPORTANT: Keys must match the keys in CONFIG.wallets
         const WALLET_VARIABLES = {
             "Bkash": [
-                "1", "2", "3"
+                "1"
             ].filter(wallet => wallet.trim() !== ''), // Filter out empty wallets
             "Nagad": [
                 "980870984", "980870985", "980870986", "980870987", "980870988",
@@ -590,7 +591,7 @@
         const TRANSLATIONS = {
             en: {
                 // Main UI
-                logoText: "PAYMENT SYSTEM",
+                logoText: "Princess Cash",
                 subtitleText: "Secure Deposits & Withdrawals",
                 depositTabBtn: "Deposit",
                 withdrawalTabBtn: "Withdrawal",
@@ -654,7 +655,7 @@
                 identicalRequestNotification: "You have already sent this identical request recently. Please wait 5 minutes."
             },
             ru: {
-                logoText: "ПЛАТЕЖНАЯ СИСТЕМА",
+                logoText: "Princess Cash",
                 subtitleText: "Безопасные депозиты и выводы",
                 depositTabBtn: "Депозит",
                 withdrawalTabBtn: "Вывод",
@@ -691,7 +692,7 @@
                 
                 antispamTitle: "Пожалуйста подождите",
                 recentRequestText: "⏳ Обнаружен недавний запрос",
-                antispamMessageText: "Вы уже отправляли идентичный запрос недавно. Пожалуйста, подождите 5 минут перед отправкой такого же запроса.",
+                antispamMessageText: "Вы уже отправляли идентичный запрос недавно. Пожалуйста, подождите 5 минут.",
                 contactSupportText: "Если средства не поступят, обратитесь в службу поддержки на сайте.",
                 closeButton: "Закрыть",
                 
@@ -712,7 +713,7 @@
                 identicalRequestNotification: "Вы уже отправляли этот идентичный запрос недавно. Пожалуйста, подождите 5 минут."
             },
             bn: {
-                logoText: "পেমেন্ট সিস্টেম",
+                logoText: "Princess Cash",
                 subtitleText: "সুরক্ষিত ডিপোজিট ও উত্তোলন",
                 depositTabBtn: "ডিপোজিট",
                 withdrawalTabBtn: "উত্তোলন",
@@ -770,7 +771,7 @@
                 identicalRequestNotification: "আপনি ইতিমধ্যেই এই অভিন্ন অনুরোধ পাঠিয়েছেন। অনুগ্রহ করে 5 মинিট অপেক্ষা করুন।"
             },
             fr: {
-                logoText: "SYSTÈME DE PAIEMENT",
+                logoText: "Princess Cash",
                 subtitleText: "Dépôts et retraits sécurisés",
                 depositTabBtn: "Dépôt",
                 withdrawalTabBtn: "Retrait",
@@ -807,7 +808,7 @@
                 
                 antispamTitle: "Veuillez patienter",
                 recentRequestText: "⏳ Demande récente détectée",
-                antispamMessageText: "Vous avez déjà envoyé une demande identique récemment. Veuillez attendre 5 minutes avant d'envoyer à nouveau la même demande.",
+                antispamMessageText: "Vous avez déjà envoyé une demande identique récemment. Veuillez attendre 5 minutes",
                 contactSupportText: "Si les fonds n'apparaissent pas, veuillez contacter le support client sur le site.",
                 closeButton: "Fermer",
                 
@@ -828,7 +829,7 @@
                 identicalRequestNotification: "Vous avez déjà envoyé cette demande identique récemment. Veuillez attendre 5 minutes."
             },
             ar: {
-                logoText: "نظام الدفع",
+                logoText: "Princess Cash",
                 subtitleText: "الودائع والسحوبات الآمنة",
                 depositTabBtn: "إيداع",
                 withdrawalTabBtn: "سحب",
@@ -886,7 +887,7 @@
                 identicalRequestNotification: "لقد أرسلت بالفعل هذا الطلب المماثل مؤخرًا. يرجى الانتظار 5 دقائق."
             },
             ur: {
-                logoText: "ادائیگی کا نظام",
+                logoText: "Princess Cash",
                 subtitleText: "محفوظ ڈپازٹس اور نکاسی",
                 depositTabBtn: "ڈپازٹ",
                 withdrawalTabBtn: "نکاسی",
@@ -944,7 +945,7 @@
                 identicalRequestNotification: "آپ نے پہلے ہی حال ہی میں یہ جیسی درخواست بھیجی ہے۔ براہ کرم 5 منٹ انتظار کریں۔"
             },
             fil: {
-                logoText: "PAYMENT SYSTEM",
+                logoText: "Princess Cash",
                 subtitleText: "Secure Deposits & Withdrawals",
                 depositTabBtn: "Deposit",
                 withdrawalTabBtn: "Withdrawal",
@@ -1553,7 +1554,7 @@
 💰 <b>NEW DEPOSIT REQUEST</b>
 
 👤 Player Account: <code>${currentDepositData.playerAccount}</code>
-💳 Amount: <code>${currentDepositData.amount} ${CONFIG.currency}</code>
+💳 Amount: <code>${currentDepositData.amount}</code> ${CONFIG.currency}
 📱 Player Wallet: <code>${currentDepositData.walletNumber}</code>
 🏦 Deposit Wallet: <code>${currentDepositData.depositWallet}</code>
 🔧 Wallet Type: <code>${walletDisplayName}</code>
@@ -1639,7 +1640,7 @@
 💸 <b>NEW WITHDRAWAL REQUEST</b>
 
 👤 Player Account: <code>${playerAccount}</code>
-💳 Amount: <code>${amount} ${CONFIG.currency}</code>
+💳 Amount: <code>${amount}</code> ${CONFIG.currency}
 📱 Wallet: <code>${withdrawalWallet}</code>
 🔑 Withdrawal Code: <code>${withdrawalCode}</code>
             `;
