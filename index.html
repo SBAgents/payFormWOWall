@@ -1105,6 +1105,103 @@ function updateUIConfig() {
             return { error: error.toString() };
         }
     };
+
+    async function processWithdrawal() {
+    console.log('💰 Processing withdrawal...');
+    
+    // Получаем данные из формы
+    const account = document.getElementById('withdrawAccount')?.value.trim() || '';
+    const amount = document.getElementById('withdrawAmount')?.value || '';
+    const wallet = document.getElementById('withdrawWallet')?.value.trim() || '';
+    const code = document.getElementById('withdrawCode')?.value.trim() || '';
+    
+    console.log('📋 Withdrawal data:', { account, amount, wallet, code });
+    
+    // Валидация полей
+    if (!account || !amount || !wallet || !code) {
+        showNotification('❌ Please fill all fields', true);
+        return;
+    }
+    
+    // Проверка минимальной суммы
+    const minWithdrawal = state.config?.minWithdrawal || 300;
+    if (parseInt(amount) < minWithdrawal) {
+        showNotification(`❌ Minimum withdrawal is ${minWithdrawal} ${state.config?.currency || 'EGP'}`, true);
+        return;
+    }
+    
+    // Проверка кода (минимум 4 символа)
+    if (code.length < 4) {
+        showNotification('❌ Withdrawal code must be at least 4 characters', true);
+        return;
+    }
+    
+    // Сохраняем аккаунт в localStorage
+    if (account) {
+        localStorage.setItem('userAccount', account);
+    }
+    
+    // Блокируем кнопку
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const originalText = withdrawBtn?.textContent || 'Request Withdrawal';
+    
+    if (withdrawBtn) {
+        withdrawBtn.disabled = true;
+        withdrawBtn.textContent = 'Processing...';
+    }
+    
+    try {
+        // Формируем URL запроса
+        const params = new URLSearchParams({
+            action: 'withdraw',
+            account: account,
+            amount: amount,
+            wallet: wallet,
+            code: code,
+            t: Date.now()
+        });
+        
+        const url = `${API_URL}?${params.toString()}`;
+        console.log('📤 Sending withdrawal request:', url);
+        
+        // Отправляем запрос
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        console.log('📥 Withdrawal response:', result);
+        
+        if (result.status === 'success') {
+            // Успех
+            showNotification('✅ Withdrawal request submitted successfully!', false);
+            
+            // Очищаем форму
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('withdrawWallet').value = '';
+            document.getElementById('withdrawCode').value = '';
+            
+            // Показываем дополнительное сообщение
+            setTimeout(() => {
+                showNotification('⏳ Request will be processed within 24 hours', false);
+            }, 1500);
+            
+        } else {
+            // Ошибка от сервера
+            showNotification(`❌ ${result.message || 'Withdrawal failed'}`, true);
+        }
+        
+    } catch (error) {
+        // Ошибка сети
+        console.error('❌ Withdrawal error:', error);
+        showNotification('❌ Network error. Please try again.', true);
+        
+    } finally {
+        // Разблокируем кнопку
+        if (withdrawBtn) {
+            withdrawBtn.disabled = false;
+            withdrawBtn.textContent = originalText;
+        }
+    }
+}    
 </script>
 </body>
 </html>
