@@ -500,587 +500,566 @@
     <div class="notification" id="notification"></div>
 
     <script>
-        // ========== КОНФИГУРАЦИЯ ==========
-        // ⚠️ ЗАМЕНИТЕ ЭТОТ URL НА ВАШ GOOGLE APPS SCRIPT URL ⚠️
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
+    // ========== КОНФИГУРАЦИЯ ==========
+    // ⚠️ ЗАМЕНИТЕ НА ВАШ URL ⚠️
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
+    
+    // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+    let state = {
+        config: null,
+        wallets: {},
+        selectedMethod: null,
+        currentDeposit: null
+    };
+
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('🚀 Payment System Loading...');
+        console.log('🌐 API URL:', API_URL);
         
-        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
-        let state = {
-            config: null,
-            wallets: {},
-            selectedMethod: null,
-            currentDeposit: null,
-            depositTimer: null,
-            depositTimeLeft: 15 * 60, // 15 минут в секундах
-            userAccount: localStorage.getItem('userAccount') || ''
-        };
+        // Сначала тестируем соединение
+        await testAPIConnection();
+        
+        // Затем загружаем данные
+        await loadConfig();
+        await loadWallets();
+        
+        // Автозаполнение аккаунта
+        const savedAccount = localStorage.getItem('userAccount');
+        if (savedAccount) {
+            document.getElementById('account').value = savedAccount;
+            document.getElementById('withdrawAccount').value = savedAccount;
+        }
+        
+        console.log('✅ System Ready');
+        showNotification('Payment system loaded successfully!', false);
+    });
 
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 Payment System Initializing...');
+    // ========== ТЕСТ СОЕДИНЕНИЯ ==========
+    async function testAPIConnection() {
+        console.log('🔗 Testing API connection...');
+        
+        try {
+            // Тест 1: Простой GET запрос
+            const getResponse = await fetch(API_URL);
+            const getResult = await getResponse.text();
+            console.log('GET Test:', getResult.substring(0, 100));
             
-            // Загружаем конфигурацию
-            await loadConfig();
+            // Тест 2: POST запрос
+            const testResponse = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'test'
+                })
+            });
             
-            // Загружаем кошельки
-            await loadWallets();
+            console.log('POST Test Status:', testResponse.status, testResponse.statusText);
             
-            // Автозаполнение аккаунта
-            if (state.userAccount) {
-                document.getElementById('account').value = state.userAccount;
-                document.getElementById('withdrawAccount').value = state.userAccount;
+            const testText = await testResponse.text();
+            console.log('POST Test Response:', testText);
+            
+            let testResult;
+            try {
+                testResult = JSON.parse(testText);
+                console.log('✅ API Connection Test:', testResult);
+                
+                if (testResult.status === 'success') {
+                    showNotification('API connection successful!', false);
+                } else {
+                    showNotification('API error: ' + (testResult.message || 'Unknown'), true);
+                }
+            } catch (parseError) {
+                console.error('❌ JSON Parse Error:', parseError);
+                console.error('Raw response:', testText);
+                showNotification('Server returned invalid JSON', true);
             }
             
-            // Автообновление кошельков каждые 30 секунд
-            setInterval(loadWallets, 30000);
-            
-            console.log('✅ Payment System Ready');
-            showNotification('System ready! Payment methods loaded.', false);
+        } catch (error) {
+            console.error('❌ Connection Test Failed:', error);
+            showNotification('Cannot connect to server. Check URL and CORS settings.', true);
+        }
+    }
+
+    // ========== УТИЛИТЫ ==========
+    function showNotification(message, isError = false) {
+        console.log(isError ? '❌' : '✅', message);
+        
+        // Создаем уведомление если нет
+        let notification = document.getElementById('customNotification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'customNotification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 10px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                display: none;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                max-width: 400px;
+            `;
+            document.body.appendChild(notification);
+        }
+        
+        notification.textContent = message;
+        notification.style.background = isError ? '#dc2626' : '#10b981';
+        notification.style.display = 'block';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    function switchTab(tabName) {
+        // Обновляем активную вкладку
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
         });
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        event.target.classList.add('active');
+        document.getElementById(tabName + 'Tab').classList.add('active');
+        
+        // Прячем результаты
+        const depositResult = document.getElementById('depositResult');
+        const withdrawalResult = document.getElementById('withdrawalResult');
+        if (depositResult) depositResult.style.display = 'none';
+        if (withdrawalResult) withdrawalResult.style.display = 'none';
+    }
 
-        // ========== УТИЛИТЫ ==========
-        function showNotification(message, isError = false) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${isError ? 'error' : ''}`;
-            notification.style.display = 'block';
+    // ========== ЗАГРУЗКА КОНФИГУРАЦИИ ==========
+    async function loadConfig() {
+        try {
+            console.log('📋 Loading configuration...');
             
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-
-        function switchTab(tabName) {
-            // Обновляем активную вкладку
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'get_config'
+                })
             });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
             
-            event.target.classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
+            console.log('Config response status:', response.status);
             
-            // Прячем результаты
-            document.getElementById('depositResult').classList.add('hidden');
-            document.getElementById('withdrawalResult').classList.add('hidden');
-        }
-
-        // ========== ЗАГРУЗКА КОНФИГУРАЦИИ ==========
-        async function loadConfig() {
-            try {
-                console.log('📋 Loading configuration...');
+            const responseText = await response.text();
+            console.log('Config raw response:', responseText);
+            
+            const result = JSON.parse(responseText);
+            console.log('Config parsed:', result);
+            
+            if (result.status === 'success') {
+                state.config = result.config;
                 
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'get_config'
-                    })
-                });
+                // Обновляем UI
+                const minDepositEl = document.getElementById('minDeposit');
+                const minWithdrawalEl = document.getElementById('minWithdrawal');
+                const currencyEl = document.getElementById('currency');
                 
-                const result = await response.json();
+                if (minDepositEl) minDepositEl.textContent = state.config.minDeposit || 100;
+                if (minWithdrawalEl) minWithdrawalEl.textContent = state.config.minWithdrawal || 300;
+                if (currencyEl) currencyEl.textContent = state.config.currency || 'EGP';
                 
-                if (result.status === 'success') {
-                    state.config = result.config;
-                    
-                    // Обновляем UI
-                    document.getElementById('minDeposit').textContent = state.config.minDeposit;
-                    document.getElementById('minWithdrawal').textContent = state.config.minWithdrawal;
-                    document.getElementById('currency').textContent = state.config.currency;
-                    document.getElementById('currencyWithdrawal').textContent = state.config.currency;
-                    document.getElementById('resultCurrency').textContent = state.config.currency;
-                    
-                    // Устанавливаем минимальные значения
-                    document.getElementById('amount').min = state.config.minDeposit;
-                    document.getElementById('withdrawAmount').min = state.config.minWithdrawal;
-                    
-                    console.log('✅ Configuration loaded:', state.config);
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('❌ Failed to load config:', error);
-                showNotification('Failed to load configuration. Using default values.', true);
+                // Устанавливаем минимальные значения
+                const amountInput = document.getElementById('amount');
+                const withdrawAmountInput = document.getElementById('withdrawAmount');
+                if (amountInput) amountInput.min = state.config.minDeposit || 100;
+                if (withdrawAmountInput) withdrawAmountInput.min = state.config.minWithdrawal || 300;
                 
-                // Значения по умолчанию
-                state.config = {
-                    minDeposit: 100,
-                    minWithdrawal: 300,
-                    currency: 'EGP'
-                };
+                console.log('✅ Configuration loaded');
+            } else {
+                console.error('❌ Config error:', result.message);
+                showNotification('Config error: ' + result.message, true);
             }
+        } catch (error) {
+            console.error('❌ Failed to load config:', error);
+            showNotification('Failed to load configuration', true);
+            
+            // Значения по умолчанию
+            state.config = {
+                minDeposit: 100,
+                minWithdrawal: 300,
+                currency: 'EGP'
+            };
         }
+    }
 
-        // ========== ЗАГРУЗКА КОШЕЛЬКОВ ==========
-        async function loadWallets() {
-            try {
-                console.log('💳 Loading wallets...');
-                
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'get_wallets'
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    state.wallets = result.wallets;
-                    renderWalletMethods();
-                    console.log('✅ Wallets loaded:', Object.keys(state.wallets).length, 'types');
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('❌ Failed to load wallets:', error);
-                // Показываем тестовые кошельки при ошибке
+    // ========== ЗАГРУЗКА КОШЕЛЬКОВ ==========
+    async function loadWallets() {
+        try {
+            console.log('💳 Loading wallets...');
+            
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'get_wallets'
+                })
+            });
+            
+            console.log('Wallets response status:', response.status);
+            
+            const responseText = await response.text();
+            console.log('Wallets raw response:', responseText.substring(0, 200));
+            
+            const result = JSON.parse(responseText);
+            console.log('Wallets parsed:', result);
+            
+            if (result.status === 'success') {
+                state.wallets = result.wallets;
+                renderWalletMethods();
+                console.log('✅ Wallets loaded:', Object.keys(state.wallets).length, 'types');
+            } else {
+                console.error('❌ Wallets error:', result.message);
+                showNotification('Wallets error: ' + result.message, true);
                 showTestWallets();
             }
+        } catch (error) {
+            console.error('❌ Failed to load wallets:', error);
+            showNotification('Failed to load wallets', true);
+            showTestWallets();
         }
+    }
 
-        function renderWalletMethods() {
-            const container = document.getElementById('walletMethods');
+    function renderWalletMethods() {
+        const container = document.getElementById('walletMethods');
+        if (!container) {
+            console.error('❌ Wallet methods container not found');
+            return;
+        }
+        
+        console.log('Rendering wallets:', state.wallets);
+        
+        if (!state.wallets || Object.keys(state.wallets).length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #dc2626;">
+                    ⚠️ No payment methods available
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        
+        // Получаем иконки для разных типов кошельков
+        const walletIcons = {
+            vodafone: '📱',
+            instapay: '💳',
+            etisalat: '📞',
+            default: '💰'
+        };
+        
+        Object.entries(state.wallets).forEach(([type, wallet]) => {
+            console.log('Processing wallet type:', type, wallet);
             
-            if (!state.wallets || Object.keys(state.wallets).length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #dc2626;">
-                        ⚠️ No payment methods available.<br>
-                        <small>Please contact support or try again later.</small>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            
-            // Получаем иконки для разных типов кошельков
-            const walletIcons = {
-                vodafone: '📱',
-                instapay: '💳',
-                etisalat: '📞',
-                default: '💰'
-            };
-            
-            Object.entries(state.wallets).forEach(([type, wallet]) => {
-                if (wallet.enabled && wallet.availableNumbers && wallet.availableNumbers.length > 0) {
-                    const icon = walletIcons[type] || walletIcons.default;
-                    const isActive = state.selectedMethod === type;
-                    const availableCount = wallet.availableNumbers.length;
-                    
-                    html += `
-                        <div class="wallet-method ${isActive ? 'active' : ''}" 
-                             onclick="selectWalletMethod('${type}')"
-                             data-type="${type}">
-                            <div class="wallet-method-icon">${icon}</div>
-                            <div class="wallet-method-name">${wallet.name}</div>
-                            <div class="wallet-method-desc">
-                                ${availableCount} available
-                            </div>
+            if (wallet.enabled) {
+                const icon = walletIcons[type] || walletIcons.default;
+                const isActive = state.selectedMethod === type;
+                const availableCount = wallet.availableNumbers ? wallet.availableNumbers.length : 0;
+                
+                html += `
+                    <div class="wallet-method ${isActive ? 'active' : ''}" 
+                         onclick="selectWalletMethod('${type}')"
+                         data-type="${type}">
+                        <div class="wallet-method-icon">${icon}</div>
+                        <div class="wallet-method-name">${wallet.name || type}</div>
+                        <div class="wallet-method-desc">
+                            ${availableCount} available
                         </div>
-                    `;
-                }
-            });
-            
-            if (html === '') {
-                html = `
-                    <div style="text-align: center; padding: 20px; color: #dc2626;">
-                        ⚠️ All wallets are currently busy.<br>
-                        <small>Please try again in a few minutes.</small>
                     </div>
                 `;
             }
-            
-            container.innerHTML = html;
+        });
+        
+        if (html === '') {
+            html = `
+                <div style="text-align: center; padding: 20px; color: #dc2626;">
+                    ⚠️ No enabled payment methods
+                </div>
+            `;
         }
+        
+        container.innerHTML = html;
+        console.log('Wallet methods rendered');
+    }
 
-        function selectWalletMethod(type) {
-            state.selectedMethod = type;
-            
-            // Обновляем UI
-            document.querySelectorAll('.wallet-method').forEach(method => {
-                method.classList.remove('active');
-            });
-            document.querySelector(`.wallet-method[data-type="${type}"]`).classList.add('active');
-            
-            console.log(`✅ Selected payment method: ${type}`);
+    function selectWalletMethod(type) {
+        state.selectedMethod = type;
+        
+        // Обновляем UI
+        document.querySelectorAll('.wallet-method').forEach(method => {
+            method.classList.remove('active');
+        });
+        
+        const selectedMethod = document.querySelector(`.wallet-method[data-type="${type}"]`);
+        if (selectedMethod) {
+            selectedMethod.classList.add('active');
         }
+        
+        console.log('✅ Selected payment method:', type);
+    }
 
-        function showTestWallets() {
-            // Тестовые кошельки для отладки
-            state.wallets = {
-                vodafone: {
-                    name: 'Vodafone Cash',
-                    enabled: true,
-                    availableNumbers: ['01012345678']
-                },
-                instapay: {
-                    name: 'InstaPay QR',
-                    enabled: true,
-                    availableNumbers: ['01111111111']
-                }
-            };
-            
-            renderWalletMethods();
-            showNotification('Using demo wallets. Configure real wallets in admin panel.', false);
-        }
-
-        // ========== ДЕПОЗИТ ==========
-        async function processDeposit() {
-            const account = document.getElementById('account').value.trim();
-            const amount = document.getElementById('amount').value;
-            const wallet = document.getElementById('wallet').value.trim();
-            
-            // Валидация
-            if (!account || !amount || !wallet || !state.selectedMethod) {
-                showNotification('Please fill all fields and select payment method', true);
-                return;
+    function showTestWallets() {
+        // Тестовые кошельки для отладки
+        state.wallets = {
+            vodafone: {
+                name: 'Vodafone Cash',
+                enabled: true,
+                availableNumbers: ['01012345678']
+            },
+            instapay: {
+                name: 'InstaPay QR',
+                enabled: true,
+                availableNumbers: ['01111111111']
             }
-            
-            if (parseInt(amount) < parseInt(state.config.minDeposit)) {
-                showNotification(`Minimum deposit is ${state.config.minDeposit} ${state.config.currency}`, true);
-                return;
-            }
-            
-            // Сохраняем аккаунт
-            state.userAccount = account;
-            localStorage.setItem('userAccount', account);
-            
-            // Показываем загрузку
-            const btn = document.getElementById('depositBtn');
+        };
+        
+        renderWalletMethods();
+        showNotification('Using demo wallets. Configure real wallets in admin panel.', false);
+    }
+
+    // ========== ДЕПОЗИТ ==========
+    async function processDeposit() {
+        console.log('💰 Processing deposit...');
+        
+        const account = document.getElementById('account')?.value.trim() || '';
+        const amount = document.getElementById('amount')?.value || '';
+        const wallet = document.getElementById('wallet')?.value.trim() || '';
+        
+        console.log('Input data:', { account, amount, wallet, selectedMethod: state.selectedMethod });
+        
+        // Валидация
+        if (!account) {
+            showNotification('Please enter your account', true);
+            return;
+        }
+        
+        if (!amount || parseInt(amount) < (state.config?.minDeposit || 100)) {
+            showNotification(`Minimum deposit is ${state.config?.minDeposit || 100} ${state.config?.currency || 'EGP'}`, true);
+            return;
+        }
+        
+        if (!wallet) {
+            showNotification('Please enter your wallet number', true);
+            return;
+        }
+        
+        if (!state.selectedMethod) {
+            showNotification('Please select payment method', true);
+            return;
+        }
+        
+        // Сохраняем аккаунт
+        state.userAccount = account;
+        localStorage.setItem('userAccount', account);
+        
+        // Показываем загрузку
+        const btn = document.getElementById('depositBtn');
+        if (btn) {
             btn.disabled = true;
             btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Processing...';
+        }
+        
+        try {
+            const requestData = {
+                action: 'check_deposit',
+                account: account,
+                amount: amount,
+                wallet: wallet,
+                type: state.selectedMethod
+            };
             
+            console.log('📤 Sending request:', requestData);
+            console.log('🌐 URL:', API_URL);
+            
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            console.log('📥 Response received. Status:', response.status, response.statusText);
+            
+            const responseText = await response.text();
+            console.log('📥 Raw response:', responseText);
+            
+            let result;
             try {
-                console.log('💰 Processing deposit request...');
+                result = JSON.parse(responseText);
+                console.log('✅ Parsed response:', result);
+            } catch (parseError) {
+                console.error('❌ JSON parse error:', parseError);
+                throw new Error('Invalid JSON: ' + responseText.substring(0, 100));
+            }
+            
+            if (result.status === 'success') {
+                // Сохраняем данные депозита
+                state.currentDeposit = {
+                    account: account,
+                    amount: amount,
+                    wallet: wallet,
+                    type: state.selectedMethod,
+                    depositWallet: result.wallet,
+                    isFirstDeposit: result.isFirstDeposit
+                };
                 
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'check_deposit',
-                        account: account,
-                        amount: amount,
-                        wallet: wallet,
-                        type: state.selectedMethod
-                    })
-                });
+                // Показываем результат
+                showDepositResult(amount, result.wallet, result.isFirstDeposit);
                 
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    // Сохраняем данные депозита
-                    state.currentDeposit = {
-                        account: account,
-                        amount: amount,
-                        wallet: wallet,
-                        type: state.selectedMethod,
-                        depositWallet: result.wallet,
-                        isFirstDeposit: result.isFirstDeposit
-                    };
-                    
-                    // Показываем результат
-                    showDepositResult(amount, result.wallet, result.isFirstDeposit);
-                    
-                    // Запускаем таймер
-                    startDepositTimer();
-                    
-                    // Предупреждение для первого депозита
-                    if (result.isFirstDeposit) {
-                        showNotification('⚠️ First deposit detected. Please wait for manual confirmation.', false);
-                    }
-                    
-                    console.log('✅ Deposit wallet assigned:', result.wallet);
-                } else {
-                    showNotification('Error: ' + result.message, true);
-                }
-                
-            } catch (error) {
-                console.error('❌ Deposit error:', error);
-                showNotification('Network error. Please try again.', true);
-            } finally {
+                console.log('✅ Deposit successful. Wallet:', result.wallet);
+                showNotification('Deposit wallet received!', false);
+            } else {
+                console.error('❌ API error:', result.message);
+                showNotification('Error: ' + result.message, true);
+            }
+            
+        } catch (error) {
+            console.error('❌ Deposit error:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            
+            let errorMessage = 'Network error: ';
+            if (error.message.includes('Failed to fetch')) {
+                errorMessage += 'Cannot connect to server. ';
+                errorMessage += 'Check: 1) URL is correct 2) CORS is enabled 3) No browser extensions blocking';
+            } else {
+                errorMessage += error.message;
+            }
+            
+            showNotification(errorMessage, true);
+            
+        } finally {
+            if (btn) {
                 btn.disabled = false;
                 btn.textContent = 'Get Deposit Wallet';
             }
         }
+    }
 
-        function showDepositResult(amount, wallet, isFirstDeposit) {
-            const resultDiv = document.getElementById('depositResult');
-            const depositTab = document.getElementById('depositTab');
-            
-            // Обновляем данные
-            document.getElementById('displayAmount').textContent = `${amount} ${state.config.currency}`;
-            document.getElementById('depositWallet').textContent = wallet;
-            
-            // Скрываем форму, показываем результат
-            depositTab.classList.add('hidden');
-            resultDiv.classList.remove('hidden');
-            resultDiv.style.display = 'block';
-            
-            // Обновляем заголовок для первого депозита
-            const title = document.querySelector('#depositResult h3');
-            if (isFirstDeposit) {
+    function showDepositResult(amount, wallet, isFirstDeposit) {
+        const resultDiv = document.getElementById('depositResult');
+        const depositTab = document.getElementById('depositTab');
+        
+        if (!resultDiv || !depositTab) {
+            console.error('❌ Required elements not found');
+            return;
+        }
+        
+        // Обновляем данные
+        const displayAmount = document.getElementById('displayAmount');
+        const depositWallet = document.getElementById('depositWallet');
+        
+        if (displayAmount) {
+            displayAmount.textContent = `${amount} ${state.config?.currency || 'EGP'}`;
+        }
+        
+        if (depositWallet) {
+            depositWallet.textContent = wallet;
+        }
+        
+        // Скрываем форму, показываем результат
+        depositTab.style.display = 'none';
+        resultDiv.style.display = 'block';
+        
+        // Обновляем заголовок для первого депозита
+        if (isFirstDeposit) {
+            const title = resultDiv.querySelector('h3');
+            if (title) {
                 title.innerHTML = '⭐ First Deposit - Send Payment';
                 title.style.color = '#f59e0b';
             }
         }
+        
+        // Запускаем таймер
+        startDepositTimer();
+    }
 
-        function startDepositTimer() {
-            state.depositTimeLeft = 15 * 60; // 15 минут
+    function startDepositTimer() {
+        // Простая реализация таймера
+        let timeLeft = 15 * 60; // 15 минут
+        
+        const timerElement = document.getElementById('depositTimer');
+        if (!timerElement) return;
+        
+        const interval = setInterval(() => {
+            timeLeft--;
             
-            if (state.depositTimer) {
-                clearInterval(state.depositTimer);
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            timerElement.textContent = `Time left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft < 60) {
+                timerElement.style.color = '#dc2626';
             }
             
-            state.depositTimer = setInterval(() => {
-                state.depositTimeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                timerElement.textContent = 'Time expired!';
                 
-                const minutes = Math.floor(state.depositTimeLeft / 60);
-                const seconds = state.depositTimeLeft % 60;
+                const confirmBtn = document.getElementById('confirmBtn');
+                if (confirmBtn) confirmBtn.disabled = true;
                 
-                document.getElementById('depositTimer').textContent = 
-                    `Time left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                // Меняем цвет при малом времени
-                if (state.depositTimeLeft < 60) {
-                    document.getElementById('depositTimer').style.color = '#dc2626';
-                }
-                
-                // Время вышло
-                if (state.depositTimeLeft <= 0) {
-                    clearInterval(state.depositTimer);
-                    document.getElementById('depositTimer').textContent = 'Time expired!';
-                    document.getElementById('confirmBtn').disabled = true;
-                    document.getElementById('cancelBtn').textContent = 'Close';
-                    
-                    showNotification('Deposit time expired. Please start over.', true);
-                }
-            }, 1000);
-        }
-
-        async function confirmDeposit() {
-            if (!state.currentDeposit) return;
-            
-            const btn = document.getElementById('confirmBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Confirming...';
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'confirm_deposit',
-                        account: state.currentDeposit.account,
-                        amount: state.currentDeposit.amount,
-                        depositWallet: state.currentDeposit.depositWallet
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    showNotification('✅ Payment confirmed! Funds will be added shortly.', false);
-                    
-                    // Сбрасываем состояние
-                    setTimeout(() => {
-                        resetDepositForm();
-                    }, 2000);
-                    
-                    // Останавливаем таймер
-                    clearInterval(state.depositTimer);
-                    
-                } else {
-                    showNotification('Error: ' + result.message, true);
-                    btn.disabled = false;
-                    btn.textContent = '✅ I Have Sent the Payment';
-                }
-                
-            } catch (error) {
-                console.error('❌ Confirm error:', error);
-                showNotification('Confirmation failed. Try again.', true);
-                btn.disabled = false;
-                btn.textContent = '✅ I Have Sent the Payment';
+                showNotification('Deposit time expired. Please start over.', true);
             }
-        }
+        }, 1000);
+    }
 
-        function cancelDeposit() {
-            resetDepositForm();
-            showNotification('Deposit cancelled', false);
-        }
+    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Copied to clipboard!');
+        });
+    }
 
-        function resetDepositForm() {
-            // Очищаем форму
-            document.getElementById('amount').value = '';
-            document.getElementById('wallet').value = '';
-            
-            // Сбрасываем выбранный метод
-            state.selectedMethod = null;
-            document.querySelectorAll('.wallet-method').forEach(method => {
-                method.classList.remove('active');
+    // ========== ДЛЯ ОТЛАДКИ ==========
+    // Добавьте эту функцию в консоль браузера для тестирования
+    window.testAPI = async function(action = 'test') {
+        console.log('🧪 Testing API with action:', action);
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: action })
             });
             
-            // Показываем форму, скрываем результат
-            document.getElementById('depositTab').classList.remove('hidden');
-            document.getElementById('depositResult').classList.add('hidden');
+            console.log('Status:', response.status);
+            console.log('Headers:', Object.fromEntries(response.headers.entries()));
             
-            // Сбрасываем таймер
-            clearInterval(state.depositTimer);
-            document.getElementById('depositTimer').style.color = '';
-            document.getElementById('depositTimer').textContent = 'Time left: 15:00';
-            
-            // Сбрасываем кнопку подтверждения
-            const confirmBtn = document.getElementById('confirmBtn');
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = '✅ I Have Sent the Payment';
-            
-            // Сбрасываем кнопку отмены
-            document.getElementById('cancelBtn').textContent = '❌ Cancel';
-            
-            // Сбрасываем заголовок
-            const title = document.querySelector('#depositResult h3');
-            title.innerHTML = 'Send Payment';
-            title.style.color = '';
-            
-            state.currentDeposit = null;
-        }
-
-        // ========== ВЫВОД ==========
-        async function processWithdrawal() {
-            const account = document.getElementById('withdrawAccount').value.trim();
-            const amount = document.getElementById('withdrawAmount').value;
-            const wallet = document.getElementById('withdrawWallet').value.trim();
-            const code = document.getElementById('withdrawCode').value.trim();
-            
-            // Валидация
-            if (!account || !amount || !wallet || !code) {
-                showNotification('Please fill all fields', true);
-                return;
-            }
-            
-            if (parseInt(amount) < parseInt(state.config.minWithdrawal)) {
-                showNotification(`Minimum withdrawal is ${state.config.minWithdrawal} ${state.config.currency}`, true);
-                return;
-            }
-            
-            // Сохраняем аккаунт
-            state.userAccount = account;
-            localStorage.setItem('userAccount', account);
-            
-            // Показываем загрузку
-            const btn = document.getElementById('withdrawBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Processing...';
+            const text = await response.text();
+            console.log('Response text:', text);
             
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'check_withdrawal',
-                        account: account,
-                        amount: amount,
-                        wallet: wallet,
-                        code: code
-                    })
-                });
-                
-                const result = await response.json();
-                
-                showWithdrawalResult(result);
-                
-                if (result.status === 'success') {
-                    // Очищаем форму
-                    document.getElementById('withdrawAmount').value = '';
-                    document.getElementById('withdrawWallet').value = '';
-                    document.getElementById('withdrawCode').value = '';
-                }
-                
-            } catch (error) {
-                console.error('❌ Withdrawal error:', error);
-                showNotification('Network error. Please try again.', true);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Request Withdrawal';
+                const json = JSON.parse(text);
+                console.log('Parsed JSON:', json);
+                return json;
+            } catch {
+                console.log('Not JSON, raw:', text);
+                return text;
             }
+        } catch (error) {
+            console.error('Test failed:', error);
+            return { error: error.toString() };
         }
-
-        function showWithdrawalResult(result) {
-            const resultDiv = document.getElementById('withdrawalResult');
-            const withdrawalTab = document.getElementById('withdrawalTab');
-            
-            if (result.status === 'success') {
-                resultDiv.innerHTML = `
-                    <h3 style="color: #10b981;">✅ Request Accepted</h3>
-                    <p style="margin: 15px 0;">${result.message}</p>
-                    <div class="info-box">
-                        ⏰ <strong>Processing time:</strong> 1-3 hours<br>
-                        📞 <strong>Support:</strong> Contact us if funds don't arrive
-                    </div>
-                    <button class="btn" onclick="closeWithdrawalResult()" style="margin-top: 20px;">
-                        Close
-                    </button>
-                `;
-            } else {
-                resultDiv.innerHTML = `
-                    <h3 style="color: #dc2626;">❌ Error</h3>
-                    <p style="margin: 15px 0;">${result.message}</p>
-                    <button class="btn btn-secondary" onclick="closeWithdrawalResult()">
-                        Try Again
-                    </button>
-                `;
-            }
-            
-            // Скрываем форму, показываем результат
-            withdrawalTab.classList.add('hidden');
-            resultDiv.classList.remove('hidden');
-            resultDiv.style.display = 'block';
-        }
-
-        function closeWithdrawalResult() {
-            document.getElementById('withdrawalTab').classList.remove('hidden');
-            document.getElementById('withdrawalResult').classList.add('hidden');
-        }
-
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification('Copied to clipboard!');
-            });
-        }
-
-        function copyDepositWallet() {
-            const wallet = document.getElementById('depositWallet').textContent;
-            copyToClipboard(wallet);
-        }
-
-        // ========== АВТОМАТИЧЕСКОЕ ЗАПОЛНЕНИЕ АККАУНТА ==========
-        document.getElementById('account').addEventListener('input', function() {
-            const withdrawAccount = document.getElementById('withdrawAccount');
-            if (!withdrawAccount.value) {
-                withdrawAccount.value = this.value;
-            }
-        });
-
-        document.getElementById('withdrawAccount').addEventListener('input', function() {
-            const depositAccount = document.getElementById('account');
-            if (!depositAccount.value) {
-                depositAccount.value = this.value;
-            }
-        });
-    </script>
+    };
+</script>
 </body>
 </html>
