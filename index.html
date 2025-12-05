@@ -803,6 +803,50 @@ function updateUIConfig() {
     }
 
     // ========== ДЕПОЗИТ ==========
+    async function confirmDeposit() {
+    console.log('✅ Confirming deposit...');
+    
+    if (!state.currentDeposit) {
+        showNotification('No deposit to confirm', true);
+        return;
+    }
+    
+    const btn = document.getElementById('confirmBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Confirming...';
+    }
+    
+    try {
+        // В реальной системе здесь был бы запрос к API
+        // Но для теста просто показываем уведомление
+        
+        console.log('Deposit data:', state.currentDeposit);
+        
+        // Имитация успешного подтверждения
+        setTimeout(() => {
+            showNotification('✅ Payment confirmed! Funds will be added shortly.', false);
+            
+            // Сбрасываем форму
+            resetDepositForm();
+            
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '✅ I Have Sent the Payment';
+            }
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Confirm error:', error);
+        showNotification('Confirmation failed: ' + error.message, true);
+        
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '✅ I Have Sent the Payment';
+        }
+    }
+}
+        
     async function processDeposit() {
     console.log('💰 Processing deposit...');
     
