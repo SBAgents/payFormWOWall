@@ -850,53 +850,20 @@ function updateUIConfig() {
     console.log('✅ Form reset complete');
 } 
     async function confirmDeposit() {
-    console.log('✅ Confirming deposit...');
+    console.log('✅ User confirmed payment');
     
     if (!state.currentDeposit) {
         showNotification('No deposit to confirm', true);
         return;
     }
     
-    const btn = document.getElementById('confirmBtn');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Confirming...';
-    }
+    // Просто показываем сообщение и сбрасываем форму
+    showNotification('✅ Thank you! Payment received. Processing...', false);
     
-    try {
-        // Отправляем подтверждение в API
-        const url = `${API_URL}?action=confirm_deposit&account=${encodeURIComponent(state.currentDeposit.account)}&amount=${encodeURIComponent(state.currentDeposit.amount)}&depositWallet=${encodeURIComponent(state.currentDeposit.depositWallet)}&t=${Date.now()}`;
-        
-        console.log('📤 Sending confirmation:', url);
-        
-        const response = await fetch(url);
-        const result = await response.json();
-        
-        console.log('Confirmation result:', result);
-        
-        if (result.status === 'success') {
-            showNotification('✅ Payment confirmed! Funds will be added shortly.', false);
-            
-            // Сбрасываем форму
-            resetDepositForm();
-            
-        } else {
-            showNotification('Error: ' + result.message, true);
-            if (btn) {
-                btn.disabled = false;
-                btn.textContent = '✅ I Have Sent the Payment';
-            }
-        }
-        
-    } catch (error) {
-        console.error('❌ Confirm error:', error);
-        showNotification('Confirmation failed: ' + error.message, true);
-        
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = '✅ I Have Sent the Payment';
-        }
-    }
+    // Сбрасываем форму
+    resetDepositForm();
+    
+    console.log('Deposit completed:', state.currentDeposit);
 }
         
     async function processDeposit() {
