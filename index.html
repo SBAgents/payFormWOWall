@@ -931,7 +931,7 @@ function updateUIConfig() {
             };
             
             // Показываем результат
-            showDepositResult(amount, result.wallet, result.isFirstDeposit);
+            showDepositResult(amount, result.wallet);
             
             console.log('✅ Deposit successful. Wallet:', result.wallet);
             showNotification('Deposit wallet received!', false);
@@ -953,7 +953,7 @@ function updateUIConfig() {
 }
 
     function showDepositResult(amount, wallet) {
-    console.log('Showing deposit result:', { amount, wallet, isFirstDeposit });
+    console.log('Showing deposit result:', { amount, wallet });
     
     const resultDiv = document.getElementById('depositResult');
     const depositTab = document.getElementById('depositTab');
@@ -979,12 +979,6 @@ function updateUIConfig() {
     depositTab.style.display = 'none';
     resultDiv.style.display = 'block';
     
-    // Обновляем заголовок для первого депозита
-    if (isFirstDeposit) {
-        const title = resultDiv.querySelector('h3');
-        if (title) {
-            title.innerHTML = '⭐ First Deposit - Send Payment';
-            title.style.color = '#f59e0b';
         }
     }
     
