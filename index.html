@@ -852,18 +852,69 @@ function updateUIConfig() {
     async function confirmDeposit() {
     console.log('✅ User confirmed payment');
     
+    // 1. Проверяем, есть ли текущий депозит
     if (!state.currentDeposit) {
-        showNotification('No deposit to confirm', true);
+        showNotification('❌ No deposit to confirm', true);
         return;
     }
     
-    // Просто показываем сообщение и сбрасываем форму
-    showNotification('✅ Thank you! Payment received. Processing...', false);
+    // 2. Отключаем кнопку, чтобы избежать повторных нажатий
+    const confirmBtn = document.getElementById('confirmBtn');
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (confirmBtn) confirmBtn.textContent = 'Processing...';
     
-    // Сбрасываем форму
-    resetDepositForm();
-    
-    console.log('Deposit completed:', state.currentDeposit);
+    try {
+        // 3. Формируем URL для подтверждения на сервере
+        const params = new URLSearchParams({
+            action: 'confirm_deposit',
+            account: state.currentDeposit.account,
+            amount: state.currentDeposit.amount,
+            wallet: state.currentDeposit.wallet,
+            depositWallet: state.currentDeposit.depositWallet,
+            type: state.currentDeposit.type,
+            t: Date.now()
+        });
+        
+        const confirmUrl = `${API_URL}?${params.toString()}`;
+        console.log('📤 Sending confirmation:', confirmUrl);
+        
+        // 4. Отправляем запрос на бэкенд
+        const response = await fetch(confirmUrl);
+        const result = await response.json();
+        
+        // 5. Обрабатываем ответ от сервера
+        if (result.status === 'success') {
+            console.log('✅ Server confirmed:', result);
+            showNotification('✅ Payment confirmed! Processing...', false);
+            
+            // 6. Обновляем статус в интерфейсе
+            const timerElement = document.getElementById('depositTimer');
+            if (timerElement) {
+                timerElement.textContent = '✅ Payment confirmed';
+                timerElement.style.color = '#10b981';
+            }
+            
+            // 7. Ждём 3 секунды и сбрасываем форму
+            setTimeout(() => {
+                resetDepositForm();
+            }, 3000);
+            
+        } else {
+            // Ошибка от сервера
+            console.warn('⚠️ Server error:', result);
+            showNotification('⚠️ Confirmation failed: ' + (result.message || 'Server error'), true);
+            if (confirmBtn) confirmBtn.disabled = false;
+            if (confirmBtn) confirmBtn.textContent = '✅ I Have Sent the Payment';
+        }
+        
+    } catch (error) {
+        // Ошибка сети или запроса
+        console.error('❌ Confirmation error:', error);
+        showNotification('❌ Network error. Please try again.', true);
+        
+        if (confirmBtn) confirmBtn.disabled = false;
+        if (confirmBtn) confirmBtn.textContent = '✅ I Have Sent the Payment';
+    }
 }
         
     async function processDeposit() {
