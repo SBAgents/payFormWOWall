@@ -864,23 +864,29 @@ function updateUIConfig() {
     }
     
     try {
-        // В реальной системе здесь был бы запрос к API
-        // Но для теста просто показываем уведомление
+        // Отправляем подтверждение в API
+        const url = `${API_URL}?action=confirm_deposit&account=${encodeURIComponent(state.currentDeposit.account)}&amount=${encodeURIComponent(state.currentDeposit.amount)}&depositWallet=${encodeURIComponent(state.currentDeposit.depositWallet)}&t=${Date.now()}`;
         
-        console.log('Deposit data:', state.currentDeposit);
+        console.log('📤 Sending confirmation:', url);
         
-        // Имитация успешного подтверждения
-        setTimeout(() => {
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        console.log('Confirmation result:', result);
+        
+        if (result.status === 'success') {
             showNotification('✅ Payment confirmed! Funds will be added shortly.', false);
             
             // Сбрасываем форму
             resetDepositForm();
             
+        } else {
+            showNotification('Error: ' + result.message, true);
             if (btn) {
                 btn.disabled = false;
                 btn.textContent = '✅ I Have Sent the Payment';
             }
-        }, 1500);
+        }
         
     } catch (error) {
         console.error('❌ Confirm error:', error);
