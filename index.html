@@ -693,45 +693,33 @@ function updateUIConfig() {
     if (withdrawAmountInput) withdrawAmountInput.min = state.config.minWithdrawal;
 }
 
-    // ========== ЗАГРУЗКА КОШЕЛЬКОВ ==========
     async function loadWallets() {
-        try {
-            console.log('💳 Loading wallets...');
-            
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'get_wallets'
-                })
-            });
-            
-            console.log('Wallets response status:', response.status);
-            
-            const responseText = await response.text();
-            console.log('Wallets raw response:', responseText.substring(0, 200));
-            
-            const result = JSON.parse(responseText);
-            console.log('Wallets parsed:', result);
-            
-            if (result.status === 'success') {
-                state.wallets = result.wallets;
-                renderWalletMethods();
-                console.log('✅ Wallets loaded:', Object.keys(state.wallets).length, 'types');
-            } else {
-                console.error('❌ Wallets error:', result.message);
-                showNotification('Wallets error: ' + result.message, true);
-                showTestWallets();
-            }
-        } catch (error) {
-            console.error('❌ Failed to load wallets:', error);
-            showNotification('Failed to load wallets', true);
+    try {
+        console.log('💳 Loading wallets...');
+        
+        // GET запрос с параметром
+        const url = API_URL + '?action=get_wallets&t=' + Date.now();
+        console.log('Request URL:', url);
+        
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
+        
+        const result = await response.json();
+        console.log('Wallets result:', result);
+        
+        if (result.status === 'success') {
+            state.wallets = result.wallets;
+            renderWalletMethods();
+            console.log('✅ Wallets loaded:', Object.keys(state.wallets).length, 'types');
+        } else {
+            console.error('❌ Wallets error:', result.message);
             showTestWallets();
         }
+    } catch (error) {
+        console.error('❌ Failed to load wallets:', error);
+        showTestWallets();
     }
-
+}
     function renderWalletMethods() {
         const container = document.getElementById('walletMethods');
         if (!container) {
