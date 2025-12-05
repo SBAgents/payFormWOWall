@@ -928,7 +928,6 @@ function updateUIConfig() {
                 wallet: wallet,
                 type: method,
                 depositWallet: result.wallet,
-                isFirstDeposit: result.isFirstDeposit
             };
             
             // Показываем результат
@@ -953,7 +952,7 @@ function updateUIConfig() {
     }
 }
 
-    function showDepositResult(amount, wallet, isFirstDeposit) {
+    function showDepositResult(amount, wallet) {
     console.log('Showing deposit result:', { amount, wallet, isFirstDeposit });
     
     const resultDiv = document.getElementById('depositResult');
