@@ -3,47 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment system</title>
+    <title>Payment System</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
-            color: white;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
 
         .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
         }
 
         .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
             text-align: center;
-            margin-bottom: 30px;
         }
 
         .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #D0E41E;
+            font-size: 32px;
+            font-weight: 800;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '💰';
+            font-size: 36px;
         }
 
         .subtitle {
-            color: #ccc;
+            opacity: 0.9;
             font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .tab.active {
+            background: white;
+            color: #4f46e5;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-group {
@@ -53,178 +107,209 @@
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
-            color: #D0E41E;
+            font-weight: 600;
+            color: #334155;
+            font-size: 14px;
         }
 
         input, select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #34495e;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #2c3e50;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
             font-size: 16px;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            background: white;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: #D0E41E;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        .wallet-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .wallet-method {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
             background: white;
+        }
+
+        .wallet-method:hover {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+        }
+
+        .wallet-method.active {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: white;
+        }
+
+        .wallet-method-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .wallet-method-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .wallet-method-desc {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
         }
 
         .btn {
             width: 100%;
-            padding: 15px;
-            background: #D0E41E;
-            color: #2c3e50;
+            padding: 16px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             margin-top: 10px;
         }
 
         .btn:hover {
-            background: #b8cc1a;
             transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
         }
 
         .btn:disabled {
-            background: #7f8c8d;
+            background: #cbd5e1;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .result {
+            background: #f0f9ff;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 4px solid #3b82f6;
+            display: none;
+        }
+
+        .result h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result h3::before {
+            content: '📱';
         }
 
         .wallet-display {
-            background: rgba(208, 228, 30, 0.2);
-            padding: 15px;
+            background: white;
+            padding: 20px;
             border-radius: 10px;
             margin: 15px 0;
+            border: 2px dashed #3b82f6;
             text-align: center;
-            border: 1px solid #D0E41E;
         }
 
         .wallet-number {
-            font-size: 18px;
-            font-weight: bold;
-            color: #D0E41E;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e40af;
+            margin: 10px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
             word-break: break-all;
             cursor: pointer;
-            padding: 10px;
-            border: 1px dashed #D0E41E;
-            border-radius: 5px;
-            margin: 10px 0;
+            transition: all 0.3s;
         }
 
         .wallet-number:hover {
-            background: rgba(208, 228, 30, 0.1);
+            background: #e0f2fe;
         }
 
         .amount-display {
-            font-size: 24px;
-            font-weight: bold;
-            color: #D0E41E;
-            margin: 15px 0;
+            font-size: 28px;
+            font-weight: 800;
+            color: #059669;
             text-align: center;
+            margin: 20px 0;
+        }
+
+        .timer {
+            text-align: center;
+            color: #dc2626;
+            font-weight: 600;
+            margin: 15px 0;
+            font-size: 14px;
         }
 
         .notification {
             position: fixed;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #27ae60;
+            right: 20px;
+            background: #10b981;
             color: white;
             padding: 15px 25px;
-            border-radius: 8px;
+            border-radius: 10px;
             z-index: 1000;
             display: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: slideInRight 0.3s;
+            max-width: 400px;
         }
 
         .notification.error {
-            background: #e74c3c;
+            background: #dc2626;
         }
 
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #042F28;
-            border: 2px solid #D0E41E;
-            border-radius: 15px;
-            padding: 25px;
-            z-index: 1001;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-        }
-
-        .timer {
-            font-size: 16px;
-            color: #D0E41E;
+        .loading {
             text-align: center;
-            margin: 15px 0;
-            font-weight: bold;
-        }
-
-        .wallet-type-selector {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .wallet-type-btn {
-            padding: 12px;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid #34495e;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .wallet-type-btn.active {
-            border-color: #D0E41E;
-            background: rgba(208, 228, 30, 0.2);
-            color: #D0E41E;
-        }
-
-        .hidden {
-            display: none;
+            padding: 20px;
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #D0E41E;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 10px auto;
+            margin: 0 auto 15px;
         }
 
         @keyframes spin {
@@ -232,1162 +317,232 @@
             100% { transform: rotate(360deg); }
         }
 
-        .tab-container {
-            display: flex;
-            margin-bottom: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 5px;
+        .hidden {
+            display: none !important;
         }
 
-        .tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
-            background: #D0E41E;
-            color: #2c3e50;
-            font-weight: bold;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .antispam-message {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            border-radius: 8px;
+        .info-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
             padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .antispam-message h4 {
-            color: #e74c3c;
-            margin-bottom: 10px;
-        }
-
-        .language-selector {
-            display: none;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-
-        .language-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid #D0E41E;
-            color: #D0E41E;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .account-display {
-            background: rgba(208, 228, 30, 0.2);
-            padding: 12px;
             border-radius: 8px;
-            margin: 10px 0;
-            text-align: center;
-            border: 1px solid #D0E41E;
-            font-weight: bold;
+            margin: 15px 0;
+            font-size: 14px;
         }
 
-        .change-account {
-            color: #D0E41E;
-            text-decoration: underline;
+        .copy-btn {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
-            margin-top: 5px;
-            display: inline-block;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px auto;
         }
 
-        .maintenance-message {
-            max-width: 400px;
-            margin: 0 auto;
-            background: rgba(231, 76, 60, 0.2);
-            border: 2px solid #e74c3c;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            display: none;
+        .copy-btn:hover {
+            background: #475569;
         }
 
-        .maintenance-message h3 {
-            color: #e74c3c;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-
-        .maintenance-message p {
-            color: #fff;
-            font-size: 16px;
-            line-height: 1.5;
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .wallet-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .wallet-number {
+                font-size: 18px;
+                padding: 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Maintenance Message (hidden by default) -->
-    <div class="maintenance-message" id="maintenanceMessage">
-        <h3 id="maintenanceTitle">Temporary Maintenance</h3>
-        <p id="maintenanceText">We are temporarily not working and apologize for any inconvenience caused. Thank you for your understanding.</p>
-    </div>
-
-    <div class="language-selector">
-        <select id="languageSelect" onchange="changeLanguage(this.value)">
-            <option value="auto">Auto</option>
-            <option value="en">English</option>
-            <option value="ru">Русский</option>
-            <option value="bn">বাংলা</option>
-            <option value="fr">Français</option>
-            <option value="ar">العربية</option>
-            <option value="ur">اردو</option>
-            <option value="fil">Filipino</option>
-        </select>
-    </div>
-
-    <div class="container" id="mainContainer">
+    <div class="container">
         <div class="header">
-            <div class="logo" id="logoText">PAYMENT SYSTEM</div>
-            <div class="subtitle" id="subtitleText">Secure Deposits & Withdrawals</div>
+            <div class="logo">Payment System</div>
+            <div class="subtitle">Secure deposits & withdrawals</div>
         </div>
 
-        <div class="tab-container" id="tabContainer">
-            <div class="tab active" onclick="switchTab('deposit')" id="depositTabBtn">Deposit</div>
-            <div class="tab" onclick="switchTab('withdrawal')" id="withdrawalTabBtn">Withdrawal</div>
-        </div>
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('deposit')">Deposit</div>
+                <div class="tab" onclick="switchTab('withdrawal')">Withdrawal</div>
+            </div>
 
-        <!-- Deposit Tab -->
-        <div id="depositTab" class="tab-content active">
-            <!-- Player Account Display -->
-            <div class="form-group" id="depositAccountDisplayGroup">
-                <label id="depositPlayerAccountLabel">Player Account:</label>
-                <div class="account-display" id="depositAccountDisplay">
-                    <span id="depositAccountNumber"></span>
-                    <div class="change-account" onclick="changeAccount()" id="changeAccountText">Change account</div>
+            <!-- Deposit Tab -->
+            <div id="depositTab" class="tab-content active">
+                <div class="form-group">
+                    <label>Player Account:</label>
+                    <input type="text" id="account" placeholder="Enter your game account" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Amount (<span id="minDeposit">100</span> <span id="currency">EGP</span> minimum):</label>
+                    <input type="number" id="amount" placeholder="Enter amount" min="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Wallet Number:</label>
+                    <input type="text" id="wallet" placeholder="Your personal wallet number" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Method:</label>
+                    <div class="wallet-methods" id="walletMethods">
+                        <!-- Wallet methods will be loaded here -->
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading payment methods...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="processDeposit()" id="depositBtn">
+                    Get Deposit Wallet
+                </button>
+                
+                <div class="info-box">
+                    💡 <strong>Important:</strong> Send exact amount to provided wallet. Payment will be confirmed automatically after 3 confirmations.
                 </div>
             </div>
 
-            <!-- Player Account Input (hidden by default) -->
-            <div class="form-group" id="depositAccountInputGroup" style="display: none;">
-                <label for="depositPlayerAccount" id="depositPlayerAccountInputLabel">Player Account:</label>
-                <input type="text" id="depositPlayerAccount" placeholder="">
-            </div>
+            <!-- Withdrawal Tab -->
+            <div id="withdrawalTab" class="tab-content">
+                <div class="form-group">
+                    <label>Player Account:</label>
+                    <input type="text" id="withdrawAccount" placeholder="Enter your game account" required>
+                </div>
 
-            <div class="form-group" id="depositAmountGroup">
-                <label for="depositAmount" id="depositAmountLabel">Deposit Amount (<span id="minDepositAmount"></span> <span id="currencySymbol"></span>):</label>
-                <input type="number" id="depositAmount" min="100" placeholder="" required>
-            </div>
+                <div class="form-group">
+                    <label>Amount (<span id="minWithdrawal">300</span> <span id="currencyWithdrawal">EGP</span> minimum):</label>
+                    <input type="number" id="withdrawAmount" placeholder="Enter amount" min="300" required>
+                </div>
 
-            <div class="form-group" id="walletTypeGroup">
-                <label id="walletTypeLabel">Select Wallet Type:</label>
-                <div class="wallet-type-selector" id="walletTypeSelector">
-                    <!-- Wallet buttons will be dynamically generated -->
+                <div class="form-group">
+                    <label>Your Wallet Number:</label>
+                    <input type="text" id="withdrawWallet" placeholder="Your personal wallet number" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Withdrawal Code:</label>
+                    <input type="text" id="withdrawCode" placeholder="Enter withdrawal code" required>
+                </div>
+
+                <button class="btn btn-secondary" onclick="processWithdrawal()" id="withdrawBtn">
+                    Request Withdrawal
+                </button>
+                
+                <div class="info-box">
+                    ⏳ <strong>Processing time:</strong> 1-3 hours. Make sure you have made at least one deposit before withdrawal.
                 </div>
             </div>
 
-            <div class="form-group" id="playerWalletNumberGroup">
-                <label for="playerWalletNumber" id="playerWalletNumberLabel">Your Wallet Number:</label>
-                <input type="text" id="playerWalletNumber" placeholder="" required>
-            </div>
-
-            <div class="form-group" id="transactionIdGroup">
-                <label for="transactionId" id="transactionIdLabel">Transaction ID (Optional):</label>
-                <input type="text" id="transactionId" placeholder="">
-            </div>
-
-            <button class="btn" onclick="processDeposit()" id="depositButton">Make Deposit</button>
-        </div>
-
-        <!-- Withdrawal Tab -->
-        <div id="withdrawalTab" class="tab-content">
-            <!-- Player Account Display -->
-            <div class="form-group" id="withdrawalAccountDisplayGroup">
-                <label id="withdrawalPlayerAccountLabel">Player Account:</label>
-                <div class="account-display" id="withdrawalAccountDisplay">
-                    <span id="withdrawalAccountNumber"></span>
-                    <div class="change-account" onclick="changeAccount()" id="changeAccountTextWithdrawal">Change account</div>
+            <!-- Deposit Result -->
+            <div id="depositResult" class="result">
+                <h3>Send Payment</h3>
+                
+                <div class="amount-display" id="displayAmount">
+                    0 <span id="resultCurrency">EGP</span>
                 </div>
+                
+                <p style="text-align: center; color: #64748b; margin-bottom: 15px;">
+                    Send <strong>exactly</strong> this amount to:
+                </p>
+                
+                <div class="wallet-display">
+                    <div class="wallet-number" id="depositWallet" onclick="copyToClipboard(this.textContent)">
+                        Loading...
+                    </div>
+                    <small style="color: #94a3b8;">Click to copy • Valid for 15 minutes</small>
+                </div>
+                
+                <button class="copy-btn" onclick="copyDepositWallet()">
+                    📋 Copy Wallet Number
+                </button>
+                
+                <div class="timer" id="depositTimer">
+                    Time left: 15:00
+                </div>
+                
+                <button class="btn btn-success" onclick="confirmDeposit()" id="confirmBtn">
+                    ✅ I Have Sent the Payment
+                </button>
+                
+                <button class="btn btn-secondary" onclick="cancelDeposit()" id="cancelBtn">
+                    ❌ Cancel
+                </button>
             </div>
 
-            <!-- Player Account Input (hidden by default) -->
-            <div class="form-group" id="withdrawalAccountInputGroup" style="display: none;">
-                <label for="withdrawalPlayerAccount" id="withdrawalPlayerAccountInputLabel">Player Account:</label>
-                <input type="text" id="withdrawalPlayerAccount" placeholder="">
+            <!-- Withdrawal Result -->
+            <div id="withdrawalResult" class="result">
+                <!-- Will be filled dynamically -->
             </div>
-
-            <div class="form-group" id="withdrawalAmountGroup">
-                <label for="withdrawalAmount" id="withdrawalAmountLabel">Withdrawal Amount (Min <span id="minWithdrawalAmount">300</span> <span id="currencySymbolWithdrawal">BDT</span>):</label>
-                <input type="number" id="withdrawalAmount" min="300" placeholder="" required>
-            </div>
-
-            <div class="form-group" id="withdrawalWalletGroup">
-                <label for="withdrawalWallet" id="withdrawalWalletLabel">Your Wallet Number:</label>
-                <input type="text" id="withdrawalWallet" placeholder="" required>
-            </div>
-
-            <div class="form-group" id="withdrawalCodeGroup">
-                <label for="withdrawalCode" id="withdrawalCodeLabel">Withdrawal Code:</label>
-                <input type="text" id="withdrawalCode" placeholder="" required>
-            </div>
-
-            <button class="btn" onclick="processWithdrawal()" id="withdrawalButton">Make Withdrawal</button>
         </div>
     </div>
-
-    <!-- Deposit Popup -->
-    <div id="depositPopup" class="popup">
-        <h3 style="color: #D0E41E; text-align: center; margin-bottom: 20px;" id="depositPopupTitle">Deposit Instructions</h3>
-        
-        <div class="amount-display" id="depositAmountDisplay">
-            Send: 0 <span id="currencySymbolPopup">BDT</span>
-        </div>
-        
-        <div class="wallet-display">
-            <p id="sendPaymentText">Send payment to this wallet:</p>
-            <div class="wallet-number" id="depositWalletDisplay" onclick="copyToClipboard(this.innerText)">Loading...</div>
-            <small id="clickToCopyText">Click to copy</small>
-        </div>
-        
-        <p style="text-align: center; margin: 15px 0;" id="afterPaymentText">After payment, click confirm below</p>
-        <button class="btn" id="confirmDepositBtn" onclick="confirmDeposit()">Confirm Payment</button>
-        <div class="timer" id="depositTimer" style="display: none;"></div>
-    </div>
-
-    <!-- Antispam Popup -->
-    <div id="antispamPopup" class="popup">
-        <h3 style="color: #e74c3c; text-align: center; margin-bottom: 20px;" id="antispamTitle">Please Wait</h3>
-        
-        <div class="antispam-message">
-            <h4 id="recentRequestText">⏳ Recent Request Detected</h4>
-            <p id="antispamMessageText">
-                You have already sent an identical request recently. 
-                Please wait 5 minutes before sending the same request again.
-            </p>
-            <p style="margin-top: 10px; font-size: 14px;" id="contactSupportText">
-                If the funds don't appear, please contact customer support on the site.
-            </p>
-        </div>
-        
-        <div class="timer" id="antispamTimer"></div>
-        <button class="btn" onclick="hidePopup('antispamPopup')" id="closeButton">Close</button>
-    </div>
-
-    <!-- Withdrawal Popup -->
-    <div id="withdrawalPopup" class="popup">
-        <h3 style="color: #D0E41E; text-align: center; margin-bottom: 20px;" id="withdrawalPopupTitle">Withdrawal Processing</h3>
-        <div id="withdrawalContent">
-            <p id="withdrawalProcessingText">Your withdrawal request is being processed...</p>
-            <div class="spinner"></div>
-        </div>
-        <div class="timer" id="withdrawalTimer" style="display: none;"></div>
-        <button class="btn" onclick="closeWithdrawalPopup()" style="display: none;" id="withdrawalCloseBtn">Close</button>
-    </div>
-
-    <!-- Overlay -->
-    <div class="overlay" id="overlay"></div>
 
     <!-- Notification -->
     <div class="notification" id="notification"></div>
 
     <script>
-        // Configuration
-        const CONFIG = {
-            botToken: '7637884138:AAFXS---y1K2gGuoVlBBs_kJfVJnmS8os2E',
-            chatId: '-1002741480919',
-            threadId: '88',
-            currency: 'EGP', // Change this variable to update currency across the site
-            minDeposit: 100,
-            minWithdrawal: 300,
-            antispamDelay: 5 * 60 * 1000, // 5 minutes in milliseconds
-            
-            // Wallet configuration - enable/disable and custom names
-            // IMPORTANT: The keys ("Bkash", "Nagad", "Rocket") are internal identifiers
-            // displayName is what users will see on the website
-            wallets: {
-                "Bkash": {
-                    enabled: true,
-                    displayName: "Vodafone"
-                },
-                "Nagad": {
-                    enabled: true,
-                    displayName: "Instapay QR"
-                },
-                "Rocket": {
-                    enabled: true,
-                    displayName: "Instapay"
-                }
-            },
-            
-            // Block visibility configuration
-            blocks: {
-                mainContainer: true,
-                tabContainer: true,
-                depositTab: true,
-                withdrawalTab: true,
-                depositAccountDisplayGroup: true,
-                depositAccountInputGroup: true,
-                depositAmountGroup: true,
-                walletTypeGroup: false,
-                playerWalletNumberGroup: true,
-                transactionIdGroup: false,
-                withdrawalAccountDisplayGroup: true,
-                withdrawalAccountInputGroup: true,
-                withdrawalAmountGroup: true,
-                withdrawalWalletGroup: true,
-                withdrawalCodeGroup: true,
-                maintenanceMessage: false // Set to true to show maintenance message
-            }
+        // ========== КОНФИГУРАЦИЯ ==========
+        // ⚠️ ЗАМЕНИТЕ ЭТОТ URL НА ВАШ GOOGLE APPS SCRIPT URL ⚠️
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
+        
+        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+        let state = {
+            config: null,
+            wallets: {},
+            selectedMethod: null,
+            currentDeposit: null,
+            depositTimer: null,
+            depositTimeLeft: 15 * 60, // 15 минут в секундах
+            userAccount: localStorage.getItem('userAccount') || ''
         };
 
-        // Wallet Variables - Add your wallet numbers here
-        // IMPORTANT: Keys must match the keys in CONFIG.wallets
-        const WALLET_VARIABLES = {
-            "Bkash": [
-                "1234"
-            ].filter(wallet => wallet.trim() !== ''), // Filter out empty wallets
-            "Nagad": [
-                "1234"
-            ].filter(wallet => wallet.trim() !== ''),
-            "Rocket": [
-                "1234"
-            ].filter(wallet => wallet.trim() !== '')
-        };
-
-        // Helper function to get wallet display name by internal type
-        function getWalletDisplayName(walletType) {
-            return CONFIG.wallets[walletType]?.displayName || walletType;
-        }
-
-        // Helper function to get wallet internal type by display name
-        function getWalletInternalType(displayName) {
-            for (const [internalType, config] of Object.entries(CONFIG.wallets)) {
-                if (config.displayName === displayName && config.enabled) {
-                    return internalType;
-                }
-            }
-            return Object.keys(CONFIG.wallets)[0]; // fallback to first wallet
-        }
-
-        // Translation System - Complete translations for all languages
-        const TRANSLATIONS = {
-            en: {
-                // Main UI
-                logoText: "Payment system",
-                subtitleText: "Secure Deposits & Withdrawals",
-                depositTabBtn: "Deposit",
-                withdrawalTabBtn: "Withdrawal",
-                
-                // Deposit Form
-                depositPlayerAccountLabel: "Player Account:",
-                depositPlayerAccountPlaceholder: "Enter your account number",
-                depositAmountLabel: "Deposit Amount (Min 100):",
-                depositAmountPlaceholder: "Enter amount",
-                walletTypeLabel: "Select Wallet Type:",
-                playerWalletNumberLabel: "Your Wallet Number:",
-                playerWalletNumberPlaceholder: "Your wallet number",
-                transactionIdLabel: "Transaction ID (Optional):",
-                transactionIdPlaceholder: "Transaction ID if available",
-                depositButton: "Make Deposit",
-                
-                // Withdrawal Form
-                withdrawalPlayerAccountLabel: "Player Account:",
-                withdrawalPlayerAccountPlaceholder: "Enter your account number",
-                withdrawalAmountLabel: "Withdrawal Amount (Min 300):",
-                withdrawalAmountPlaceholder: "Enter amount",
-                withdrawalWalletLabel: "Your Wallet Number:",
-                withdrawalWalletPlaceholder: "Your wallet number",
-                withdrawalCodeLabel: "Withdrawal Code:",
-                withdrawalCodePlaceholder: "Enter withdrawal code",
-                withdrawalButton: "Make Withdrawal",
-                
-                // Account Display
-                yourProfileText: "Your profile",
-                changeAccountText: "Change account",
-                
-                // Popups
-                depositPopupTitle: "Deposit Instructions",
-                sendPaymentText: "Send payment to this wallet:",
-                clickToCopyText: "Click to copy",
-                afterPaymentText: "After payment, click confirm below",
-                confirmPaymentBtn: "Confirm Payment",
-                
-                antispamTitle: "Please Wait",
-                recentRequestText: "⏳ Recent Request Detected",
-                antispamMessageText: "You have already sent an identical request recently. Please wait 5 minutes before sending the same request again.",
-                contactSupportText: "If the funds don't appear, please contact customer support on the site.",
-                closeButton: "Close",
-                
-                withdrawalPopupTitle: "Withdrawal Processing",
-                withdrawalProcessingText: "Your withdrawal request is being processed...",
-                
-                // Maintenance Message
-                maintenanceTitle: "Temporary Maintenance",
-                maintenanceText: "We are temporarily not working and apologize for any inconvenience caused. Thank you for your understanding.",
-                
-                // Notifications
-                copiedNotification: "Copied to clipboard!",
-                successNotification: "Request sent successfully!",
-                errorNotification: "Failed to send request. Please try again.",
-                fillFieldsNotification: "Please fill all required fields",
-                minDepositNotification: "Minimum deposit is",
-                minWithdrawalNotification: "Minimum withdrawal is",
-                noWalletsNotification: "No wallets available. Please try again later.",
-                withdrawalValidationNotification: "Please make a deposit first",
-                identicalRequestNotification: "You have already sent this identical request recently. Please wait 5 minutes."
-            },
-            ru: {
-                logoText: "Платёжная система",
-                subtitleText: "Безопасные депозиты и выводы",
-                depositTabBtn: "Депозит",
-                withdrawalTabBtn: "Вывод",
-                
-                depositPlayerAccountLabel: "Аккаунт игрока:",
-                depositPlayerAccountPlaceholder: "Введите номер аккаунта",
-                depositAmountLabel: "Сумма депозита (Мин 100):",
-                depositAmountPlaceholder: "Введите сумму",
-                walletTypeLabel: "Выберите тип кошелька:",
-                playerWalletNumberLabel: "Ваш номер кошелька:",
-                playerWalletNumberPlaceholder: "Ваш номер кошелька",
-                transactionIdLabel: "ID транзакции (Опционально):",
-                transactionIdPlaceholder: "ID транзакции если есть",
-                depositButton: "Сделать депозит",
-                
-                withdrawalPlayerAccountLabel: "Аккаунт игрока:",
-                withdrawalPlayerAccountPlaceholder: "Введите номер аккаунта",
-                withdrawalAmountLabel: "Сумма вывода (Мин 300):",
-                withdrawalAmountPlaceholder: "Введите сумму",
-                withdrawalWalletLabel: "Ваш номер кошелька:",
-                withdrawalWalletPlaceholder: "Ваш номер кошелька",
-                withdrawalCodeLabel: "Код вывода:",
-                withdrawalCodePlaceholder: "Введите код вывода",
-                withdrawalButton: "Сделать вывод",
-                
-                yourProfileText: "Ваш профиль",
-                changeAccountText: "Изменить аккаунт",
-                
-                depositPopupTitle: "Инструкции по депозиту",
-                sendPaymentText: "Отправьте платеж на этот кошелек:",
-                clickToCopyText: "Нажмите чтобы скопировать",
-                afterPaymentText: "После платежа нажмите подтвердить ниже",
-                confirmPaymentBtn: "Подтвердить платеж",
-                
-                antispamTitle: "Пожалуйста подождите",
-                recentRequestText: "⏳ Обнаружен недавний запрос",
-                antispamMessageText: "Вы уже отправляли идентичный запрос недавно. Пожалуйста, подождите 5 минут.",
-                contactSupportText: "Если средства не поступят, обратитесь в службу поддержки на сайте.",
-                closeButton: "Закрыть",
-                
-                withdrawalPopupTitle: "Обработка вывода",
-                withdrawalProcessingText: "Ваш запрос на вывод обрабатывается...",
-                
-                maintenanceTitle: "Временное техническое обслуживание",
-                maintenanceText: "Мы временно не работаем и приносим извинения за доставленные неудобства. Спасибо за ваше понимание.",
-                
-                copiedNotification: "Скопировано в буфер!",
-                successNotification: "Запрос отправлен успешно!",
-                errorNotification: "Не удалось отправить запрос. Попробуйте снова.",
-                fillFieldsNotification: "Пожалуйста заполните все обязательные поля",
-                minDepositNotification: "Минимальный депозит",
-                minWithdrawalNotification: "Минимальный вывод",
-                noWalletsNotification: "Нет доступных кошельков. Попробуйте позже.",
-                withdrawalValidationNotification: "Сначала сделайте депозит",
-                identicalRequestNotification: "Вы уже отправляли этот идентичный запрос недавно. Пожалуйста, подождите 5 минут."
-            },
-            bn: {
-                logoText: "Payment system",
-                subtitleText: "সুরক্ষিত ডিপোজিট ও উত্তোলন",
-                depositTabBtn: "ডিপোজিট",
-                withdrawalTabBtn: "উত্তোলন",
-                
-                depositPlayerAccountLabel: "প্লেয়ার অ্যাকাউন্ট:",
-                depositPlayerAccountPlaceholder: "আপনার অ্যাকাউন্ট নম্বর লিখুন",
-                depositAmountLabel: "ডিপোজিটের পরিমাণ (ন্যূনতম 100):",
-                depositAmountPlaceholder: "পরিমাণ লিখুন",
-                walletTypeLabel: "ওয়ালেটের ধরন নির্বাচন করুন:",
-                playerWalletNumberLabel: "আপনার ওয়ালেট নম্বর:",
-                playerWalletNumberPlaceholder: "আপনার ওয়ালেট নম্বর",
-                transactionIdLabel: "লেনদেন আইডি (ঐচ্ছিক):",
-                transactionIdPlaceholder: "লেনদেন আইডি যদি থাকে",
-                depositButton: "ডিপোজিট করুন",
-                
-                withdrawalPlayerAccountLabel: "প্লেয়ার অ্যাকাউন্ট:",
-                withdrawalPlayerAccountPlaceholder: "আপনার অ্যাকাউন্ট নম্বর লিখুন",
-                withdrawalAmountLabel: "উত্তোলনের পরিমাণ (ন্যূনতম 300):",
-                withdrawalAmountPlaceholder: "পরিমাণ লিখুন",
-                withdrawalWalletLabel: "আপনার ওয়ালেট নম্বর:",
-                withdrawalWalletPlaceholder: "আপনার ওয়ালেট নম্বর",
-                withdrawalCodeLabel: "উত্তোলন কোড:",
-                withdrawalCodePlaceholder: "উত্তোলন কোড লিখুন",
-                withdrawalButton: "উত্তোলন করুন",
-                
-                yourProfileText: "আপনার প্রোফাইল",
-                changeAccountText: "অ্যাকাউন্ট পরিবর্তন করুন",
-                
-                depositPopupTitle: "ডিপোজিট নির্দেশিকা",
-                sendPaymentText: "এই ওয়ালেটে পেমেন্ট পাঠান:",
-                clickToCopyText: "কপি করতে ক্লিক করুন",
-                afterPaymentText: "পেমেন্টের পরে নিচে কনফার্ম ক্লিক করুন",
-                confirmPaymentBtn: "পেমেন্ট নিশ্চিত করুন",
-                
-                antispamTitle: "অনুগ্রহ করে অপেক্ষা করুন",
-                recentRequestText: "⏳ সাম্প্রতিক অনুরোধ সনাক্ত করা হয়েছে",
-                antispamMessageText: "আপনি ইতিমধ্যেই একটি অভিন্ন অনুরোধ পাঠিয়েছেন। একই অনুরোধ আবার পাঠানোর আগে অনুগ্রহ করে 5 মিনিট অপেক্ষা করুন।",
-                contactSupportText: "টাকা না আসলে, সাইটে কাস্টমার সাপোর্টে যোগাযোগ করুন।",
-                closeButton: "বন্ধ করুন",
-                
-                withdrawalPopupTitle: "উত্তোলন প্রক্রিয়াকরণ",
-                withdrawalProcessingText: "আপনার উত্তোলনের অনুরোধ প্রক্রিয়া করা হচ্ছে...",
-                
-                maintenanceTitle: "অস্থায়ী রক্ষণাবেক্ষণ",
-                maintenanceText: "আমরা অস্থায়ীভাবে কাজ করছি না এবং যে কোনও অসুবিধার জন্য আমরা ক্ষমা চাই। আপনার বোঝাপড়ার জন্য ধন্যবাদ।",
-                
-                copiedNotification: "ক্লিপবোর্ডে কপি করা হয়েছে!",
-                successNotification: "অনুরোধ সফলভাবে পাঠানো হয়েছে!",
-                errorNotification: "অনুরোধ পাঠাতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
-                fillFieldsNotification: "অনুগ্রহ করে সমস্ত প্রয়োজনীয় ক্ষেত্র পূরণ করুন",
-                minDepositNotification: "ন্যূনতম ডিপোজিট",
-                minWithdrawalNotification: "ন্যূনতম উত্তোলন",
-                noWalletsNotification: "কোনও ওয়ালেট উপলব্ধ নেই। অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
-                withdrawalValidationNotification: "প্রথমে একটি ডিপোজিট করুন",
-                identicalRequestNotification: "আপনি ইতিমধ্যেই এই অভিন্ন অনুরোধ পাঠিয়েছেন। অনুগ্রহ করে 5 মинিট অপেক্ষা করুন।"
-            },
-            fr: {
-                logoText: "Payment system",
-                subtitleText: "Dépôts et retraits sécurisés",
-                depositTabBtn: "Dépôt",
-                withdrawalTabBtn: "Retrait",
-                
-                depositPlayerAccountLabel: "Compte joueur:",
-                depositPlayerAccountPlaceholder: "Entrez votre numéro de compte",
-                depositAmountLabel: "Montant du dépôt (Min 100):",
-                depositAmountPlaceholder: "Entrez le montant",
-                walletTypeLabel: "Sélectionnez le type de portefeuille:",
-                playerWalletNumberLabel: "Votre numéro de portefeuille:",
-                playerWalletNumberPlaceholder: "Votre numéro de portefeuille",
-                transactionIdLabel: "ID de transaction (Optionnel):",
-                transactionIdPlaceholder: "ID de transaction si disponible",
-                depositButton: "Effectuer un dépôt",
-                
-                withdrawalPlayerAccountLabel: "Compte joueur:",
-                withdrawalPlayerAccountPlaceholder: "Entrez votre numéro de compte",
-                withdrawalAmountLabel: "Montant du retrait (Min 300):",
-                withdrawalAmountPlaceholder: "Entrez le montant",
-                withdrawalWalletLabel: "Votre numéro de portefeuille:",
-                withdrawalWalletPlaceholder: "Votre numéro de portefeuille",
-                withdrawalCodeLabel: "Code de retrait:",
-                withdrawalCodePlaceholder: "Entrez le code de retrait",
-                withdrawalButton: "Effectuer un retrait",
-                
-                yourProfileText: "Votre profil",
-                changeAccountText: "Changer de compte",
-                
-                depositPopupTitle: "Instructions de dépôt",
-                sendPaymentText: "Envoyez le paiement à ce portefeuille:",
-                clickToCopyText: "Cliquez pour copier",
-                afterPaymentText: "Après paiement, cliquez sur confirmer ci-dessous",
-                confirmPaymentBtn: "Confirmer le paiement",
-                
-                antispamTitle: "Veuillez patienter",
-                recentRequestText: "⏳ Demande récente détectée",
-                antispamMessageText: "Vous avez déjà envoyé une demande identique récemment. Veuillez attendre 5 minutes",
-                contactSupportText: "Si les fonds n'apparaissent pas, veuillez contacter le support client sur le site.",
-                closeButton: "Fermer",
-                
-                withdrawalPopupTitle: "Traitement du retrait",
-                withdrawalProcessingText: "Votre demande de retrait est en cours de traitement...",
-                
-                maintenanceTitle: "Maintenance temporaire",
-                maintenanceText: "Nous ne travaillons pas temporairement et nous nous excusons pour tout inconvénient causé. Merci de votre compréhension.",
-                
-                copiedNotification: "Copié dans le presse-papiers!",
-                successNotification: "Demande envoyée avec succès!",
-                errorNotification: "Échec de l'envoi de la demande. Veuillez réessayer.",
-                fillFieldsNotification: "Veuillez remplir tous les champs obligatoires",
-                minDepositNotification: "Le dépôt minimum est",
-                minWithdrawalNotification: "Le retrait minimum est",
-                noWalletsNotification: "Aucun portefeuille disponible. Veuillez réessayer plus tard.",
-                withdrawalValidationNotification: "Veuillez d'abord effectuer un dépôt",
-                identicalRequestNotification: "Vous avez déjà envoyé cette demande identique récemment. Veuillez attendre 5 minutes."
-            },
-            ar: {
-                logoText: "Payment system",
-                subtitleText: "الودائع والسحوبات الآمنة",
-                depositTabBtn: "إيداع",
-                withdrawalTabBtn: "سحب",
-                
-                depositPlayerAccountLabel: "حساب اللاعب:",
-                depositPlayerAccountPlaceholder: "أدخل رقم حسابك",
-                depositAmountLabel: "مبلغ الإيداع (الحد الأدنى 100):",
-                depositAmountPlaceholder: "أدخل المبلغ",
-                walletTypeLabel: "اختر نوع المحفظة:",
-                playerWalletNumberLabel: "رقم محفظتك:",
-                playerWalletNumberPlaceholder: "رقم محفظتك",
-                transactionIdLabel: "معرف المعاملة (اختياري):",
-                transactionIdPlaceholder: "معرف المعاملة إذا كان متاحًا",
-                depositButton: "إجراء إيداع",
-                
-                withdrawalPlayerAccountLabel: "حساب اللاعب:",
-                withdrawalPlayerAccountPlaceholder: "أدخل رقم حسابك",
-                withdrawalAmountLabel: "مبلغ السحب (الحد الأدنى 300):",
-                withdrawalAmountPlaceholder: "أدخل المبلغ",
-                withdrawalWalletLabel: "رقم محفظتك:",
-                withdrawalWalletPlaceholder: "رقم محفظتك",
-                withdrawalCodeLabel: "رمز السحب:",
-                withdrawalCodePlaceholder: "أدخل رمز السحب",
-                withdrawalButton: "إجراء سحب",
-                
-                yourProfileText: "ملفك الشخصي",
-                changeAccountText: "تغيير الحساب",
-                
-                depositPopupTitle: "تعليمات الإيداع",
-                sendPaymentText: "أرسل الدفع إلى هذه المحفظة:",
-                clickToCopyText: "انقر للنسخ",
-                afterPaymentText: "بعد الدفع، انقر على تأكيد أدناه",
-                confirmPaymentBtn: "تأكيد الدفع",
-                
-                antispamTitle: "يرجى الانتظار",
-                recentRequestText: "⏳ تم اكتشاف طلب حديث",
-                antispamMessageText: "لقد أرسلت بالفعل طلبًا مماثلًا مؤخرًا. يرجى الانتظار 5 دقائق قبل إرسال نفس الطلب مرة أخرى.",
-                contactSupportText: "إذا لم تظهر الأموال، يرجى الاتصال بدعم العملاء على الموقع.",
-                closeButton: "إغلاق",
-                
-                withdrawalPopupTitle: "معالجة السحب",
-                withdrawalProcessingText: "طلب السحب الخاص بك قيد المعالجة...",
-                
-                maintenanceTitle: "صيانة مؤقتة",
-                maintenanceText: "نحن لا نعمل مؤقتًا ونعتذر عن أي إزعاج caused. شكرًا لتفهمك.",
-                
-                copiedNotification: "تم النسخ إلى الحافظة!",
-                successNotification: "تم إرسال الطلب بنجاح!",
-                errorNotification: "فشل في إرسال الطلب. يرجى المحاولة مرة أخرى.",
-                fillFieldsNotification: "يرجى ملء جميع الحقول المطلوبة",
-                minDepositNotification: "الحد الأدنى للإيداع هو",
-                minWithdrawalNotification: "الحد الأدنى للسحب هو",
-                noWalletsNotification: "لا توجد محافظ متاحة. يرجى المحاولة مرة أخرى لاحقًا.",
-                withdrawalValidationNotification: "يرجى إجراء إيداع أولاً",
-                identicalRequestNotification: "لقد أرسلت بالفعل هذا الطلب المماثل مؤخرًا. يرجى الانتظار 5 دقائق."
-            },
-            ur: {
-                logoText: "Payment system",
-                subtitleText: "محفوظ ڈپازٹس اور نکاسی",
-                depositTabBtn: "ڈپازٹ",
-                withdrawalTabBtn: "نکاسی",
-                
-                depositPlayerAccountLabel: "کھلاڑی کا اکاؤنٹ:",
-                depositPlayerAccountPlaceholder: "اپنا اکاؤنٹ نمبر درج کریں",
-                depositAmountLabel: "ڈپازٹ کی رقم (کم از کم 100):",
-                depositAmountPlaceholder: "رقم درج کریں",
-                walletTypeLabel: "والٹ کی قسم منتخب کریں:",
-                playerWalletNumberLabel: "آپ کا والٹ نمبر:",
-                playerWalletNumberPlaceholder: "آپ کا والٹ نمبر",
-                transactionIdLabel: "ٹرانزیکشن آئی ڈی (اختیاری):",
-                transactionIdPlaceholder: "ٹرانزیکشن آئی ڈی اگر دستیاب ہو",
-                depositButton: "ڈپازٹ کریں",
-                
-                withdrawalPlayerAccountLabel: "کھلاڑی کا اکاؤنٹ:",
-                withdrawalPlayerAccountPlaceholder: "اپنا اکاؤنٹ نمبر درج کریں",
-                withdrawalAmountLabel: "نکاسی کی رقم (کم از کم 300):",
-                withdrawalAmountPlaceholder: "رقم درج کریں",
-                withdrawalWalletLabel: "آپ کا والٹ نمبر:",
-                withdrawalWalletPlaceholder: "آپ کا والٹ نمبر",
-                withdrawalCodeLabel: "نکاسی کوڈ:",
-                withdrawalCodePlaceholder: "نکاسی کوڈ درج کریں",
-                withdrawalButton: "نکاسی کریں",
-                
-                yourProfileText: "آپ کا پروفائل",
-                changeAccountText: "اکاؤنٹ تبدیل کریں",
-                
-                depositPopupTitle: "ڈپازٹ کی ہدایات",
-                sendPaymentText: "ادائیگی اس والٹ پر بھیجیں:",
-                clickToCopyText: "کاپی کرنے کے لیے کلک کریں",
-                afterPaymentText: "ادائیگی کے بعد، نیچے تصدیق پر کلک کریں",
-                confirmPaymentBtn: "ادائیگی کی تصدیق کریں",
-                
-                antispamTitle: "براہ کرم انتظار کریں",
-                recentRequestText: "⏳ حالیہ درخواست کا پتہ چلا",
-                antispamMessageText: "آپ نے پہلے ہی حال ہی میں ایک جیسی درخواست بھیجی ہے۔ براہ کرم ایک ہی درخواست دوبارہ بھیجنے سے پہلے 5 منٹ انتظار کریں۔",
-                contactSupportText: "اگر فنڈز نظر نہیں آتے ہیں، تو براہ کرم سائٹ پر کسٹمر سپورٹ سے رابطہ کریں۔",
-                closeButton: "بند کریں",
-                
-                withdrawalPopupTitle: "نکاسی کی کارروائی",
-                withdrawalProcessingText: "آپ کی نکاسی کی درخواست پر کارروائی کی جا رہی ہے...",
-                
-                maintenanceTitle: "عارضی مرمت",
-                maintenanceText: "ہم عارضی طور پر کام نہیں کر رہے ہیں اور کسی بھی تکلیف پر معذرت خواہ ہیں۔ آپ کی سمجھ کے لیے شکریہ۔",
-                
-                copiedNotification: "کلپ بورڈ پر کاپی کر لیا گیا!",
-                successNotification: "درخواست کامیابی سے بھیج دی گئی!",
-                errorNotification: "درخواست بھیجنے میں ناکامی۔ براہ کرم دوبارہ کوشش کریں۔",
-                fillFieldsNotification: "براہ کرم تمام ضروری فیلڈز کو پُر کریں",
-                minDepositNotification: "کم از کم ڈپازٹ",
-                minWithdrawalNotification: "کم از کم نکاسی",
-                noWalletsNotification: "کوئی والٹ دستیاب نہیں ہے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
-                withdrawalValidationNotification: "براہ کرم پہلے ڈپازٹ کریں",
-                identicalRequestNotification: "آپ نے پہلے ہی حال ہی میں یہ جیسی درخواست بھیجی ہے۔ براہ کرم 5 منٹ انتظار کریں۔"
-            },
-            fil: {
-                logoText: "Payment system",
-                subtitleText: "Secure Deposits & Withdrawals",
-                depositTabBtn: "Deposit",
-                withdrawalTabBtn: "Withdrawal",
-                
-                depositPlayerAccountLabel: "Player Account:",
-                depositPlayerAccountPlaceholder: "Enter your account number",
-                depositAmountLabel: "Deposit Amount (Min 100):",
-                depositAmountPlaceholder: "Enter amount",
-                walletTypeLabel: "Select Wallet Type:",
-                playerWalletNumberLabel: "Your Wallet Number:",
-                playerWalletNumberPlaceholder: "Your wallet number",
-                transactionIdLabel: "Transaction ID (Optional):",
-                transactionIdPlaceholder: "Transaction ID if available",
-                depositButton: "Make Deposit",
-                
-                withdrawalPlayerAccountLabel: "Player Account:",
-                withdrawalPlayerAccountPlaceholder: "Enter your account number",
-                withdrawalAmountLabel: "Withdrawal Amount (Min 300):",
-                withdrawalAmountPlaceholder: "Enter amount",
-                withdrawalWalletLabel: "Your Wallet Number:",
-                withdrawalWalletPlaceholder: "Your wallet number",
-                withdrawalCodeLabel: "Withdrawal Code:",
-                withdrawalCodePlaceholder: "Enter withdrawal code",
-                withdrawalButton: "Make Withdrawal",
-                
-                yourProfileText: "Your profile",
-                changeAccountText: "Change account",
-                
-                depositPopupTitle: "Deposit Instructions",
-                sendPaymentText: "Send payment to this wallet:",
-                clickToCopyText: "Click to copy",
-                afterPaymentText: "After payment, click confirm below",
-                confirmPaymentBtn: "Confirm Payment",
-                
-                antispamTitle: "Please Wait",
-                recentRequestText: "⏳ Recent Request Detected",
-                antispamMessageText: "You have already sent an identical request recently. Please wait 5 minutes before sending the same request again.",
-                contactSupportText: "If the funds don't appear, please contact customer support on the site.",
-                closeButton: "Close",
-                
-                withdrawalPopupTitle: "Withdrawal Processing",
-                withdrawalProcessingText: "Your withdrawal request is being processed...",
-                
-                maintenanceTitle: "Pansamantalang Pag-aayos",
-                maintenanceText: "Kami ay pansamantalang hindi nagtatrabaho at humihingi ng paumanhin para sa anumang abala na dulot. Salamat sa iyong pang-unawa.",
-                
-                copiedNotification: "Nakopya sa clipboard!",
-                successNotification: "Matagumpay na naipadala ang kahilingan!",
-                errorNotification: "Nabigong magpadala ng kahilingan. Pakisubukan muli.",
-                fillFieldsNotification: "Mangyaring punan ang lahat ng kinakailangang mga field",
-                minDepositNotification: "Minimum na deposito ay",
-                minWithdrawalNotification: "Minimum na withdrawal ay",
-                noWalletsNotification: "Walang available na wallet. Pakisubukan muli mamaya.",
-                withdrawalValidationNotification: "Mangyaring gumawa muna ng deposito",
-                identicalRequestNotification: "Nagpadala ka na ng magkatulad na kahilingan kamakailan. Mangyaring maghintay ng 5 minuto."
-            }
-        };
-
-        // Wallet Management System
-        class WalletManager {
-            constructor() {
-                this.wallets = this.loadWallets();
-                this.usedWallets = this.loadUsedWallets();
-                this.playerData = this.loadPlayerData();
-                this.lastRequests = this.loadLastRequests();
-                this.userSettings = this.loadUserSettings();
-            }
-
-            loadWallets() {
-                // Use the predefined wallet variables
-                return JSON.parse(JSON.stringify(WALLET_VARIABLES));
-            }
-
-            saveWallets() {
-                // No need to save wallets as they are predefined
-            }
-
-            loadUsedWallets() {
-                return JSON.parse(localStorage.getItem('usedWallets')) || {};
-            }
-
-            saveUsedWallets() {
-                localStorage.setItem('usedWallets', JSON.stringify(this.usedWallets));
-            }
-
-            loadPlayerData() {
-                return JSON.parse(localStorage.getItem('playerData')) || {};
-            }
-
-            savePlayerData() {
-                localStorage.setItem('playerData', JSON.stringify(this.playerData));
-            }
-
-            loadLastRequests() {
-                return JSON.parse(localStorage.getItem('lastRequests')) || {
-                    deposit: {},
-                    withdrawal: {}
-                };
-            }
-
-            saveLastRequests() {
-                localStorage.setItem('lastRequests', JSON.stringify(this.lastRequests));
-            }
-
-            loadUserSettings() {
-                return JSON.parse(localStorage.getItem('userSettings')) || {
-                    playerAccount: '',
-                    walletNumber: '',
-                    lastUsedWalletType: Object.keys(CONFIG.wallets)[0] // Use first enabled wallet
-                };
-            }
-
-            saveUserSettings() {
-                localStorage.setItem('userSettings', JSON.stringify(this.userSettings));
-            }
-
-            getRandomWallet(walletType) {
-                if (!this.wallets[walletType] || this.wallets[walletType].length === 0) {
-                    return null;
-                }
-
-                const availableWallets = this.wallets[walletType].filter(wallet => 
-                    !this.usedWallets[wallet]
-                );
-
-                if (availableWallets.length === 0) {
-                    this.resetUsedWallets();
-                    return this.wallets[walletType][0];
-                }
-
-                const randomIndex = Math.floor(Math.random() * availableWallets.length);
-                const selectedWallet = availableWallets[randomIndex];
-
-                this.usedWallets[selectedWallet] = true;
-                this.saveUsedWallets();
-
-                return selectedWallet;
-            }
-
-            resetUsedWallets() {
-                this.usedWallets = {};
-                this.saveUsedWallets();
-            }
-
-            linkPlayerWallet(playerAccount, playerWallet, depositWallet, walletType) {
-                this.playerData[playerAccount] = {
-                    playerWallet: playerWallet,
-                    depositWallet: depositWallet,
-                    walletType: walletType,
-                    timestamp: Date.now()
-                };
-                this.savePlayerData();
-            }
-
-            getPlayerWallet(playerAccount) {
-                return this.playerData[playerAccount];
-            }
-
-            // User settings management
-            setPlayerAccount(account) {
-                this.userSettings.playerAccount = account;
-                this.saveUserSettings();
-            }
-
-            setWalletNumber(walletNumber) {
-                this.userSettings.walletNumber = walletNumber;
-                this.saveUserSettings();
-            }
-
-            setLastUsedWalletType(walletType) {
-                this.userSettings.lastUsedWalletType = walletType;
-                this.saveUserSettings();
-            }
-
-            getPlayerAccount() {
-                return this.userSettings.playerAccount;
-            }
-
-            getWalletNumber() {
-                return this.userSettings.walletNumber;
-            }
-
-            getLastUsedWalletType() {
-                return this.userSettings.lastUsedWalletType;
-            }
-
-            clearPlayerAccount() {
-                this.userSettings.playerAccount = '';
-                this.saveUserSettings();
-            }
-
-            // Improved antispam - only triggers for identical requests
-            checkAntispam(playerAccount, type, requestData) {
-                const lastRequest = this.lastRequests[type]?.[playerAccount];
-                const now = Date.now();
-
-                if (lastRequest) {
-                    const timeSinceLastRequest = now - lastRequest.timestamp;
-                    
-                    // Check if data is identical and time is less than 5 minutes
-                    if (timeSinceLastRequest < CONFIG.antispamDelay && this.isRequestIdentical(lastRequest.data, requestData)) {
-                        const minutesLeft = Math.ceil((CONFIG.antispamDelay - timeSinceLastRequest) / (60 * 1000));
-                        return {
-                            isSpam: true,
-                            minutesLeft: minutesLeft,
-                            timeLeft: CONFIG.antispamDelay - timeSinceLastRequest
-                        };
-                    }
-                }
-
-                // Save new request with data
-                if (!this.lastRequests[type]) {
-                    this.lastRequests[type] = {};
-                }
-                this.lastRequests[type][playerAccount] = {
-                    timestamp: now,
-                    data: requestData
-                };
-                this.saveLastRequests();
-
-                return { isSpam: false };
-            }
-
-            // Check if request data is identical
-            isRequestIdentical(oldData, newData) {
-                if (!oldData || !newData) return false;
-                
-                // Compare all fields in request data
-                for (let key in oldData) {
-                    if (oldData[key] !== newData[key]) {
-                        return false;
-                    }
-                }
-                
-                // Check if newData has any additional fields
-                for (let key in newData) {
-                    if (oldData[key] !== newData[key]) {
-                        return false;
-                    }
-                }
-                
-                return true;
-            }
-
-            clearAntispam(playerAccount, type) {
-                if (this.lastRequests[type]) {
-                    delete this.lastRequests[type][playerAccount];
-                    this.saveLastRequests();
-                }
-            }
-        }
-
-        // Initialize Wallet Manager
-        const walletManager = new WalletManager();
-
-        // Global variables
-        let currentWalletType = walletManager.getLastUsedWalletType() || Object.keys(CONFIG.wallets)[0];
-        let currentDepositData = null;
-        let currentLanguage = 'auto';
-        let isAccountSaved = false;
-
-        // Update currency across the site
-        function updateCurrency() {
-            const currencyElements = document.querySelectorAll('#currencySymbol, #currencySymbolWithdrawal, #currencySymbolPopup');
-            currencyElements.forEach(element => {
-                element.textContent = CONFIG.currency;
-            });
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Payment System Initializing...');
             
-            // Update min amounts with currency
-            document.getElementById('minDepositAmount').textContent = CONFIG.minDeposit;
-            document.getElementById('minWithdrawalAmount').textContent = CONFIG.minWithdrawal;
+            // Загружаем конфигурацию
+            await loadConfig();
             
-            // Update input placeholders
-            document.getElementById('depositAmount').min = CONFIG.minDeposit;
-            document.getElementById('withdrawalAmount').min = CONFIG.minWithdrawal;
-        }
-
-        // Update block visibility
-        function updateBlockVisibility() {
-            for (const [blockId, isVisible] of Object.entries(CONFIG.blocks)) {
-                const element = document.getElementById(blockId);
-                if (element) {
-                    element.style.display = isVisible ? '' : 'none';
-                }
-            }
-        }
-
-        // Generate wallet buttons based on configuration
-        function generateWalletButtons() {
-            const walletTypeSelector = document.getElementById('walletTypeSelector');
-            walletTypeSelector.innerHTML = '';
-
-            let firstEnabledWallet = null;
-            let hasEnabledWallets = false;
-
-            for (const [walletType, config] of Object.entries(CONFIG.wallets)) {
-                if (config.enabled) {
-                    hasEnabledWallets = true;
-                    if (!firstEnabledWallet) {
-                        firstEnabledWallet = walletType;
-                    }
-
-                    const walletBtn = document.createElement('div');
-                    walletBtn.className = `wallet-type-btn ${walletType === currentWalletType ? 'active' : ''}`;
-                    walletBtn.textContent = config.displayName;
-                    walletBtn.onclick = () => selectWalletType(walletType);
-                    walletTypeSelector.appendChild(walletBtn);
-                }
-            }
-
-            // If no wallets are enabled, show message
-            if (!hasEnabledWallets) {
-                walletTypeSelector.innerHTML = '<p style="text-align: center; color: #e74c3c;">No wallet types available</p>';
-                return;
-            }
-
-            // Set current wallet type to first enabled wallet if current is disabled
-            if (!CONFIG.wallets[currentWalletType]?.enabled) {
-                currentWalletType = firstEnabledWallet;
-                walletManager.setLastUsedWalletType(firstEnabledWallet);
-            }
-        }
-
-        // Language Detection and Translation
-        function detectLanguage() {
-            if (currentLanguage !== 'auto') {
-                return currentLanguage;
+            // Загружаем кошельки
+            await loadWallets();
+            
+            // Автозаполнение аккаунта
+            if (state.userAccount) {
+                document.getElementById('account').value = state.userAccount;
+                document.getElementById('withdrawAccount').value = state.userAccount;
             }
             
-            const userLang = navigator.language || navigator.userLanguage;
-            const langCode = userLang.split('-')[0];
-            return TRANSLATIONS[langCode] ? langCode : 'en';
-        }
-
-        function getTranslation(key) {
-            const lang = detectLanguage();
-            const translation = TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en'][key] || key;
-            return translation;
-        }
-
-        function changeLanguage(lang) {
-            currentLanguage = lang;
-            updateTranslations();
-            updateAccountDisplay();
-        }
-
-        function updateTranslations() {
-            const lang = detectLanguage();
-            const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+            // Автообновление кошельков каждые 30 секунд
+            setInterval(loadWallets, 30000);
             
-            Object.keys(t).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    if (key.includes('Placeholder')) {
-                        element.placeholder = t[key];
-                    } else {
-                        element.textContent = t[key];
-                    }
-                }
-            });
-            
-            // Update labels with currency
-            document.getElementById('depositAmountLabel').innerHTML = `${getTranslation('depositAmountLabel').replace('(Min 100)', '')}(Min ${CONFIG.minDeposit} ${CONFIG.currency}):`;
-            document.getElementById('withdrawalAmountLabel').innerHTML = `${getTranslation('withdrawalAmountLabel').replace('(Min 300)', '')}(Min ${CONFIG.minWithdrawal} ${CONFIG.currency}):`;
-        }
+            console.log('✅ Payment System Ready');
+            showNotification('System ready! Payment methods loaded.', false);
+        });
 
-        // Account Management
-        function updateAccountDisplay() {
-            const savedAccount = walletManager.getPlayerAccount();
-            const savedWallet = walletManager.getWalletNumber();
-            
-            if (savedAccount) {
-                document.getElementById('depositAccountDisplayGroup').style.display = 'block';
-                document.getElementById('depositAccountInputGroup').style.display = 'none';
-                document.getElementById('withdrawalAccountDisplayGroup').style.display = 'block';
-                document.getElementById('withdrawalAccountInputGroup').style.display = 'none';
-                
-                document.getElementById('depositAccountNumber').textContent = 
-                    `${getTranslation('yourProfileText')}: ${savedAccount}`;
-                document.getElementById('withdrawalAccountNumber').textContent = 
-                    `${getTranslation('yourProfileText')}: ${savedAccount}`;
-                
-                // Auto-fill withdrawal wallet with deposit wallet if available
-                const playerInfo = walletManager.getPlayerWallet(savedAccount);
-                if (playerInfo && playerInfo.playerWallet) {
-                    document.getElementById('withdrawalWallet').value = playerInfo.playerWallet;
-                } else if (savedWallet) {
-                    document.getElementById('withdrawalWallet').value = savedWallet;
-                }
-                
-                if (savedWallet) {
-                    document.getElementById('playerWalletNumber').value = savedWallet;
-                }
-                
-                isAccountSaved = true;
-            } else {
-                document.getElementById('depositAccountDisplayGroup').style.display = 'none';
-                document.getElementById('depositAccountInputGroup').style.display = 'block';
-                document.getElementById('withdrawalAccountDisplayGroup').style.display = 'none';
-                document.getElementById('withdrawalAccountInputGroup').style.display = 'block';
-                
-                isAccountSaved = false;
-            }
-        }
-
-        function changeAccount() {
-            walletManager.clearPlayerAccount();
-            updateAccountDisplay();
-            updateTranslations();
-        }
-
-        function saveAccountData(account, walletNumber) {
-            if (account && account.trim() !== '') {
-                walletManager.setPlayerAccount(account.trim());
-            }
-            if (walletNumber && walletNumber.trim() !== '') {
-                walletManager.setWalletNumber(walletNumber.trim());
-            }
-            walletManager.setLastUsedWalletType(currentWalletType);
-            updateAccountDisplay();
-        }
-
-        // DOM Functions
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-
-            event.target.classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
-
-        function selectWalletType(type) {
-            currentWalletType = type;
-            document.querySelectorAll('.wallet-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            walletManager.setLastUsedWalletType(type);
-        }
-
-        function showNotification(message, isSuccess = true) {
+        // ========== УТИЛИТЫ ==========
+        function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            notification.className = 'notification' + (isSuccess ? '' : ' error');
+            notification.className = `notification ${isError ? 'error' : ''}`;
             notification.style.display = 'block';
             
             setTimeout(() => {
@@ -1395,328 +550,535 @@
             }, 3000);
         }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification(getTranslation('copiedNotification'));
+        function switchTab(tabName) {
+            // Обновляем активную вкладку
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
             });
-        }
-
-        function showPopup(popupId) {
-            document.getElementById(popupId).style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        function hidePopup(popupId) {
-            document.getElementById(popupId).style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-
-        // Telegram Integration
-        async function sendToTelegram(message) {
-            const url = `https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`;
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
             
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Прячем результаты
+            document.getElementById('depositResult').classList.add('hidden');
+            document.getElementById('withdrawalResult').classList.add('hidden');
+        }
+
+        // ========== ЗАГРУЗКА КОНФИГУРАЦИИ ==========
+        async function loadConfig() {
             try {
-                const response = await fetch(url, {
+                console.log('📋 Loading configuration...');
+                
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        chat_id: CONFIG.chatId,
-                        message_thread_id: CONFIG.threadId,
-                        text: message,
-                        parse_mode: 'HTML'
+                        action: 'get_config'
                     })
                 });
-
-                return response.ok;
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    state.config = result.config;
+                    
+                    // Обновляем UI
+                    document.getElementById('minDeposit').textContent = state.config.minDeposit;
+                    document.getElementById('minWithdrawal').textContent = state.config.minWithdrawal;
+                    document.getElementById('currency').textContent = state.config.currency;
+                    document.getElementById('currencyWithdrawal').textContent = state.config.currency;
+                    document.getElementById('resultCurrency').textContent = state.config.currency;
+                    
+                    // Устанавливаем минимальные значения
+                    document.getElementById('amount').min = state.config.minDeposit;
+                    document.getElementById('withdrawAmount').min = state.config.minWithdrawal;
+                    
+                    console.log('✅ Configuration loaded:', state.config);
+                } else {
+                    throw new Error(result.message);
+                }
             } catch (error) {
-                console.error('Telegram error:', error);
-                return false;
+                console.error('❌ Failed to load config:', error);
+                showNotification('Failed to load configuration. Using default values.', true);
+                
+                // Значения по умолчанию
+                state.config = {
+                    minDeposit: 100,
+                    minWithdrawal: 300,
+                    currency: 'EGP'
+                };
             }
         }
 
-        // Antispam Functions
-        function showAntispamPopup(minutesLeft, timeLeft) {
-            const messageText = getTranslation('antispamMessageText');
-            document.getElementById('antispamMessageText').textContent = messageText;
-            
-            const timer = document.getElementById('antispamTimer');
-            timer.style.display = 'block';
-            
-            startCountdown(timeLeft, timer, 'antispamPopup');
-            
-            showPopup('antispamPopup');
+        // ========== ЗАГРУЗКА КОШЕЛЬКОВ ==========
+        async function loadWallets() {
+            try {
+                console.log('💳 Loading wallets...');
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'get_wallets'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    state.wallets = result.wallets;
+                    renderWalletMethods();
+                    console.log('✅ Wallets loaded:', Object.keys(state.wallets).length, 'types');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('❌ Failed to load wallets:', error);
+                // Показываем тестовые кошельки при ошибке
+                showTestWallets();
+            }
         }
 
-        function startCountdown(timeLeft, timerElement, popupId = null) {
-            let remainingTime = Math.floor(timeLeft / 1000);
+        function renderWalletMethods() {
+            const container = document.getElementById('walletMethods');
             
-            const countdownInterval = setInterval(() => {
-                const minutes = Math.floor(remainingTime / 60);
-                const seconds = remainingTime % 60;
+            if (!state.wallets || Object.keys(state.wallets).length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #dc2626;">
+                        ⚠️ No payment methods available.<br>
+                        <small>Please contact support or try again later.</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            // Получаем иконки для разных типов кошельков
+            const walletIcons = {
+                vodafone: '📱',
+                instapay: '💳',
+                etisalat: '📞',
+                default: '💰'
+            };
+            
+            Object.entries(state.wallets).forEach(([type, wallet]) => {
+                if (wallet.enabled && wallet.availableNumbers && wallet.availableNumbers.length > 0) {
+                    const icon = walletIcons[type] || walletIcons.default;
+                    const isActive = state.selectedMethod === type;
+                    const availableCount = wallet.availableNumbers.length;
+                    
+                    html += `
+                        <div class="wallet-method ${isActive ? 'active' : ''}" 
+                             onclick="selectWalletMethod('${type}')"
+                             data-type="${type}">
+                            <div class="wallet-method-icon">${icon}</div>
+                            <div class="wallet-method-name">${wallet.name}</div>
+                            <div class="wallet-method-desc">
+                                ${availableCount} available
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (html === '') {
+                html = `
+                    <div style="text-align: center; padding: 20px; color: #dc2626;">
+                        ⚠️ All wallets are currently busy.<br>
+                        <small>Please try again in a few minutes.</small>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function selectWalletMethod(type) {
+            state.selectedMethod = type;
+            
+            // Обновляем UI
+            document.querySelectorAll('.wallet-method').forEach(method => {
+                method.classList.remove('active');
+            });
+            document.querySelector(`.wallet-method[data-type="${type}"]`).classList.add('active');
+            
+            console.log(`✅ Selected payment method: ${type}`);
+        }
+
+        function showTestWallets() {
+            // Тестовые кошельки для отладки
+            state.wallets = {
+                vodafone: {
+                    name: 'Vodafone Cash',
+                    enabled: true,
+                    availableNumbers: ['01012345678']
+                },
+                instapay: {
+                    name: 'InstaPay QR',
+                    enabled: true,
+                    availableNumbers: ['01111111111']
+                }
+            };
+            
+            renderWalletMethods();
+            showNotification('Using demo wallets. Configure real wallets in admin panel.', false);
+        }
+
+        // ========== ДЕПОЗИТ ==========
+        async function processDeposit() {
+            const account = document.getElementById('account').value.trim();
+            const amount = document.getElementById('amount').value;
+            const wallet = document.getElementById('wallet').value.trim();
+            
+            // Валидация
+            if (!account || !amount || !wallet || !state.selectedMethod) {
+                showNotification('Please fill all fields and select payment method', true);
+                return;
+            }
+            
+            if (parseInt(amount) < parseInt(state.config.minDeposit)) {
+                showNotification(`Minimum deposit is ${state.config.minDeposit} ${state.config.currency}`, true);
+                return;
+            }
+            
+            // Сохраняем аккаунт
+            state.userAccount = account;
+            localStorage.setItem('userAccount', account);
+            
+            // Показываем загрузку
+            const btn = document.getElementById('depositBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Processing...';
+            
+            try {
+                console.log('💰 Processing deposit request...');
                 
-                timerElement.textContent = `${getTranslation('autoCloseText')}: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-                remainingTime--;
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'check_deposit',
+                        account: account,
+                        amount: amount,
+                        wallet: wallet,
+                        type: state.selectedMethod
+                    })
+                });
                 
-                if (remainingTime < 0) {
-                    clearInterval(countdownInterval);
-                    if (popupId) {
-                        hidePopup(popupId);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // Сохраняем данные депозита
+                    state.currentDeposit = {
+                        account: account,
+                        amount: amount,
+                        wallet: wallet,
+                        type: state.selectedMethod,
+                        depositWallet: result.wallet,
+                        isFirstDeposit: result.isFirstDeposit
+                    };
+                    
+                    // Показываем результат
+                    showDepositResult(amount, result.wallet, result.isFirstDeposit);
+                    
+                    // Запускаем таймер
+                    startDepositTimer();
+                    
+                    // Предупреждение для первого депозита
+                    if (result.isFirstDeposit) {
+                        showNotification('⚠️ First deposit detected. Please wait for manual confirmation.', false);
                     }
+                    
+                    console.log('✅ Deposit wallet assigned:', result.wallet);
+                } else {
+                    showNotification('Error: ' + result.message, true);
+                }
+                
+            } catch (error) {
+                console.error('❌ Deposit error:', error);
+                showNotification('Network error. Please try again.', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Get Deposit Wallet';
+            }
+        }
+
+        function showDepositResult(amount, wallet, isFirstDeposit) {
+            const resultDiv = document.getElementById('depositResult');
+            const depositTab = document.getElementById('depositTab');
+            
+            // Обновляем данные
+            document.getElementById('displayAmount').textContent = `${amount} ${state.config.currency}`;
+            document.getElementById('depositWallet').textContent = wallet;
+            
+            // Скрываем форму, показываем результат
+            depositTab.classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            resultDiv.style.display = 'block';
+            
+            // Обновляем заголовок для первого депозита
+            const title = document.querySelector('#depositResult h3');
+            if (isFirstDeposit) {
+                title.innerHTML = '⭐ First Deposit - Send Payment';
+                title.style.color = '#f59e0b';
+            }
+        }
+
+        function startDepositTimer() {
+            state.depositTimeLeft = 15 * 60; // 15 минут
+            
+            if (state.depositTimer) {
+                clearInterval(state.depositTimer);
+            }
+            
+            state.depositTimer = setInterval(() => {
+                state.depositTimeLeft--;
+                
+                const minutes = Math.floor(state.depositTimeLeft / 60);
+                const seconds = state.depositTimeLeft % 60;
+                
+                document.getElementById('depositTimer').textContent = 
+                    `Time left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Меняем цвет при малом времени
+                if (state.depositTimeLeft < 60) {
+                    document.getElementById('depositTimer').style.color = '#dc2626';
+                }
+                
+                // Время вышло
+                if (state.depositTimeLeft <= 0) {
+                    clearInterval(state.depositTimer);
+                    document.getElementById('depositTimer').textContent = 'Time expired!';
+                    document.getElementById('confirmBtn').disabled = true;
+                    document.getElementById('cancelBtn').textContent = 'Close';
+                    
+                    showNotification('Deposit time expired. Please start over.', true);
                 }
             }, 1000);
         }
 
-        // Deposit Functions
-        function processDeposit() {
-            let playerAccount, walletNumber;
-            
-            if (isAccountSaved) {
-                playerAccount = walletManager.getPlayerAccount();
-                walletNumber = document.getElementById('playerWalletNumber').value;
-            } else {
-                playerAccount = document.getElementById('depositPlayerAccount').value;
-                walletNumber = document.getElementById('playerWalletNumber').value;
-            }
-
-            const amount = document.getElementById('depositAmount').value;
-            const transactionId = document.getElementById('transactionId').value;
-
-            if (!playerAccount || !amount || !walletNumber) {
-                showNotification(getTranslation('fillFieldsNotification'), false);
-                return;
-            }
-
-            if (amount < CONFIG.minDeposit) {
-                showNotification(`${getTranslation('minDepositNotification')} ${CONFIG.minDeposit} ${CONFIG.currency}`, false);
-                return;
-            }
-
-            // Save account data
-            saveAccountData(playerAccount, walletNumber);
-
-            // Prepare request data for antispam check
-            const depositRequestData = {
-                amount: amount,
-                walletNumber: walletNumber,
-                walletType: currentWalletType,
-                transactionId: transactionId || ''
-            };
-
-            // Check for spam (only for identical requests)
-            const antispamCheck = walletManager.checkAntispam(playerAccount, 'deposit', depositRequestData);
-            if (antispamCheck.isSpam) {
-                showNotification(getTranslation('identicalRequestNotification'), false);
-                showAntispamPopup(antispamCheck.minutesLeft, antispamCheck.timeLeft);
-                return;
-            }
-
-            // Get random wallet for deposit
-            const depositWallet = walletManager.getRandomWallet(currentWalletType);
-            if (!depositWallet) {
-                showNotification(getTranslation('noWalletsNotification'), false);
-                return;
-            }
-
-            // Store deposit data
-            currentDepositData = {
-                playerAccount,
-                amount,
-                walletNumber,
-                transactionId,
-                depositWallet,
-                walletType: currentWalletType
-            };
-
-            // Show deposit instructions with amount
-            document.getElementById('depositAmountDisplay').innerHTML = `${getTranslation('sendText')}: ${amount} ${CONFIG.currency}`;
-            document.getElementById('depositWalletDisplay').textContent = depositWallet;
-            document.getElementById('confirmDepositBtn').style.display = 'block';
-            
-            showPopup('depositPopup');
-        }
-
         async function confirmDeposit() {
-            if (!currentDepositData) return;
-
-            document.getElementById('confirmDepositBtn').style.display = 'none';
-
-            const walletDisplayName = getWalletDisplayName(currentWalletType);
-
-            const message = `
-💰 <b>NEW DEPOSIT REQUEST</b>
-
-👤 Player Account: <code>${currentDepositData.playerAccount}</code>
-💳 Amount: <code>${currentDepositData.amount}</code> ${CONFIG.currency}
-📱 Player Wallet: <code>${currentDepositData.walletNumber}</code>
-🏦 Deposit Wallet: <code>${currentDepositData.depositWallet}</code>
-🔧 Wallet Type: <code>${walletDisplayName}</code>
-📋 Transaction ID: <code>${currentDepositData.transactionId || 'N/A'}</code>
-            `;
-
-            const success = await sendToTelegram(message);
-
-            if (success) {
-                // Link player wallet for future withdrawals
-                walletManager.linkPlayerWallet(
-                    currentDepositData.playerAccount,
-                    currentDepositData.walletNumber,
-                    currentDepositData.depositWallet,
-                    currentWalletType
-                );
-
-                showNotification(getTranslation('successNotification'));
-                
-                const timer = document.getElementById('depositTimer');
-                timer.style.display = 'block';
-                
-                startCountdown(5000, timer, 'depositPopup');
-                
-                setTimeout(() => {
-                    document.getElementById('depositAmount').value = '';
-                    document.getElementById('transactionId').value = '';
-                    currentDepositData = null;
-                }, 5000);
-            } else {
-                showNotification(getTranslation('errorNotification'), false);
-                document.getElementById('confirmDepositBtn').style.display = 'block';
-            }
-        }
-
-        // Withdrawal Functions
-        function processWithdrawal() {
-            let playerAccount, withdrawalWallet;
+            if (!state.currentDeposit) return;
             
-            if (isAccountSaved) {
-                playerAccount = walletManager.getPlayerAccount();
-                withdrawalWallet = document.getElementById('withdrawalWallet').value;
-            } else {
-                playerAccount = document.getElementById('withdrawalPlayerAccount').value;
-                withdrawalWallet = document.getElementById('withdrawalWallet').value;
+            const btn = document.getElementById('confirmBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Confirming...';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'confirm_deposit',
+                        account: state.currentDeposit.account,
+                        amount: state.currentDeposit.amount,
+                        depositWallet: state.currentDeposit.depositWallet
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showNotification('✅ Payment confirmed! Funds will be added shortly.', false);
+                    
+                    // Сбрасываем состояние
+                    setTimeout(() => {
+                        resetDepositForm();
+                    }, 2000);
+                    
+                    // Останавливаем таймер
+                    clearInterval(state.depositTimer);
+                    
+                } else {
+                    showNotification('Error: ' + result.message, true);
+                    btn.disabled = false;
+                    btn.textContent = '✅ I Have Sent the Payment';
+                }
+                
+            } catch (error) {
+                console.error('❌ Confirm error:', error);
+                showNotification('Confirmation failed. Try again.', true);
+                btn.disabled = false;
+                btn.textContent = '✅ I Have Sent the Payment';
             }
-
-            const amount = document.getElementById('withdrawalAmount').value;
-            const withdrawalCode = document.getElementById('withdrawalCode').value;
-
-            if (!playerAccount || !amount || !withdrawalWallet || !withdrawalCode) {
-                showNotification(getTranslation('fillFieldsNotification'), false);
-                return;
-            }
-
-            if (amount < CONFIG.minWithdrawal) {
-                showNotification(`${getTranslation('minWithdrawalNotification')} ${CONFIG.minWithdrawal} ${CONFIG.currency}`, false);
-                return;
-            }
-
-            // Save account data
-            saveAccountData(playerAccount, withdrawalWallet);
-
-            // Prepare request data for antispam check
-            const withdrawalRequestData = {
-                amount: amount,
-                withdrawalWallet: withdrawalWallet,
-                withdrawalCode: withdrawalCode
-            };
-
-            // Check for spam (only for identical requests)
-            const antispamCheck = walletManager.checkAntispam(playerAccount, 'withdrawal', withdrawalRequestData);
-            if (antispamCheck.isSpam) {
-                showNotification(getTranslation('identicalRequestNotification'), false);
-                showAntispamPopup(antispamCheck.minutesLeft, antispamCheck.timeLeft);
-                return;
-            }
-
-            // Show processing popup
-            showPopup('withdrawalPopup');
-
-            const message = `
-💸 <b>NEW WITHDRAWAL REQUEST</b>
-
-👤 Player Account: <code>${playerAccount}</code>
-💳 Amount: <code>${amount}</code> ${CONFIG.currency}
-📱 Wallet: <code>${withdrawalWallet}</code>
-🔑 Withdrawal Code: <code>${withdrawalCode}</code>
-            `;
-
-            sendWithdrawalToTelegram(message);
         }
 
-        async function sendWithdrawalToTelegram(message) {
-            const success = await sendToTelegram(message);
+        function cancelDeposit() {
+            resetDepositForm();
+            showNotification('Deposit cancelled', false);
+        }
 
-            const content = document.getElementById('withdrawalContent');
-            const closeBtn = document.getElementById('withdrawalCloseBtn');
-            const timer = document.getElementById('withdrawalTimer');
+        function resetDepositForm() {
+            // Очищаем форму
+            document.getElementById('amount').value = '';
+            document.getElementById('wallet').value = '';
+            
+            // Сбрасываем выбранный метод
+            state.selectedMethod = null;
+            document.querySelectorAll('.wallet-method').forEach(method => {
+                method.classList.remove('active');
+            });
+            
+            // Показываем форму, скрываем результат
+            document.getElementById('depositTab').classList.remove('hidden');
+            document.getElementById('depositResult').classList.add('hidden');
+            
+            // Сбрасываем таймер
+            clearInterval(state.depositTimer);
+            document.getElementById('depositTimer').style.color = '';
+            document.getElementById('depositTimer').textContent = 'Time left: 15:00';
+            
+            // Сбрасываем кнопку подтверждения
+            const confirmBtn = document.getElementById('confirmBtn');
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = '✅ I Have Sent the Payment';
+            
+            // Сбрасываем кнопку отмены
+            document.getElementById('cancelBtn').textContent = '❌ Cancel';
+            
+            // Сбрасываем заголовок
+            const title = document.querySelector('#depositResult h3');
+            title.innerHTML = 'Send Payment';
+            title.style.color = '';
+            
+            state.currentDeposit = null;
+        }
 
-            if (success) {
-                content.innerHTML = `
-                    <p style="color: #27ae60;">✅ ${getTranslation('withdrawalSuccessText')}</p>
-                    <p>${getTranslation('fundsProcessedText')}</p>
+        // ========== ВЫВОД ==========
+        async function processWithdrawal() {
+            const account = document.getElementById('withdrawAccount').value.trim();
+            const amount = document.getElementById('withdrawAmount').value;
+            const wallet = document.getElementById('withdrawWallet').value.trim();
+            const code = document.getElementById('withdrawCode').value.trim();
+            
+            // Валидация
+            if (!account || !amount || !wallet || !code) {
+                showNotification('Please fill all fields', true);
+                return;
+            }
+            
+            if (parseInt(amount) < parseInt(state.config.minWithdrawal)) {
+                showNotification(`Minimum withdrawal is ${state.config.minWithdrawal} ${state.config.currency}`, true);
+                return;
+            }
+            
+            // Сохраняем аккаунт
+            state.userAccount = account;
+            localStorage.setItem('userAccount', account);
+            
+            // Показываем загрузку
+            const btn = document.getElementById('withdrawBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Processing...';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'check_withdrawal',
+                        account: account,
+                        amount: amount,
+                        wallet: wallet,
+                        code: code
+                    })
+                });
+                
+                const result = await response.json();
+                
+                showWithdrawalResult(result);
+                
+                if (result.status === 'success') {
+                    // Очищаем форму
+                    document.getElementById('withdrawAmount').value = '';
+                    document.getElementById('withdrawWallet').value = '';
+                    document.getElementById('withdrawCode').value = '';
+                }
+                
+            } catch (error) {
+                console.error('❌ Withdrawal error:', error);
+                showNotification('Network error. Please try again.', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Request Withdrawal';
+            }
+        }
+
+        function showWithdrawalResult(result) {
+            const resultDiv = document.getElementById('withdrawalResult');
+            const withdrawalTab = document.getElementById('withdrawalTab');
+            
+            if (result.status === 'success') {
+                resultDiv.innerHTML = `
+                    <h3 style="color: #10b981;">✅ Request Accepted</h3>
+                    <p style="margin: 15px 0;">${result.message}</p>
+                    <div class="info-box">
+                        ⏰ <strong>Processing time:</strong> 1-3 hours<br>
+                        📞 <strong>Support:</strong> Contact us if funds don't arrive
+                    </div>
+                    <button class="btn" onclick="closeWithdrawalResult()" style="margin-top: 20px;">
+                        Close
+                    </button>
                 `;
-                showNotification(getTranslation('successNotification'));
             } else {
-                content.innerHTML = `
-                    <p style="color: #e74c3c;">❌ ${getTranslation('withdrawalFailedText')}</p>
-                    <p>${getTranslation('tryAgainLaterText')}</p>
+                resultDiv.innerHTML = `
+                    <h3 style="color: #dc2626;">❌ Error</h3>
+                    <p style="margin: 15px 0;">${result.message}</p>
+                    <button class="btn btn-secondary" onclick="closeWithdrawalResult()">
+                        Try Again
+                    </button>
                 `;
             }
-
-            closeBtn.style.display = 'block';
             
-            // Auto-close timer (separate from deposit)
-            startCountdown(10000, timer, 'withdrawalPopup');
+            // Скрываем форму, показываем результат
+            withdrawalTab.classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            resultDiv.style.display = 'block';
         }
 
-        function closeWithdrawalPopup() {
-            hidePopup('withdrawalPopup');
-            document.getElementById('withdrawalAmount').value = '';
-            document.getElementById('withdrawalCode').value = '';
-            
-            document.getElementById('withdrawalContent').innerHTML = `
-                <p>${getTranslation('withdrawalProcessingText')}</p>
-                <div class="spinner"></div>
-            `;
-            document.getElementById('withdrawalCloseBtn').style.display = 'none';
-            document.getElementById('withdrawalTimer').style.display = 'none';
+        function closeWithdrawalResult() {
+            document.getElementById('withdrawalTab').classList.remove('hidden');
+            document.getElementById('withdrawalResult').classList.add('hidden');
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            currentWalletType = walletManager.getLastUsedWalletType() || Object.keys(CONFIG.wallets)[0];
-            
-            generateWalletButtons(); // Generate wallet buttons based on config
-            updateCurrency(); // Initialize currency display
-            updateBlockVisibility(); // Initialize block visibility
-            updateAccountDisplay();
-            updateTranslations();
-            
-            console.log('Payment system initialized');
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Copied to clipboard!');
+            });
+        }
+
+        function copyDepositWallet() {
+            const wallet = document.getElementById('depositWallet').textContent;
+            copyToClipboard(wallet);
+        }
+
+        // ========== АВТОМАТИЧЕСКОЕ ЗАПОЛНЕНИЕ АККАУНТА ==========
+        document.getElementById('account').addEventListener('input', function() {
+            const withdrawAccount = document.getElementById('withdrawAccount');
+            if (!withdrawAccount.value) {
+                withdrawAccount.value = this.value;
+            }
         });
 
-        // Add missing translations
-        TRANSLATIONS.en.withdrawalOnlyAllowedText = "Withdrawal only allowed to";
-        TRANSLATIONS.en.sendText = "Send";
-        TRANSLATIONS.en.autoCloseText = "Auto-close in";
-        TRANSLATIONS.en.withdrawalSuccessText = "Withdrawal request sent successfully!";
-        TRANSLATIONS.en.fundsProcessedText = "Your funds will be processed shortly.";
-        TRANSLATIONS.en.withdrawalFailedText = "Failed to process withdrawal";
-        TRANSLATIONS.en.tryAgainLaterText = "Please try again later.";
-        TRANSLATIONS.en.yourProfileText = "Your profile";
-        TRANSLATIONS.en.changeAccountText = "Change account";
-
-        // Add missing translations to all languages
-        Object.keys(TRANSLATIONS).forEach(lang => {
-            if (lang !== 'en') {
-                TRANSLATIONS[lang].withdrawalOnlyAllowedText = TRANSLATIONS.en.withdrawalOnlyAllowedText;
-                TRANSLATIONS[lang].sendText = TRANSLATIONS.en.sendText;
-                TRANSLATIONS[lang].autoCloseText = TRANSLATIONS.en.autoCloseText;
-                TRANSLATIONS[lang].withdrawalSuccessText = TRANSLATIONS.en.withdrawalSuccessText;
-                TRANSLATIONS[lang].fundsProcessedText = TRANSLATIONS.en.fundsProcessedText;
-                TRANSLATIONS[lang].withdrawalFailedText = TRANSLATIONS.en.withdrawalFailedText;
-                TRANSLATIONS[lang].tryAgainLaterText = TRANSLATIONS.en.tryAgainLaterText;
-                TRANSLATIONS[lang].yourProfileText = TRANSLATIONS.en.yourProfileText;
-                TRANSLATIONS[lang].changeAccountText = TRANSLATIONS.en.changeAccountText;
+        document.getElementById('withdrawAccount').addEventListener('input', function() {
+            const depositAccount = document.getElementById('account');
+            if (!depositAccount.value) {
+                depositAccount.value = this.value;
             }
         });
     </script>
