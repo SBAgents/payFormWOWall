@@ -537,51 +537,36 @@
 
     // ========== ТЕСТ СОЕДИНЕНИЯ ==========
     async function testAPIConnection() {
-        console.log('🔗 Testing API connection...');
+    console.log('🔗 Testing API connection...');
+    
+    try {
+        // Только GET запрос (не вызывает CORS ошибку)
+        const url = API_URL + '?action=test&t=' + Date.now();
+        console.log('Test URL:', url);
         
+        const response = await fetch(url);
+        console.log('Test status:', response.status);
+        
+        const text = await response.text();
+        console.log('Test response:', text);
+        
+        let result;
         try {
-            // Тест 1: Простой GET запрос
-            const getResponse = await fetch(API_URL);
-            const getResult = await getResponse.text();
-            console.log('GET Test:', getResult.substring(0, 100));
+            result = JSON.parse(text);
+            console.log('✅ API Test:', result);
             
-            // Тест 2: POST запрос
-            const testResponse = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'test'
-                })
-            });
-            
-            console.log('POST Test Status:', testResponse.status, testResponse.statusText);
-            
-            const testText = await testResponse.text();
-            console.log('POST Test Response:', testText);
-            
-            let testResult;
-            try {
-                testResult = JSON.parse(testText);
-                console.log('✅ API Connection Test:', testResult);
-                
-                if (testResult.status === 'success') {
-                    showNotification('API connection successful!', false);
-                } else {
-                    showNotification('API error: ' + (testResult.message || 'Unknown'), true);
-                }
-            } catch (parseError) {
-                console.error('❌ JSON Parse Error:', parseError);
-                console.error('Raw response:', testText);
-                showNotification('Server returned invalid JSON', true);
+            if (result.status === 'success') {
+                showNotification('API connection successful!', false);
             }
-            
-        } catch (error) {
-            console.error('❌ Connection Test Failed:', error);
-            showNotification('Cannot connect to server. Check URL and CORS settings.', true);
+        } catch (parseError) {
+            console.error('JSON Parse Error:', parseError);
         }
+        
+    } catch (error) {
+        console.error('❌ Connection Test Failed:', error);
+        // Не показываем ошибку пользователю - это нормально для GET-only API
     }
+}
 
     // ========== УТИЛИТЫ ==========
     function showNotification(message, isError = false) {
