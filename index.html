@@ -1012,20 +1012,21 @@ function log(type, message, data = null) {
     
     // Прокрутка вниз
     const console = document.getElementById('debugConsole');
-    if (console) {
-        console.scrollTop = console.scrollHeight;
-    }
+    if (console) console.scrollTop = console.scrollHeight;
     
     // Также в браузерную консоль
-    const consoleFunc = {
-        'error': console.error,
-        'warning': console.warn,
-        'success': console.log,
-        'info': console.info
-    }[type] || console.log;
-    
-    if (consoleFunc && typeof consoleFunc === 'function') {
-        consoleFunc(`[${time}] ${message}`, data || '');
+    try {
+        if (type === 'error') {
+            console.error(`[${time}] ${message}`, data || '');
+        } else if (type === 'warning') {
+            console.warn(`[${time}] ${message}`, data || '');
+        } else if (type === 'success') {
+            console.log(`[${time}] ${message}`, data || '');
+        } else {
+            console.info(`[${time}] ${message}`, data || '');
+        }
+    } catch (e) {
+        console.log(`[${time}] ${message}`, data || '');
     }
 }
 
