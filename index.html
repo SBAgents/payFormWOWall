@@ -1084,61 +1084,43 @@
 
     <script>
 
-function hideLoadingScreen() {
-    console.log('=== HIDE LOADING START ===');
+        function hideLoadingScreen() {
+    console.log('=== HIDE LOADING SCREEN ===');
     
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContainer = document.getElementById('mainContainer');
     
-    console.log('1. Элементы найдены:', !!loadingScreen, !!mainContainer);
-    
-    if (mainContainer) {
-        console.log('2. Контейнер перед изменением:');
-        console.log('   - display:', mainContainer.style.display);
-        console.log('   - opacity:', mainContainer.style.opacity);
-        console.log('   - visibility:', mainContainer.style.visibility);
-        console.log('   - className:', mainContainer.className);
-        console.log('   - offsetWidth:', mainContainer.offsetWidth);
-        console.log('   - offsetHeight:', mainContainer.offsetHeight);
-        console.log('   - computed display:', window.getComputedStyle(mainContainer).display);
-        
-        // 3. Добавляем ВИДИМУЮ рамку
-        mainContainer.style.border = '10px solid green !important';
-        mainContainer.style.background = 'orange !important';
-        mainContainer.style.padding = '50px !important';
-        
-        // 4. Добавляем текст ВНУТРИ контейнера
-        const innerTest = document.createElement('div');
-        innerTest.innerHTML = '🎯 ВНУТРИ КОНТЕЙНЕРА';
-        innerTest.style.cssText = `
-            color: black !important;
-            font-size: 40px !important;
-            font-weight: bold !important;
-            text-align: center !important;
-            background: white !important;
-            padding: 20px !important;
-            margin: 20px !important;
-            border: 5px solid blue !important;
-        `;
-        mainContainer.appendChild(innerTest);
+    if (!loadingScreen || !mainContainer) {
+        console.error('Elements not found');
+        return;
     }
     
-    // 5. Скрываем loading screen
-    if (loadingScreen) {
-        loadingScreen.style.display = 'none';
-        console.log('3. Loading screen скрыт');
-    }
+    // 1. Скрываем экран загрузки
+    loadingScreen.style.display = 'none';
     
-    // 6. Показываем main container
-    if (mainContainer) {
-        mainContainer.style.display = 'block';
-        mainContainer.style.opacity = '1';
-        mainContainer.style.visibility = 'visible';
-        console.log('4. Main container показан');
-    }
+    // 2. Убираем ВСЕ тестовые стили (если они есть)
+    mainContainer.style.border = '';
+    mainContainer.style.background = '';
+    mainContainer.style.padding = '';
     
-    console.log('=== HIDE LOADING END ===');
-    state.isLoaded = true;
+    // 3. Удаляем тестовые элементы ВНУТРИ контейнера
+    const testElements = mainContainer.querySelectorAll('div[style*="ВНУТРИ"], div[style*="ТЕСТ"]');
+    testElements.forEach(el => el.remove());
+    
+    // 4. Удаляем тестовый элемент из body (который мы добавляли в Действии 1)
+    const bodyTest = document.querySelector('div[style*="ТЕСТ 1"]');
+    if (bodyTest) bodyTest.remove();
+    
+    // 5. Нормальное отображение контейнера
+    mainContainer.style.display = 'block';
+    mainContainer.style.opacity = '0';
+    
+    // 6. Плавное появление
+    setTimeout(() => {
+        mainContainer.classList.add('loaded');
+        state.isLoaded = true;
+        console.log('✅ Main content shown');
+    }, 50);
 }
 
         // ========== КОНФИГУРАЦИЯ ==========
