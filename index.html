@@ -1098,29 +1098,25 @@
     // 1. Скрываем экран загрузки
     loadingScreen.style.display = 'none';
     
-    // 2. Убираем ВСЕ тестовые стили (если они есть)
-    mainContainer.style.border = '';
-    mainContainer.style.background = '';
-    mainContainer.style.padding = '';
-    
-    // 3. Удаляем тестовые элементы ВНУТРИ контейнера
-    const testElements = mainContainer.querySelectorAll('div[style*="ВНУТРИ"], div[style*="ТЕСТ"]');
-    testElements.forEach(el => el.remove());
-    
-    // 4. Удаляем тестовый элемент из body (который мы добавляли в Действии 1)
+    // 2. Удаляем ТОЛЬКО тестовый текст из body
     const bodyTest = document.querySelector('div[style*="ТЕСТ 1"]');
     if (bodyTest) bodyTest.remove();
     
-    // 5. Нормальное отображение контейнера
+    // 3. Показываем контейнер ПРОСТО (без CSS классов)
     mainContainer.style.display = 'block';
-    mainContainer.style.opacity = '0';
+    mainContainer.style.opacity = '1';
+    mainContainer.style.visibility = 'visible';
+    mainContainer.style.position = 'relative';
     
-    // 6. Плавное появление
-    setTimeout(() => {
-        mainContainer.classList.add('loaded');
-        state.isLoaded = true;
-        console.log('✅ Main content shown');
-    }, 50);
+    // 4. Добавляем МИНИМАЛЬНЫЕ гарантированные стили
+    mainContainer.style.background = 'rgba(255, 255, 255, 0.1)';
+    mainContainer.style.borderRadius = '15px';
+    mainContainer.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    mainContainer.style.padding = '20px';
+    mainContainer.style.backdropFilter = 'blur(10px)';
+    
+    state.isLoaded = true;
+    console.log('✅ Main content shown (simple styles)');
 }
 
         // ========== КОНФИГУРАЦИЯ ==========
