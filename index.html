@@ -995,31 +995,39 @@
         };
 
         // ========== СИСТЕМА ЛОГИРОВАНИЯ ==========
-        function log(type, message, data = null) {
-            if (!DEBUG_MODE) return;
-            
-            const time = new Date().toLocaleTimeString();
-            const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
-            
-            let logMessage = `<span class="log-time">[${time}]</span> ${message}`;
-            if (data) {
-                logMessage += ` <span style="color:#888">${JSON.stringify(data)}</span>`;
-            }
-            
-            entry.innerHTML = logMessage;
-            document.getElementById('consoleContent').appendChild(entry);
-            
-            // Прокрутка вниз
-            const console = document.getElementById('debugConsole');
-            console.scrollTop = console.scrollHeight;
-            
-            // Также в браузерную консоль
-            const consoleFunc = type === 'error' ? console.error : 
-                               type === 'warning' ? console.warn : 
-                               type === 'success' ? console.log : console.info;
-            consoleFunc(`[${time}] ${message}`, data || '');
-        }
+function log(type, message, data = null) {
+    if (!DEBUG_MODE) return;
+    
+    const time = new Date().toLocaleTimeString();
+    const entry = document.createElement('div');
+    entry.className = `log-entry log-${type}`;
+    
+    let logMessage = `<span class="log-time">[${time}]</span> ${message}`;
+    if (data) {
+        logMessage += ` <span style="color:#888">${JSON.stringify(data)}</span>`;
+    }
+    
+    entry.innerHTML = logMessage;
+    document.getElementById('consoleContent').appendChild(entry);
+    
+    // Прокрутка вниз
+    const console = document.getElementById('debugConsole');
+    if (console) {
+        console.scrollTop = console.scrollHeight;
+    }
+    
+    // Также в браузерную консоль
+    const consoleFunc = {
+        'error': console.error,
+        'warning': console.warn,
+        'success': console.log,
+        'info': console.info
+    }[type] || console.log;
+    
+    if (consoleFunc && typeof consoleFunc === 'function') {
+        consoleFunc(`[${time}] ${message}`, data || '');
+    }
+}
 
         function toggleConsole() {
             const console = document.getElementById('debugConsole');
