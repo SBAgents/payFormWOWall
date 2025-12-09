@@ -979,7 +979,7 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
         
         // ========== НАСТРОЙКИ ==========
-        const DEBUG_MODE = false; // Измените на false чтобы отключить консоль
+        const DEBUG_MODE = true; // Измените на false чтобы отключить консоль
         
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let state = {
@@ -999,34 +999,42 @@ function log(type, message, data = null) {
     if (!DEBUG_MODE) return;
     
     const time = new Date().toLocaleTimeString();
-    const entry = document.createElement('div');
-    entry.className = `log-entry log-${type}`;
     
-    let logMessage = `<span class="log-time">[${time}]</span> ${message}`;
-    if (data) {
-        logMessage += ` <span style="color:#888">${JSON.stringify(data)}</span>`;
+    // 1. Логирование в HTML консоль
+    try {
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        
+        let logMessage = `<span class="log-time">[${time}]</span> ${message}`;
+        if (data) {
+            logMessage += ` <span style="color:#888">${JSON.stringify(data)}</span>`;
+        }
+        
+        entry.innerHTML = logMessage;
+        const consoleContent = document.getElementById('consoleContent');
+        if (consoleContent) {
+            consoleContent.appendChild(entry);
+            
+            // Прокрутка вниз
+            const debugConsole = document.getElementById('debugConsole');
+            if (debugConsole) debugConsole.scrollTop = debugConsole.scrollHeight;
+        }
+    } catch (e) {
+        // Игнорируем ошибки HTML консоли
     }
     
-    entry.innerHTML = logMessage;
-    document.getElementById('consoleContent').appendChild(entry);
-    
-    // Прокрутка вниз
-    const debugConsole = document.getElementById('debugConsole');
-    if (debugConsole) debugConsole.scrollTop = debugConsole.scrollHeight;
-    
-    // Безопасный вывод в консоль браузера
+    // 2. Логирование в браузерную консоль
     try {
-        // Проверяем доступность console
-        if (window.console && window.console.log) {
-            const logMsg = `[${time}] ${message}`;
-            if (data) {
-                window.console.log(logMsg, data);
+        if (typeof console !== 'undefined' && console.log) {
+            const logMsg = `[${time}] ${type.toUpperCase()}: ${message}`;
+            if (data !== null && data !== undefined) {
+                console.log(logMsg, data);
             } else {
-                window.console.log(logMsg);
+                console.log(logMsg);
             }
         }
     } catch (e) {
-        // Игнорируем ошибки консоли
+        // Игнорируем ошибки браузерной консоли
     }
 }
 
