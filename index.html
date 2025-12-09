@@ -1118,88 +1118,6 @@ let state = {
     savedWallet: localStorage.getItem('userWallet') || '',
     isLoaded: false
 };
-
-        // ========== АНТИСПАМ СИСТЕМА ==========
-function createRequestHash(account, amount, wallet, type) {
-    // Создаём уникальный хэш для запроса
-    return `${account}:${amount}:${wallet}:${type}`.toLowerCase();
-}
-
-function checkSpam(account, amount, wallet, type) {
-    const storageKey = 'payment_antispam';
-    const antispamMinutes = 5; // Блокировка на 5 минут
-    
-    try {
-        const now = Date.now();
-        const hash = createRequestHash(account, amount, wallet, type);
-        
-        // Получаем историю запросов
-        const historyStr = localStorage.getItem(storageKey) || '{}';
-        const history = JSON.parse(historyStr);
-        
-        // Проверяем есть ли такой запрос в истории
-        if (history[hash]) {
-            const lastTime = history[hash];
-            const minutesPassed = (now - lastTime) / (1000 * 60);
-            
-            if (minutesPassed < antispamMinutes) {
-                const minutesLeft = Math.ceil(antispamMinutes - minutesPassed);
-                return {
-                    isSpam: true,
-                    minutesLeft: minutesLeft,
-                    message: `Пожалуйста, подождите ${minutesLeft} минут перед идентичным запросом`
-                };
-            }
-        }
-        
-        // Обновляем историю
-        history[hash] = now;
-        
-        // Очищаем старые записи (старше 1 часа)
-        const oneHourAgo = now - (60 * 60 * 1000);
-        for (const key in history) {
-            if (history[key] < oneHourAgo) {
-                delete history[key];
-            }
-        }
-        
-        // Сохраняем
-        localStorage.setItem(storageKey, JSON.stringify(history));
-        
-        return { isSpam: false };
-        
-    } catch (error) {
-        log('error', 'Antispam check failed', error);
-        return { isSpam: false }; // В случае ошибки пропускаем
-    }
-}
-
-function clearOldSpamRecords() {
-    // Автоочистка старых записей при загрузке страницы
-    const storageKey = 'payment_antispam';
-    try {
-        const historyStr = localStorage.getItem(storageKey);
-        if (!historyStr) return;
-        
-        const history = JSON.parse(historyStr);
-        const now = Date.now();
-        const oneHourAgo = now - (60 * 60 * 1000);
-        let changed = false;
-        
-        for (const key in history) {
-            if (history[key] < oneHourAgo) {
-                delete history[key];
-                changed = true;
-            }
-        }
-        
-        if (changed) {
-            localStorage.setItem(storageKey, JSON.stringify(history));
-        }
-    } catch (error) {
-        // Игнорируем ошибки очистки
-    }
-}
         
         // Предзагружаем данные сразу при загрузке страницы
 window.addEventListener('load', function() {
@@ -1295,7 +1213,6 @@ function log(type, message, data = null) {
         log('info', 'Saved wallet loaded from localStorage');
     }
 
-    clearOldSpamRecords();
     log('info', 'Antispam system initialized');
     
     // 2. Запускаем ВСЕ загрузки ПАРАЛЛЕЛЬНО
@@ -1899,28 +1816,22 @@ function retryLoadWallets() {
     
     log('info', 'Processing deposit request', { account, amount, wallet, method });
     
-    // ===== АНТИСПАМ ПРОВЕРКА =====
-    const spamCheck = checkSpam(account, amount, wallet, method);
-    if (spamCheck.isSpam) {
-        showNotification(spamCheck.message, true);
-        log('warning', 'Deposit blocked by antispam', { minutesLeft: spamCheck.minutesLeft });
-        return;
-        }
-            
-            if (!account || !amount || !wallet || !method) {
+    // ===== 1. ПРОВЕРКА ЗАПОЛНЕННОСТИ ПОЛЕЙ =====
+    if (!account || !amount || !wallet || !method) {
         showNotification(!account || !amount || !wallet ? 'fill_all_fields' : 'select_method', true);
         log('warning', 'Deposit validation failed: missing fields');
         return;
-        }
-            
-            if (parseInt(amount) < (state.config?.minDeposit || 100)) {
-                showNotification('min_deposit', true, {
-                    amount: state.config?.minDeposit || 100,
-                    currency: state.config?.currency || 'EGP'
-                });
-                log('warning', `Deposit amount too low: ${amount}`);
-                return;
-            }
+    }
+    
+    // ===== 2. ПРОВЕРКА МИНИМАЛЬНОЙ СУММЫ =====
+    if (parseInt(amount) < (state.config?.minDeposit || 100)) {
+        showNotification('min_deposit', true, {
+            amount: state.config?.minDeposit || 100,
+            currency: state.config?.currency || 'EGP'
+        });
+        log('warning', `Deposit amount too low: ${amount}`);
+        return;
+    }
             
             // Сохраняем аккаунт и кошелёк
             state.userAccount = account;
