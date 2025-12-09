@@ -1200,6 +1200,11 @@ function log(type, message, data = null) {
         state.isLoaded = true;
         console.log('=== Main content shown ===');
     }, 50);
+
+    // Добавьте в конец hideLoadingScreen
+console.log('CSS переменные:');
+console.log('--card-bg:', getComputedStyle(document.documentElement).getPropertyValue('--card-bg'));
+console.log('Container background:', getComputedStyle(mainContainer).backgroundColor);        
 }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
