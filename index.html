@@ -1084,23 +1084,38 @@
 
     <script>
 
-        // ===== ТЕСТ 1: Простой текст =====
-const testText = document.createElement('div');
-testText.innerHTML = '✅ ТЕКСТ ВИДЕН';
-testText.style.cssText = `
-    color: red !important;
+console.log('=== НАЧАЛО СКРИПТА ===');
+console.log('Body существует:', !!document.body);
+console.log('Loading screen существует:', !!document.getElementById('loadingScreen'));
+console.log('Main container существует:', !!document.getElementById('mainContainer'));
+
+// Немедленно добавляем видимый элемент
+const testElement = document.createElement('div');
+testElement.innerHTML = '🚨 ТЕСТ 1: Элемент добавлен';
+testElement.style.cssText = `
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: red !important;
+    color: white !important;
+    padding: 30px !important;
     font-size: 32px !important;
     font-weight: bold !important;
-    text-align: center !important;
-    background: yellow !important;
-    padding: 20px !important;
-    margin: 20px !important;
-    border: 5px solid blue !important;
-    position: relative !important;
-    z-index: 9999 !important;
+    z-index: 10000 !important;
+    border: 5px solid yellow !important;
+    border-radius: 20px !important;
 `;
-document.body.appendChild(testText);
-console.log('Тестовый текст добавлен в body');
+document.body.appendChild(testElement);
+console.log('Тестовый элемент добавлен');
+
+// Проверяем через 0.5 секунды
+setTimeout(() => {
+    console.log('=== Проверка через 0.5с ===');
+    console.log('Тестовый элемент в DOM:', !!testElement.parentNode);
+    console.log('Тестовый элемент offsetWidth:', testElement.offsetWidth);
+    console.log('Тестовый элемент offsetHeight:', testElement.offsetHeight);
+}, 500);
 
         // ========== КОНФИГУРАЦИЯ ==========
         const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
