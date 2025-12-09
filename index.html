@@ -213,6 +213,19 @@
 
     .container {
     max-width: 500px;
+    margin: 50px auto !important; /* Добавьте !important */
+    padding: 20px !important;
+    background: white !important; /* Яркий цвет для теста */
+    border: 5px solid red !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    }
+
+    /*.container {
+    max-width: 500px;
     margin: 0 auto;
     background: var(--card-bg);
     border-radius: 15px;
@@ -225,10 +238,11 @@
     display: block; /* УБЕДИТЕСЬ что есть display: block */
     }
 
-    .container.loaded {
+    /*.container.loaded {
     opacity: 1;
     transform: translateY(0);
     }
+    */
 
     /* ЯЗЫКОВОЙ ПЕРЕКЛЮЧАТЕЛЬ */
     .language-selector {
@@ -807,11 +821,11 @@
             right: auto;
             border-right: none;
         }
-        
+        /*
         .container {
             padding: 15px;
         }
-        
+        */
         .language-selector {
             position: relative;
             top: 0;
@@ -1099,6 +1113,11 @@ let state = {
     savedWallet: localStorage.getItem('userWallet') || '',
     isLoaded: false
 };
+        // Немедленная проверка элементов
+console.log('=== INITIAL CHECK ===');
+console.log('Loading screen exists:', !!document.getElementById('loadingScreen'));
+console.log('Main container exists:', !!document.getElementById('mainContainer'));
+console.log('Body:', document.body);
 
         // ========== СИСТЕМА ЛОГИРОВАНИЯ ==========
 function log(type, message, data = null) {
@@ -1157,32 +1176,53 @@ function log(type, message, data = null) {
 
         // ========== ЗАГРУЗОЧНЫЙ ЭКРАН ==========
         function hideLoadingScreen() {
+    console.log('=== hideLoadingScreen called ===');
+    
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContainer = document.getElementById('mainContainer');
     
-    if (!loadingScreen || !mainContainer) {
-        console.error('Elements not found for hideLoadingScreen');
-        return;
+    // Простая проверка
+    if (!loadingScreen) console.log('ERROR: loadingScreen not found');
+    if (!mainContainer) console.log('ERROR: mainContainer not found');
+    
+    if (loadingScreen) {
+        loadingScreen.style.display = 'none';
+        console.log('Loading screen hidden');
     }
     
-    // 1. Останавливаем анимацию букв
-    document.querySelectorAll('.spin-letter').forEach(letter => {
-        letter.style.animation = 'none';
-    });
+    if (mainContainer) {
+        // 1. Убираем все сложные стили
+        mainContainer.style.display = 'block';
+        mainContainer.style.opacity = '1';
+        mainContainer.style.visibility = 'visible';
+        mainContainer.style.position = 'relative';
+        mainContainer.style.zIndex = '1';
+        
+        // 2. Делаем контейнер ОЧЕНЬ заметным для теста
+        mainContainer.style.border = '10px solid red !important';
+        mainContainer.style.background = 'yellow !important';
+        mainContainer.style.color = 'black !important';
+        mainContainer.style.fontSize = '24px !important';
+        mainContainer.style.fontWeight = 'bold !important';
+        mainContainer.style.padding = '50px !important';
+        mainContainer.style.margin = '50px !important';
+        
+        // 3. Добавляем видимый текст
+        const testDiv = document.createElement('div');
+        testDiv.innerHTML = '🚨 ТЕСТ: Контейнер виден! 🚨';
+        testDiv.style.color = 'red';
+        testDiv.style.fontSize = '32px';
+        testDiv.style.textAlign = 'center';
+        testDiv.style.margin = '20px';
+        testDiv.style.padding = '20px';
+        testDiv.style.border = '3px solid blue';
+        mainContainer.prepend(testDiv);
+        
+        console.log('Main container made visible with red border');
+    }
     
-    // 2. Быстро скрываем экран загрузки
-    loadingScreen.style.display = 'none';
-    
-    // 3. Показываем основной контент
-    mainContainer.style.display = 'block';
-    mainContainer.style.opacity = '0';
-    
-    // 4. Плавно появляем
-    setTimeout(() => {
-        mainContainer.classList.add('loaded');
-        state.isLoaded = true;
-        log('success', 'Main content shown');
-    }, 10);
+    state.isLoaded = true;
+    console.log('=== hideLoadingScreen finished ===');
 }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
