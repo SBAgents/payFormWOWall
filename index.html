@@ -1087,17 +1087,26 @@
         const DEBUG_MODE = true; // Измените на false чтобы отключить консоль
         
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
-        let state = {
-            config: null,
-            wallets: {},
-            selectedMethod: null,
-            currentDeposit: null,
-            depositTimer: null,
-            currentTab: 'deposit',
-            currentLanguage: 'en',
-            savedWallet: localStorage.getItem('userWallet') || '',
-            isLoaded: false
-        };
+let state = {
+    config: null,
+    wallets: {},
+    selectedMethod: null,
+    currentDeposit: null,
+    depositTimer: null,
+    currentTab: 'deposit',
+    currentLanguage: 'en',
+    savedWallet: localStorage.getItem('userWallet') || '',
+    isLoaded: false
+};
+
+      // ========== ИНИЦИАЛИЗАЦИЯ ОТОБРАЖЕНИЯ ==========
+      // Сразу скрываем основной контейнер
+document.addEventListener('DOMContentLoaded', function() {
+    const mainContainer = document.getElementById('mainContainer');
+    if (mainContainer) {
+        mainContainer.style.display = 'none'; // Скрываем до загрузки
+    }
+});
 
         // ========== СИСТЕМА ЛОГИРОВАНИЯ ==========
 function log(type, message, data = null) {
@@ -1159,27 +1168,30 @@ function log(type, message, data = null) {
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContainer = document.getElementById('mainContainer');
     
-    if (!loadingScreen || !mainContainer) return;
+    if (!loadingScreen || !mainContainer) {
+        console.error('Elements not found for hideLoadingScreen');
+        return;
+    }
     
-    // Останавливаем анимацию букв
-    document.querySelectorAll('.spin-letter').forEach(letter => {
-        letter.style.animation = 'none';
-    });
+    // 1. Сначала убедимся, что основной контейнер видим
+    mainContainer.style.display = 'block';
+    mainContainer.style.opacity = '0';
     
-    // Плавное исчезновение
+    // 2. Плавно скрываем экран загрузки
     loadingScreen.style.transition = 'opacity 0.3s ease';
     loadingScreen.style.opacity = '0';
     
+    // 3. Ждём окончания анимации
     setTimeout(() => {
         loadingScreen.style.display = 'none';
         
-        // Показываем основной контент с анимацией
-        mainContainer.style.opacity = '0';
-        mainContainer.style.display = 'block';
-        
-        // Небольшая задержка для запуска анимации
+        // 4. Показываем основной контент с небольшой задержкой
         setTimeout(() => {
+            mainContainer.style.transition = 'opacity 0.4s ease';
+            mainContainer.style.opacity = '1';
             mainContainer.classList.add('loaded');
+            
+            state.isLoaded = true;
             log('success', 'Main content shown');
         }, 50);
         
