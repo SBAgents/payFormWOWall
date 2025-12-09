@@ -6,6 +6,7 @@
     <title>Payment System</title>
     <link rel="preconnect" href="https://script.google.com">
     <link rel="preconnect" href="https://api.telegram.org">
+    <link rel="preload" as="font" type="font/woff2" href="..." crossorigin>
 <style>
     :root {
     --primary-bg: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
@@ -1085,45 +1086,25 @@
     <script>
 
         function hideLoadingScreen() {
-    console.log('=== HIDE LOADING SCREEN ===');
-    
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContainer = document.getElementById('mainContainer');
     
-    if (!loadingScreen || !mainContainer) {
-        console.error('Elements not found');
-        return;
-    }
+    if (!loadingScreen || !mainContainer) return;
     
-    // 1. Скрываем экран загрузки
+    // Быстрое переключение
     loadingScreen.style.display = 'none';
-    
-    // 2. Удаляем ТОЛЬКО тестовый текст из body
-    const bodyTest = document.querySelector('div[style*="ТЕСТ 1"]');
-    if (bodyTest) bodyTest.remove();
-    
-    // 3. Показываем контейнер ПРОСТО (без CSS классов)
     mainContainer.style.display = 'block';
     mainContainer.style.opacity = '1';
-    mainContainer.style.visibility = 'visible';
-    mainContainer.style.position = 'relative';
-    
-    // 4. Добавляем МИНИМАЛЬНЫЕ гарантированные стили
-    mainContainer.style.background = 'rgba(255, 255, 255, 0.1)';
-    mainContainer.style.borderRadius = '15px';
-    mainContainer.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-    mainContainer.style.padding = '20px';
-    mainContainer.style.backdropFilter = 'blur(10px)';
     
     state.isLoaded = true;
-    console.log('✅ Main content shown (simple styles)');
+    log('success', 'Page loaded');
 }
 
         // ========== КОНФИГУРАЦИЯ ==========
         const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
         
         // ========== НАСТРОЙКИ ==========
-        const DEBUG_MODE = true; // Измените на false чтобы отключить консоль
+        const DEBUG_MODE = false; // Измените на false чтобы отключить консоль
         
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
 let state = {
@@ -1137,6 +1118,13 @@ let state = {
     savedWallet: localStorage.getItem('userWallet') || '',
     isLoaded: false
 };
+        
+        // Предзагружаем данные сразу при загрузке страницы
+window.addEventListener('load', function() {
+    // Можно предзагрузить что-то для следующего действия пользователя
+    fetch(API_URL + '?action=get_wallets&preload=true').catch(() => {});
+});
+        
         // Немедленная проверка элементов
 console.log('=== INITIAL CHECK ===');
 console.log('Loading screen exists:', !!document.getElementById('loadingScreen'));
@@ -1200,7 +1188,6 @@ function log(type, message, data = null) {
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         document.addEventListener('DOMContentLoaded', async function() {
-    console.log('=== DEBUG: DOM Loaded ===');
     console.log('Loading screen:', document.getElementById('loadingScreen'));
     console.log('Main container:', document.getElementById('mainContainer'));
     console.log('Container display:', document.getElementById('mainContainer')?.style.display);
