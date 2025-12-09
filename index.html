@@ -8,15 +8,15 @@
     <link rel="preconnect" href="https://api.telegram.org">
 <style>
     :root {
-        --primary-bg: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
-        --accent-color: #D0E41E;
-        --text-color: white;
-        --secondary-text: #ccc;
-        --input-bg: rgba(255, 255, 255, 0.9);
-        --input-border: #34495e;
-        --card-bg: rgba(255, 255, 255, 0.1);
-        --border-color: rgba(255, 255, 255, 0.2);
-        --loading-green: #0A5C4A;
+    --primary-bg: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
+    --accent-color: #D0E41E;
+    --text-color: white;
+    --secondary-text: #ccc;
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-border: #34495e;
+    --card-bg: rgba(255, 255, 255, 0.1);
+    --border-color: rgba(255, 255, 255, 0.2);
+    --loading-green: #0A5C4A;
     }
 
     * {
@@ -213,19 +213,6 @@
 
     .container {
     max-width: 500px;
-    margin: 50px auto !important; /* Добавьте !important */
-    padding: 20px !important;
-    background: white !important; /* Яркий цвет для теста */
-    border: 5px solid red !important;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: relative !important;
-    z-index: 1000 !important;
-    }
-
-    /*.container {
-    max-width: 500px;
     margin: 0 auto;
     background: var(--card-bg);
     border-radius: 15px;
@@ -235,14 +222,13 @@
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.5s, transform 0.5s;
-    display: block; /* УБЕДИТЕСЬ что есть display: block */
+    display: block;
     }
 
-    /*.container.loaded {
+    .container.loaded {
     opacity: 1;
     transform: translateY(0);
     }
-    */
 
     /* ЯЗЫКОВОЙ ПЕРЕКЛЮЧАТЕЛЬ */
     .language-selector {
@@ -1181,48 +1167,39 @@ function log(type, message, data = null) {
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContainer = document.getElementById('mainContainer');
     
-    // Простая проверка
-    if (!loadingScreen) console.log('ERROR: loadingScreen not found');
-    if (!mainContainer) console.log('ERROR: mainContainer not found');
-    
-    if (loadingScreen) {
-        loadingScreen.style.display = 'none';
-        console.log('Loading screen hidden');
+    if (!loadingScreen || !mainContainer) {
+        console.error('Elements not found');
+        return;
     }
     
-    if (mainContainer) {
-        // 1. Убираем все сложные стили
-        mainContainer.style.display = 'block';
-        mainContainer.style.opacity = '1';
-        mainContainer.style.visibility = 'visible';
-        mainContainer.style.position = 'relative';
-        mainContainer.style.zIndex = '1';
-        
-        // 2. Делаем контейнер ОЧЕНЬ заметным для теста
-        mainContainer.style.border = '10px solid red !important';
-        mainContainer.style.background = 'yellow !important';
-        mainContainer.style.color = 'black !important';
-        mainContainer.style.fontSize = '24px !important';
-        mainContainer.style.fontWeight = 'bold !important';
-        mainContainer.style.padding = '50px !important';
-        mainContainer.style.margin = '50px !important';
-        
-        // 3. Добавляем видимый текст
-        const testDiv = document.createElement('div');
-        testDiv.innerHTML = '🚨 ТЕСТ: Контейнер виден! 🚨';
-        testDiv.style.color = 'red';
-        testDiv.style.fontSize = '32px';
-        testDiv.style.textAlign = 'center';
-        testDiv.style.margin = '20px';
-        testDiv.style.padding = '20px';
-        testDiv.style.border = '3px solid blue';
-        mainContainer.prepend(testDiv);
-        
-        console.log('Main container made visible with red border');
+    // 1. Скрываем экран загрузки
+    loadingScreen.style.display = 'none';
+    
+    // 2. Убираем тестовые стили (если они были)
+    mainContainer.style.border = '';
+    mainContainer.style.background = '';
+    mainContainer.style.color = '';
+    mainContainer.style.fontSize = '';
+    mainContainer.style.fontWeight = '';
+    mainContainer.style.padding = '';
+    mainContainer.style.margin = '';
+    
+    // 3. Удаляем тестовый div (если он был добавлен)
+    const testDiv = mainContainer.querySelector('div[style*="ТЕСТ"]');
+    if (testDiv) {
+        testDiv.remove();
     }
     
-    state.isLoaded = true;
-    console.log('=== hideLoadingScreen finished ===');
+    // 4. Показываем нормально
+    mainContainer.style.display = 'block';
+    mainContainer.style.opacity = '0';
+    
+    // 5. Плавное появление
+    setTimeout(() => {
+        mainContainer.classList.add('loaded');
+        state.isLoaded = true;
+        console.log('=== Main content shown ===');
+    }, 50);
 }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
