@@ -212,21 +212,22 @@
     }
 
     .container {
-        max-width: 500px;
-        margin: 0 auto;
-        background: var(--card-bg);
-        border-radius: 15px;
-        padding: 20px;
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border-color);
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.5s, transform 0.5s;
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+    display: block; /* УБЕДИТЕСЬ что есть display: block */
     }
 
     .container.loaded {
-        opacity: 1;
-        transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
     }
 
     /* ЯЗЫКОВОЙ ПЕРЕКЛЮЧАТЕЛЬ */
@@ -888,11 +889,11 @@
     </div>
 
     <div class="container" id="mainContainer">
-        <!-- Хедер -->
-        <div class="header">
-            <div class="logo" data-i18n="title">Payment System</div>
-            <div class="subtitle" data-i18n="subtitle">Secure deposits & withdrawals</div>
-        </div>
+    <!-- Хедер -->
+    <div class="header">
+        <div class="logo" data-i18n="title">Payment System</div>
+        <div class="subtitle" data-i18n="subtitle">Secure deposits & withdrawals</div>
+    </div>
 
         <!-- Переключатель вкладок -->
         <div class="tab-container">
@@ -1099,15 +1100,6 @@ let state = {
     isLoaded: false
 };
 
-      // ========== ИНИЦИАЛИЗАЦИЯ ОТОБРАЖЕНИЯ ==========
-      // Сразу скрываем основной контейнер
-document.addEventListener('DOMContentLoaded', function() {
-    const mainContainer = document.getElementById('mainContainer');
-    if (mainContainer) {
-        mainContainer.style.display = 'none'; // Скрываем до загрузки
-    }
-});
-
         // ========== СИСТЕМА ЛОГИРОВАНИЯ ==========
 function log(type, message, data = null) {
     if (!DEBUG_MODE) return;
@@ -1173,36 +1165,34 @@ function log(type, message, data = null) {
         return;
     }
     
-    // 1. Сначала убедимся, что основной контейнер видим
+    // 1. Останавливаем анимацию букв
+    document.querySelectorAll('.spin-letter').forEach(letter => {
+        letter.style.animation = 'none';
+    });
+    
+    // 2. Быстро скрываем экран загрузки
+    loadingScreen.style.display = 'none';
+    
+    // 3. Показываем основной контент
     mainContainer.style.display = 'block';
     mainContainer.style.opacity = '0';
     
-    // 2. Плавно скрываем экран загрузки
-    loadingScreen.style.transition = 'opacity 0.3s ease';
-    loadingScreen.style.opacity = '0';
-    
-    // 3. Ждём окончания анимации
+    // 4. Плавно появляем
     setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        
-        // 4. Показываем основной контент с небольшой задержкой
-        setTimeout(() => {
-            mainContainer.style.transition = 'opacity 0.4s ease';
-            mainContainer.style.opacity = '1';
-            mainContainer.classList.add('loaded');
-            
-            state.isLoaded = true;
-            log('success', 'Main content shown');
-        }, 50);
-        
-    }, 300); // Уменьшили с 500 до 300 мс
+        mainContainer.classList.add('loaded');
+        state.isLoaded = true;
+        log('success', 'Main content shown');
+    }, 10);
 }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         document.addEventListener('DOMContentLoaded', async function() {
+    console.log('=== DEBUG: DOM Loaded ===');
+    console.log('Loading screen:', document.getElementById('loadingScreen'));
+    console.log('Main container:', document.getElementById('mainContainer'));
+    console.log('Container display:', document.getElementById('mainContainer')?.style.display);
+    
     log('info', 'Payment System Loading...');
-    log('info', `API URL: ${API_URL}`);
-    log('info', `Debug mode: ${DEBUG_MODE ? 'ENABLED' : 'DISABLED'}`);
     
     // Определяем язык браузера
     detectLanguage();
