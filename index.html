@@ -979,7 +979,7 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
         
         // ========== НАСТРОЙКИ ==========
-        const DEBUG_MODE = true; // Измените на false чтобы отключить консоль
+        const DEBUG_MODE = false; // Измените на false чтобы отключить консоль
         
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let state = {
@@ -1011,22 +1011,22 @@ function log(type, message, data = null) {
     document.getElementById('consoleContent').appendChild(entry);
     
     // Прокрутка вниз
-    const console = document.getElementById('debugConsole');
-    if (console) console.scrollTop = console.scrollHeight;
+    const debugConsole = document.getElementById('debugConsole');
+    if (debugConsole) debugConsole.scrollTop = debugConsole.scrollHeight;
     
-    // Также в браузерную консоль
+    // Безопасный вывод в консоль браузера
     try {
-        if (type === 'error') {
-            console.error(`[${time}] ${message}`, data || '');
-        } else if (type === 'warning') {
-            console.warn(`[${time}] ${message}`, data || '');
-        } else if (type === 'success') {
-            console.log(`[${time}] ${message}`, data || '');
-        } else {
-            console.info(`[${time}] ${message}`, data || '');
+        // Проверяем доступность console
+        if (window.console && window.console.log) {
+            const logMsg = `[${time}] ${message}`;
+            if (data) {
+                window.console.log(logMsg, data);
+            } else {
+                window.console.log(logMsg);
+            }
         }
     } catch (e) {
-        console.log(`[${time}] ${message}`, data || '');
+        // Игнорируем ошибки консоли
     }
 }
 
