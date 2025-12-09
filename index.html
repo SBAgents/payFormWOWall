@@ -1083,6 +1083,25 @@
     <div class="notification" id="notification"></div>
 
     <script>
+
+        // ===== ТЕСТ 1: Простой текст =====
+const testText = document.createElement('div');
+testText.innerHTML = '✅ ТЕКСТ ВИДЕН';
+testText.style.cssText = `
+    color: red !important;
+    font-size: 32px !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    background: yellow !important;
+    padding: 20px !important;
+    margin: 20px !important;
+    border: 5px solid blue !important;
+    position: relative !important;
+    z-index: 9999 !important;
+`;
+document.body.appendChild(testText);
+console.log('Тестовый текст добавлен в body');
+
         // ========== КОНФИГУРАЦИЯ ==========
         const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
         
