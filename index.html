@@ -1363,7 +1363,12 @@ function retryLoadWallets() {
                 'notification.server_error': 'Server error. Please try again.',
                 'notification.confirmation_failed': 'Confirmation failed: {message}',
                 'notification.antispam': 'Please wait {minutes} minutes before identical request',
-                'notification.withdrawal_failed': 'Withdrawal failed: {message}'
+                'notification.withdrawal_failed': 'Withdrawal failed: {message}',
+                'antispam.title': '⏰ Please Wait',
+                'antispam.message': 'You need to wait {minutes} minute{plural} before making another identical deposit request.',
+                'antispam.support': 'If the deposit hasn\'t been credited after this time, please contact support.',
+                'antispam.button': 'OK',
+                'antispam.minutes': 'minute{plural}'
                 
             },
             
@@ -1416,7 +1421,12 @@ function retryLoadWallets() {
                 'notification.server_error': 'Ошибка сервера. Пожалуйста, попробуйте снова.',
                 'notification.confirmation_failed': 'Подтверждение не удалось: {message}',
                 'notification.antispam': 'Пожалуйста, подождите {minutes} минут перед идентичным запросом',
-                'notification.withdrawal_failed': 'Вывод не удался: {message}'
+                'notification.withdrawal_failed': 'Вывод не удался: {message}',
+                'antispam.title': '⏰ Пожалуйста, подождите',
+                'antispam.message': 'Вам нужно подождать {minutes} минут{ending} перед повторным идентичным запросом на пополнение.',
+                'antispam.support': 'Если средства не были зачислены после этого времени, пожалуйста, обратитесь в поддержку.',
+                'antispam.button': 'OK',
+                'antispam.minutes': 'минут{ending}'
             },
             
             fr: {
@@ -1468,7 +1478,12 @@ function retryLoadWallets() {
                 'notification.server_error': 'Erreur serveur. Veuillez réessayer.',
                 'notification.confirmation_failed': 'Échec de la confirmation: {message}',
                 'notification.antispam': 'Veuillez attendre {minutes} minutes avant une demande identique',
-                'notification.withdrawal_failed': 'Échec du retrait: {message}'
+                'notification.withdrawal_failed': 'Échec du retrait: {message}',
+                'antispam.title': '⏰ Veuillez patienter',
+                'antispam.message': 'Vous devez attendre {minutes} minute{plural} avant de faire une autre demande de dépôt identique.',
+                'antispam.support': 'Si le dépôt n\'a pas été crédité après ce délai, veuillez contacter le support.',
+                'antispam.button': 'OK',
+                'antispam.minutes': 'minute{plural}'
             },
             
             ar: {
@@ -1520,7 +1535,12 @@ function retryLoadWallets() {
                 'notification.server_error': 'خطأ في الخادم. يرجى المحاولة مرة أخرى.',
                 'notification.confirmation_failed': 'فشل التأكيد: {message}',
                 'notification.antispam': 'يرجى الانتظار {minutes} دقائق قبل الطلب المماثل',
-                'notification.withdrawal_failed': 'فشل السحب: {message}'
+                'notification.withdrawal_failed': 'فشل السحب: {message}',
+                'antispam.title': '⏰ يرجى الانتظار',
+                'antispam.message': 'يجب عليك الانتظار {minutes} دقيقة{plural} قبل تقديم طلب إيداع مماثل آخر.',
+                'antispam.support': 'إذا لم يتم إضافة الأموال بعد هذا الوقت، يرجى الاتصال بالدعم.',
+                'antispam.button': 'موافق',
+                'antispam.minutes': 'دقيقة{plural}'
             }
         };
 
@@ -1537,7 +1557,20 @@ function retryLoadWallets() {
             log('info', `Browser language detected: ${browserLang}, using: ${lang}`);
         }
 
-        function changeLanguage(lang) {
+        // Вспомогательная функция для правильных окончаний
+        function getPluralSuffix(minutes, language) {
+            if (language === 'ru') {
+            if (minutes === 1) return 'у';
+            if (minutes >= 2 && minutes <= 4) return 'ы';
+            return '';
+        }
+            if (language === 'ar') {
+            return minutes > 1 ? 'ات' : '';
+        }
+            return minutes > 1 ? 's' : '';
+        }
+
+         function changeLanguage(lang) {
             if (!translations[lang]) {
                 lang = 'en';
                 log('warning', `Language ${lang} not found, defaulting to English`);
@@ -1832,56 +1865,74 @@ function retryLoadWallets() {
         log('warning', `Deposit amount too low: ${amount}`);
         return;
     }
+    
+    // Сохраняем аккаунт и кошелёк
+    state.userAccount = account;
+    state.savedWallet = wallet;
+    localStorage.setItem('userAccount', account);
+    localStorage.setItem('userWallet', wallet);
+    
+    log('info', 'User data saved to localStorage');
+    
+    const btn = document.getElementById('depositBtn');
+    const originalText = btn?.textContent || translate('deposit.get_wallet_button');
+    
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> ' + translate('deposit.get_wallet_button');
+    }
+    
+    try {
+        const url = `${API_URL}?action=check_deposit&account=${encodeURIComponent(account)}&amount=${encodeURIComponent(amount)}&wallet=${encodeURIComponent(wallet)}&type=${encodeURIComponent(method)}&t=${Date.now()}`;
+        log('info', `Sending deposit request to: ${url}`);
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        log('info', 'Deposit response received', result);
+        
+        if (result.status === 'success') {
+            state.currentDeposit = {
+                account: account,
+                amount: amount,
+                wallet: wallet,
+                type: method,
+                depositWallet: result.wallet
+            };
             
-            // Сохраняем аккаунт и кошелёк
-            state.userAccount = account;
-            state.savedWallet = wallet;
-            localStorage.setItem('userAccount', account);
-            localStorage.setItem('userWallet', wallet);
+            showDepositResult(amount, result.wallet);
+            showNotification('deposit_received');
+            log('success', 'Deposit processed successfully', { depositWallet: result.wallet });
             
-            log('info', 'User data saved to localStorage');
+        } else if (result.status === 'error' && result.message?.includes('Please wait')) {
+            // 🔥 ОБРАБОТКА АНТИСПАМ ОШИБКИ
+            log('warning', 'Deposit blocked by antispam', result);
             
-            const btn = document.getElementById('depositBtn');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<div class="spinner"></div> ' + translate('deposit.get_wallet_button');
-            }
+            // Извлекаем количество минут из сообщения
+            const minutesMatch = result.message.match(/(\d+)\s*minute?s?/i);
+            const minutesLeft = minutesMatch ? parseInt(minutesMatch[1]) : 3;
             
-            try {
-                const url = `${API_URL}?action=check_deposit&account=${encodeURIComponent(account)}&amount=${encodeURIComponent(amount)}&wallet=${encodeURIComponent(wallet)}&type=${encodeURIComponent(method)}&t=${Date.now()}`;
-                log('info', `Sending deposit request to: ${url}`);
-                
-                const response = await fetch(url);
-                const result = await response.json();
-                
-                log('info', 'Deposit response received', result);
-                
-                if (result.status === 'success') {
-                    state.currentDeposit = {
-                        account: account,
-                        amount: amount,
-                        wallet: wallet,
-                        type: method,
-                        depositWallet: result.wallet
-                    };
-                    
-                    showDepositResult(amount, result.wallet);
-                    showNotification('deposit_received');
-                    log('success', 'Deposit processed successfully', { depositWallet: result.wallet });
-                } else {
-                    showNotification('server_error', true, { message: result.message });
-                    log('error', 'Deposit failed on server', result);
-                }
-            } catch (error) {
-                showNotification('network_error', true);
-                log('error', 'Network error during deposit', error);
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = translate('deposit.get_wallet_button');
-                }
-            }
+            // Показываем антиспам уведомление
+            showAntispamNotification(minutesLeft, state.currentLanguage);
+            
+            // Не показываем обычное уведомление об ошибке
+            
+        } else {
+            // Другие ошибки
+            showNotification('server_error', true, { message: result.message });
+            log('error', 'Deposit failed on server', result);
         }
+        
+    } catch (error) {
+        showNotification('network_error', true);
+        log('error', 'Network error during deposit', error);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+}
 
         function showDepositResult(amount, wallet) {
             document.getElementById('displayAmount').textContent = `${amount} ${state.config?.currency || 'EGP'}`;
@@ -2115,6 +2166,133 @@ function retryLoadWallets() {
                 }
             }
         }
+
+        // ========== ФУНКЦИЯ АНТИСПАМ УВЕДОМЛЕНИЯ ==========
+function showAntispamNotification(minutesLeft, language = 'en') {
+    const messages = {
+        en: {
+            title: '⏰ Please Wait',
+            message: `You need to wait ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''} before making another identical deposit request.`,
+            support: 'If the deposit hasn\'t been credited after this time, please contact support.',
+            button: 'OK'
+        },
+        ru: {
+            title: '⏰ Пожалуйста, подождите',
+            message: `Вам нужно подождать ${minutesLeft} минут${getRussianMinutesText(minutesLeft)} перед повторным идентичным запросом на пополнение.`,
+            support: 'Если средства не были зачислены после этого времени, пожалуйста, обратитесь в поддержку.',
+            button: 'OK'
+        },
+        fr: {
+            title: '⏰ Veuillez patienter',
+            message: `Vous devez attendre ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''} avant de faire une autre demande de dépôt identique.`,
+            support: 'Si le dépôt n\'a pas été crédité après ce délai, veuillez contacter le support.',
+            button: 'OK'
+        },
+        ar: {
+            title: '⏰ يرجى الانتظار',
+            message: `يجب عليك الانتظار ${minutesLeft} دقيقة${minutesLeft > 1 ? 'ات' : ''} قبل تقديم طلب إيداع مماثل آخر.`,
+            support: 'إذا لم يتم إضافة الأموال بعد هذا الوقت، يرجى الاتصال بالدعم.',
+            button: 'موافق'
+        }
+    };
+    
+    const msg = messages[language] || messages.en;
+    
+    // Создаем HTML для уведомления
+    const notificationHTML = `
+        <div id="antispamNotification" style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            z-index: 10000;
+            min-width: 350px;
+            max-width: 500px;
+            border: 2px solid #FFA500;
+            box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        ">
+            <div style="font-size: 40px; margin-bottom: 15px;">⏰</div>
+            <div style="font-size: 22px; font-weight: bold; color: #FFA500; margin-bottom: 10px;">
+                ${msg.title}
+            </div>
+            <div style="font-size: 16px; margin-bottom: 15px; line-height: 1.5;">
+                ${msg.message}
+            </div>
+            <div style="
+                background: rgba(255, 165, 0, 0.1);
+                border-left: 3px solid #FFA500;
+                padding: 12px;
+                margin: 15px 0;
+                font-size: 14px;
+                text-align: left;
+                border-radius: 0 8px 8px 0;
+            ">
+                💡 ${msg.support}
+            </div>
+            <button onclick="closeAntispamNotification()" style="
+                background: #FFA500;
+                color: #2c3e50;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                margin-top: 10px;
+                width: 100%;
+                transition: all 0.3s;
+            ">
+                ${msg.button}
+            </button>
+        </div>
+        <div id="antispamOverlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        "></div>
+    `;
+    
+    // Добавляем в DOM
+    const container = document.createElement('div');
+    container.innerHTML = notificationHTML;
+    document.body.appendChild(container.firstChild);
+    document.body.appendChild(container.children[1]);
+    
+    // Блокируем скролл
+    document.body.style.overflow = 'hidden';
+    
+    log('info', `Antispam notification shown: ${minutesLeft} minutes left`);
+}
+
+// Вспомогательная функция для русского языка
+function getRussianMinutesText(minutes) {
+    if (minutes === 1) return 'у';
+    if (minutes >= 2 && minutes <= 4) return 'ы';
+    return '';
+}
+
+// Функция закрытия уведомления
+function closeAntispamNotification() {
+    const notification = document.getElementById('antispamNotification');
+    const overlay = document.getElementById('antispamOverlay');
+    
+    if (notification) notification.remove();
+    if (overlay) overlay.remove();
+    
+    document.body.style.overflow = '';
+    log('info', 'Antispam notification closed');
+}
     </script>
 </body>
 </html>
