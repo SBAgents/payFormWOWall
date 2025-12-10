@@ -2170,31 +2170,34 @@ function retryLoadWallets() {
         // ========== ФУНКЦИЯ АНТИСПАМ УВЕДОМЛЕНИЯ ==========
        
         function showAntispamNotification(minutesLeft, language = 'en') {
-    // Сначала закрываем предыдущие уведомления если есть
     closeAntispamNotification();
+    
+    // Сохраняем оригинальные стили body
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalBodyPosition = document.body.style.position;
     
     const messages = {
         en: {
             title: '⏰ Please Wait',
-            message: `You need to wait ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''} before making another identical deposit request.`,
+            message: `You need to wait minimum ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''}.`,
             support: 'If the deposit hasn\'t been credited after this time, please contact support.',
             button: 'OK'
         },
         ru: {
             title: '⏰ Пожалуйста, подождите',
-            message: `Вам нужно подождать ${minutesLeft} минут${getRussianMinutesText(minutesLeft)} перед повторным идентичным запросом на пополнение.`,
+            message: `Вам нужно подождать не менее ${minutesLeft} минут${getRussianMinutesText(minutesLeft)}.`,
             support: 'Если средства не были зачислены после этого времени, пожалуйста, обратитесь в поддержку.',
             button: 'OK'
         },
         fr: {
             title: '⏰ Veuillez patienter',
-            message: `Vous devez attendre ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''} avant de faire une autre demande de dépôt identique.`,
+            message: `Vous devez attendre au moins ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''}.`,
             support: 'Si le dépôt n\'a pas été crédité après ce délai, veuillez contacter le support.',
             button: 'OK'
         },
         ar: {
             title: '⏰ يرجى الانتظار',
-            message: `يجب عليك الانتظار ${minutesLeft} دقيقة${minutesLeft > 1 ? 'ات' : ''} قبل تقديم طلب إيداع مماثل آخر.`,
+            message: `عليك الانتظار على الأقل ${minutesLeft} دقيقة${minutesLeft > 1 ? 'ات' : ''}.`,
             support: 'إذا لم يتم إضافة الأموال بعد هذا الوقت، يرجى الاتصال بالدعم.',
             button: 'موافق'
         }
@@ -2202,193 +2205,125 @@ function retryLoadWallets() {
     
     const msg = messages[language] || messages.en;
     
-    // Создаем HTML структуру
-    const notificationHTML = `
-        <div id="antispamNotification" class="antispam-notification">
-            <div class="antispam-icon">⏰</div>
-            <div class="antispam-title">${msg.title}</div>
-            <div class="antispam-message">${msg.message}</div>
-            <div class="antispam-support">
-                💡 ${msg.support}
-            </div>
-            <button onclick="closeAntispamNotification()" class="antispam-button">
-                ${msg.button}
-            </button>
-        </div>
-    `;
-    
-    const overlayHTML = `<div id="antispamOverlay" class="antispam-overlay"></div>`;
-    
-    // Добавляем стили если их еще нет
-    if (!document.getElementById('antispamStyles')) {
-        const styles = document.createElement('style');
-        styles.id = 'antispamStyles';
-        styles.textContent = `
-            .antispam-overlay {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background: rgba(0, 0, 0, 0.85) !important;
-                z-index: 9998 !important;
-                backdrop-filter: blur(5px) !important;
-            }
-            
-            .antispam-notification {
-                position: fixed !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                background: var(--card-bg, rgba(255, 255, 255, 0.1)) !important;
-                color: var(--text-color, white) !important;
-                padding: 30px !important;
-                border-radius: 20px !important;
-                z-index: 9999 !important;
-                min-width: 350px !important;
-                max-width: 450px !important;
-                border: 3px solid #FFA500 !important;
-                box-shadow: 0 0 40px rgba(255, 165, 0, 0.4) !important;
-                backdrop-filter: blur(20px) !important;
-                text-align: center !important;
-                animation: antispamAppear 0.3s ease-out !important;
-            }
-            
-            @keyframes antispamAppear {
-                from {
-                    opacity: 0;
-                    transform: translate(-50%, -60%) scale(0.9);
-                }
-                to {
-                    opacity: 1;
-                    transform: translate(-50%, -50%) scale(1);
-                }
-            }
-            
-            .antispam-icon {
-                font-size: 50px !important;
-                margin-bottom: 20px !important;
-                animation: pulse 2s infinite !important;
-            }
-            
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-            }
-            
-            .antispam-title {
-                font-size: 24px !important;
-                font-weight: bold !important;
-                color: #FFA500 !important;
-                margin-bottom: 15px !important;
-                text-shadow: 0 0 10px rgba(255, 165, 0, 0.3) !important;
-            }
-            
-            .antispam-message {
-                font-size: 16px !important;
-                margin-bottom: 20px !important;
-                line-height: 1.5 !important;
-                padding: 0 10px !important;
-            }
-            
-            .antispam-support {
-                background: rgba(255, 165, 0, 0.15) !important;
-                border-left: 4px solid #FFA500 !important;
-                padding: 15px !important;
-                margin: 20px 0 !important;
-                font-size: 14px !important;
-                text-align: left !important;
-                border-radius: 0 10px 10px 0 !important;
-                line-height: 1.4 !important;
-            }
-            
-            .antispam-button {
-                background: #FFA500 !important;
-                color: #2c3e50 !important;
-                border: none !important;
-                padding: 14px 40px !important;
-                border-radius: 10px !important;
-                font-size: 16px !important;
-                font-weight: bold !important;
-                cursor: pointer !important;
-                margin-top: 10px !important;
-                width: 100% !important;
-                transition: all 0.3s !important;
-                box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3) !important;
-            }
-            
-            .antispam-button:hover {
-                background: #ffb732 !important;
-                transform: translateY(-2px) !important;
-                box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4) !important;
-            }
-            
-            .antispam-button:active {
-                transform: translateY(0) !important;
-            }
-            
-            /* Мобильная адаптация */
-            @media (max-width: 768px) {
-                .antispam-notification {
-                    min-width: 90% !important;
-                    max-width: 95% !important;
-                    padding: 20px !important;
-                    margin: 0 15px !important;
-                }
-                
-                .antispam-icon {
-                    font-size: 40px !important;
-                }
-                
-                .antispam-title {
-                    font-size: 20px !important;
-                }
-                
-                .antispam-message {
-                    font-size: 15px !important;
-                }
-                
-                .antispam-button {
-                    padding: 12px 20px !important;
-                }
-            }
-        `;
-        document.head.appendChild(styles);
-    }
-    
-    // Создаем элементы
+    // Создаем overlay
     const overlay = document.createElement('div');
     overlay.id = 'antispamOverlay';
-    overlay.className = 'antispam-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9998;
+        backdrop-filter: blur(5px);
+    `;
+    overlay.onclick = closeAntispamNotification;
     
-    const notification = document.createElement('div');
-    notification.id = 'antispamNotification';
-    notification.className = 'antispam-notification';
-    notification.innerHTML = notificationHTML;
+    // Создаем popup
+    const popup = document.createElement('div');
+    popup.id = 'antispamNotification';
+    popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 20px;
+        z-index: 9999;
+        width: 90%;
+        max-width: 450px;
+        border: 3px solid #D0E41E;
+        box-shadow: 0 0 40px rgba(208, 228, 30, 0.4);
+        backdrop-filter: blur(20px);
+        text-align: center;
+        animation: fadeIn 0.3s ease-out;
+        box-sizing: border-box;
+    `;
     
-    // Добавляем в DOM (сначала overlay, потом notification)
+    // Заполняем содержимое
+    popup.innerHTML = `
+        <div style="font-size: 50px; margin-bottom: 20px; color: #D0E41E;">⏰</div>
+        <div style="font-size: 24px; font-weight: bold; color: #D0E41E; margin-bottom: 15px; word-wrap: break-word;">
+            ${msg.title}
+        </div>
+        <div style="font-size: 16px; margin-bottom: 20px; line-height: 1.5; padding: 0 5px; word-wrap: break-word;">
+            ${msg.message}
+        </div>
+        <div style="
+            background: rgba(208, 228, 30, 0.15);
+            border-left: 4px solid #D0E41E;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+            line-height: 1.4;
+            word-wrap: break-word;
+        ">
+            💡 ${msg.support}
+        </div>
+        <button onclick="closeAntispamNotification()" style="
+            background: #D0E41E;
+            color: #2c3e50;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(208, 228, 30, 0.3);
+            box-sizing: border-box;
+        ">
+            ${msg.button}
+        </button>
+    `;
+    
+    // Добавляем в DOM
     document.body.appendChild(overlay);
-    document.body.appendChild(notification);
+    document.body.appendChild(popup);
     
-    // Блокируем скролл
+    // Блокируем скролл НАДЕЖНО
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
+    document.body.style.height = '100vh';
+    document.body.style.width = '100vw';
     
-    // Фокус на кнопке
-    setTimeout(() => {
-        const button = notification.querySelector('.antispam-button');
-        if (button) button.focus();
-    }, 100);
+    // Сохраняем оригинальные стили в data-атрибутах
+    document.body.dataset.originalOverflow = originalBodyOverflow;
+    document.body.dataset.originalPosition = originalBodyPosition;
     
-    log('info', `Antispam notification shown: ${minutesLeft} minutes left, language: ${language}`);
+    log('info', `Antispam notification shown: ${minutesLeft} minutes`);
+}
+
+function closeAntispamNotification() {
+    const popup = document.getElementById('antispamNotification');
+    const overlay = document.getElementById('antispamOverlay');
     
-    // Возвращаем объект для управления
-    return {
-        close: closeAntispamNotification,
-        element: notification,
-        overlay: overlay
-    };
+    if (popup) popup.remove();
+    if (overlay) overlay.remove();
+    
+    // Восстанавливаем оригинальные стили ТОЧНО
+    document.body.style.overflow = document.body.dataset.originalOverflow || '';
+    document.body.style.position = document.body.dataset.originalPosition || '';
+    document.body.style.height = '';
+    document.body.style.width = '';
+    
+    // Удаляем data-атрибуты
+    delete document.body.dataset.originalOverflow;
+    delete document.body.dataset.originalPosition;
+    
+    log('info', 'Antispam notification closed');
+}
+
+function getRussianMinutesText(minutes) {
+    if (minutes === 1) return 'у';
+    if (minutes >= 2 && minutes <= 4) return 'ы';
+    return '';
 }
 
 // Вспомогательная функция для русского языка
