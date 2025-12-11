@@ -1761,139 +1761,82 @@ function retryLoadWallets() {
             }
         }
 
-        // В основной странице в script теге:
+        // ========== ЗАГРУЗКА КОШЕЛЬКОВ ==========
+        async function loadWallets() {
+            try {
+                const url = API_URL + '?action=get_wallets&t=' + Date.now();
+                log('info', `Fetching wallets from: ${url}`);
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                log('info', 'Wallets response received', { 
+                    status: result.status,
+                    source: result.source,
+                    count: result.wallets ? Object.keys(result.wallets).length : 0
+                });
+                
+                if (result.status === 'success') {
+                    state.wallets = result.wallets;
+                    renderWalletMethods();
+                    
+                    log('success', 'Wallets loaded successfully', {
+                        count: Object.keys(state.wallets).length,
+                        types: Object.keys(state.wallets)
+                    });
+                } else {
+                    log('error', 'Failed to load wallets', result);
+                    throw new Error(result.message || 'Wallets load failed');
+                }
+            } catch (error) {
+                state.wallets = {
+                    vodafone: { name: 'Vodafone Cash', enabled: true, availableNumbers: ['01012345678'] },
+                    instapay: { name: 'InstaPay QR', enabled: true, availableNumbers: ['01111111111'] }
+                };
+                renderWalletMethods();
+                log('warning', 'Using test wallets due to error', error);
+            }
+        }
 
-// ========== ЗАГРУЗКА КОШЕЛЬКОВ ==========
-async function loadWallets() {
-    try {
-        const url = API_URL + '?action=get_wallets&t=' + Date.now();
-        log('info', `Fetching wallets from: ${url}`);
-        
-        const response = await fetch(url);
-        const result = await response.json();
-        
-        log('info', 'Wallets response received', { 
-            status: result.status,
-            source: result.source,
-            count: result.wallets ? Object.keys(result.wallets).length : 0
-        });
-        
-        if (result.status === 'success') {
-            state.wallets = result.wallets;
-            renderWalletMethods();
+        function renderWalletMethods() {
+            const container = document.getElementById('walletMethods');
+            if (!state.wallets || Object.keys(state.wallets).length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #e74c3c;">⚠️ No payment methods available</div>';
+                log('warning', 'No payment methods available to render');
+                return;
+            }
             
-            log('success', 'Wallets loaded successfully', {
-                count: Object.keys(state.wallets).length,
-                types: Object.keys(state.wallets)
+            let html = '';
+            let enabledCount = 0;
+            
+            Object.entries(state.wallets).forEach(([type, wallet]) => {
+                if (wallet.enabled) {
+                    enabledCount++;
+                    const isActive = state.selectedMethod === type;
+                    const icon = type === 'vodafone' ? '📱' : type === 'instapay' ? '💳' : '💰';
+                    
+                    html += `
+                        <div class="wallet-type-btn ${isActive ? 'active' : ''}" 
+                             onclick="selectWalletMethod('${type}')"
+                             data-type="${type}">
+                            ${icon} ${wallet.name || type}
+                        </div>
+                    `;
+                }
             });
             
-            return true;
-        } else {
-            log('error', 'Failed to load wallets', result);
-            
-            // Используем тестовые кошельки
-            state.wallets = {
-                vodafone: { name: 'Vodafone Cash', enabled: true, availableNumbers: ['01012345678'] },
-                instapay: { name: 'InstaPay QR', enabled: true, availableNumbers: ['01111111111'] }
-            };
-            
-            renderWalletMethods();
-            log('warning', 'Using test wallets');
-            
-            return false;
+            container.innerHTML = html;
+            log('info', `Rendered ${enabledCount} payment methods`);
         }
-    } catch (error) {
-        log('error', 'Network error loading wallets', error);
-        
-        // Используем тестовые кошельки при ошибке
-        state.wallets = {
-            vodafone: { name: 'Vodafone Cash', enabled: true, availableNumbers: ['01012345678'] },
-            instapay: { name: 'InstaPay QR', enabled: true, availableNumbers: ['01111111111'] }
-        };
-        
-        renderWalletMethods();
-        showNotification('network_error', true);
-        
-        return false;
-    }
-}
 
-// ========== УПРОЩЕННЫЙ РЕНДЕРИНГ КОШЕЛЬКОВ ==========
-function renderWalletMethods() {
-    const container = document.getElementById('walletMethods');
-    if (!container) {
-        log('error', 'Wallet methods container not found');
-        return;
-    }
-    
-    if (!state.wallets || Object.keys(state.wallets).length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: var(--accent-color);">
-                ⚠️ No payment methods available
-            </div>
-        `;
-        log('warning', 'No payment methods available to render');
-        return;
-    }
-    
-    let html = '';
-    let enabledCount = 0;
-    
-    // Всегда показываем Vodafone и InstaPay
-    const defaultTypes = ['vodafone', 'instapay'];
-    
-    defaultTypes.forEach(type => {
-        const wallet = state.wallets[type] || {
-            name: type === 'vodafone' ? 'Vodafone Cash' : 'InstaPay QR',
-            enabled: true
-        };
-        
-        if (wallet.enabled) {
-            enabledCount++;
-            const isActive = state.selectedMethod === type;
-            const icon = type === 'vodafone' ? '📱' : '💳';
+        function selectWalletMethod(type) {
+            state.selectedMethod = type;
+            document.querySelectorAll('.wallet-type-btn').forEach(btn => btn.classList.remove('active'));
+            const selectedBtn = document.querySelector(`.wallet-type-btn[data-type="${type}"]`);
+            if (selectedBtn) selectedBtn.classList.add('active');
             
-            html += `
-                <div class="wallet-type-btn ${isActive ? 'active' : ''}" 
-                     onclick="selectWalletMethod('${type}')"
-                     data-type="${type}">
-                    ${icon} ${wallet.name}
-                </div>
-            `;
+            log('info', `Payment method selected: ${type}`);
         }
-    });
-    
-    // Если нет активных кошельков, показываем сообщение
-    if (enabledCount === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: #e74c3c;">
-                ⚠️ <span data-i18n="deposit.loading_error">Payment methods not available</span>
-                <div style="margin-top: 10px;">
-                    <button onclick="retryLoadWallets()" style="
-                        background: var(--accent-color);
-                        color: #2c3e50;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-size: 14px;
-                    ">
-                        <span data-i18n="deposit.retry_button">Retry</span>
-                    </button>
-                </div>
-            </div>
-        `;
-    } else {
-        container.innerHTML = html;
-    }
-    
-    log('info', `Rendered ${enabledCount} payment methods`);
-    
-    // Автоматически выбираем первый доступный метод
-    if (!state.selectedMethod && enabledCount > 0) {
-        selectWalletMethod(defaultTypes[0]);
-    }
-}
 
         // ========== ДЕПОЗИТ ==========
         async function processDeposit() {
