@@ -1795,11 +1795,15 @@ function retryLoadWallets() {
     }
 }
 
-        function renderWalletMethods() {
+        unction renderWalletMethods() {
     const container = document.getElementById('walletMethods');
     
-    // ПРОВЕРЯЕМ: если wallets пустой объект или undefined
+    console.log('🔍 renderWalletMethods called with wallets:', state.wallets);
+    console.log('Wallets keys:', Object.keys(state.wallets));
+    console.log('Wallets object:', JSON.stringify(state.wallets));
+    
     if (!state.wallets || Object.keys(state.wallets).length === 0) {
+        console.log('⚠️ No wallets available');
         container.innerHTML = `
             <div style="text-align: center; padding: 20px; color: #e74c3c;">
                 ⚠️ <span data-i18n="deposit.loading_error">No payment methods available</span>
@@ -1818,7 +1822,6 @@ function retryLoadWallets() {
                 </div>
             </div>
         `;
-        log('warning', 'No payment methods available to render - wallets object is empty');
         return;
     }
     
