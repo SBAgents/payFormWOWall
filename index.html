@@ -796,7 +796,7 @@
 
     <script>
         // ========== КОНФИГУРАЦИЯ ==========
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwk08D4xC8YIQUjsfPfy24ouFK8vtEcZqJedWgaD__ImG7Fg1qmbZLlqI2a3UICS-XG/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwk08D4xC8YIQUjsfPfy24ouFK8vtEcZqJedWgaD__ImG7Fg1qmbZLlqI2a3UICS-XG/dev';
         
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let state = {
@@ -1179,43 +1179,33 @@
     console.log('=== loadWallets called ===');
     
     try {
-        const url = 'https://script.google.com/macros/s/AKfycbwk08D4xC8YIQUjsfPfy24ouFK8vtEcZqJedWgaD__ImG7Fg1qmbZLlqI2a3UICS-XG/exec?action=get_wallets&t=' + Date.now();
+        const url = API_URL + '?action=get_wallets&t=' + Date.now();
         console.log('Fetching from:', url);
         
         const response = await fetch(url);
         
-        console.log('Response status:', response.status, response.ok);
-        console.log('Response headers:', [...response.headers.entries()]);
+        console.log('Response status:', response.status);
+        console.log('Response type:', response.type);
         
-        const text = await response.text();
-        console.log('Raw response text:', text);
-        
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (parseError) {
-            console.error('JSON parse error:', parseError, 'Text was:', text);
-            state.wallets = {};
-            renderWalletMethods();
-            return;
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
+        const result = await response.json();
         console.log('API Response:', result);
         
         if (result.status === 'success') {
             state.wallets = result.wallets || {};
             console.log('Wallets loaded:', state.wallets);
-            console.log('Number of wallet types:', Object.keys(state.wallets).length);
             renderWalletMethods();
         } else {
-            console.error('API returned error:', result);
+            console.error('API error:', result.message);
             state.wallets = {};
             renderWalletMethods();
         }
     } catch (error) {
-        console.error('Network error:', error);
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
+        console.error('Full error:', error);
+        console.error('Error stack:', error.stack);
         state.wallets = {};
         renderWalletMethods();
     }
