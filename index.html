@@ -1182,9 +1182,19 @@
         const url = API_URL + '?action=get_wallets&t=' + Date.now();
         console.log('Fetching from:', url);
         
-        const response = await fetch(url);
-        const result = await response.json();
+        // Добавьте опции для fetch
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
         
+        console.log('Response status:', response.status, response.statusText);
+        
+        const result = await response.json();
         console.log('API Response:', result);
         
         if (result.status === 'success') {
@@ -1199,6 +1209,7 @@
         }
     } catch (error) {
         console.error('Network error:', error);
+        console.error('Error details:', error.message);
         state.wallets = {};
         renderWalletMethods();
     }
