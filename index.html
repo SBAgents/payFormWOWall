@@ -796,7 +796,7 @@
 
     <script>
         // ========== КОНФИГУРАЦИЯ ==========
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
+        const API_URL = 'https://corsproxy.io/?https://script.google.com/macros/s/AKfycbxbQoGDjvsGgr2esuqCBRAeWLuD99XPe9h2dFc-g7Rl5luOth4_LKq08caex6bg4bQ/exec';
         
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let state = {
@@ -1182,25 +1182,14 @@
         const url = API_URL + '?action=get_wallets&t=' + Date.now();
         console.log('Fetching from:', url);
         
-        // Добавьте опции для fetch
-        const response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        console.log('Response status:', response.status, response.statusText);
-        
+        const response = await fetch(url);
         const result = await response.json();
+        
         console.log('API Response:', result);
         
         if (result.status === 'success') {
             state.wallets = result.wallets;
             console.log('Wallets loaded:', state.wallets);
-            console.log('Number of wallet types:', Object.keys(state.wallets).length);
             renderWalletMethods();
         } else {
             console.error('API returned error:', result);
@@ -1209,7 +1198,6 @@
         }
     } catch (error) {
         console.error('Network error:', error);
-        console.error('Error details:', error.message);
         state.wallets = {};
         renderWalletMethods();
     }
