@@ -282,7 +282,7 @@
                         console.log('System is ACTIVE. Redirecting to main.html...');
                         // Короткая задержка для визуального восприятия
                         setTimeout(() => {
-                            window.location.href = 'main.html';
+                            /*window.location.href = 'main.html';*/
                         }, 800);
                     } 
                     // СИСТЕМА В СЕРВИСНОМ РЕЖИМЕ
@@ -306,7 +306,7 @@
         // Использование
         checkServiceStatus().then(result => {
             if (result.status === 'success' && result.config.isActive !== false) {
-                window.location.href = 'main.html';
+                /*window.location.href = 'main.html';*/
             } else {
                 showServiceMode();
             }
