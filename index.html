@@ -298,7 +298,7 @@
                 console.log('main.html loaded successfully, system is active');
                 // Если main.html загрузился, перенаправляем на него
                 setTimeout(() => {
-                    window.location.href = 'main.html';
+                    /*window.location.href = 'main.html';*/
                 }, 1000);
             };
             
@@ -312,7 +312,7 @@
                 if (iframe.contentWindow && iframe.contentWindow.document.readyState === 'complete') {
                     // Загрузилось успешно
                     setTimeout(() => {
-                        window.location.href = 'main.html';
+                        /*window.location.href = 'main.html';*/
                     }, 500);
                 } else {
                     // Не загрузилось - сервисный режим
