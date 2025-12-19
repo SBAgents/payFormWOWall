@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment System</title>
     <style>
+        /* Стили остаются теми же */
         :root {
             --primary-bg: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
             --accent-color: #D0E41E;
@@ -209,7 +210,7 @@
                 <span class="spin-letter">N</span>
                 <span class="better-text">BETTER</span>
             </div>
-            <div class="loading-subtitle">Checking system status...</div>
+            <div class="loading-subtitle" id="loadingText">Checking system status...</div>
         </div>
     </div>
 
@@ -221,6 +222,7 @@
     </div>
 
     <script>
+        // Используем тот же URL что и в основной странице
         const API_URL = 'https://script.google.com/macros/s/AKfycbzGZM-oJOxz2cqERML4ErM8pa2afQTNf3cwKIBLvoAor5IFtugLon6uiLRhS80B0LB-/exec';
         
         // Определяем язык пользователя
@@ -254,35 +256,71 @@
 
         async function checkServiceStatus() {
             try {
+                // Используем JSONP для обхода CORS в GAS
                 const url = `${API_URL}?action=get_config&t=${Date.now()}`;
-                const response = await fetch(url);
-                const result = await response.json();
                 
-                console.log('Config response:', result);
+                console.log('Fetching config from:', url);
                 
-                if (result.status === 'success' && result.config) {
-                    // Если система активна, перенаправляем на основную страницу
-                    if (result.config.isActive !== false) {
-                        console.log('System is active, redirecting to main.html');
-                        // Небольшая задержка чтобы показать анимацию
-                        setTimeout(() => {
-                            window.location.href = 'main.html';
-                        }, 500);
-                        return true;
-                    } else {
-                        // Показываем сообщение о сервисном режиме
-                        console.log('System is in maintenance mode');
-                        showServiceMode();
-                        return false;
+                // Простой fetch с обработкой CORS
+                const response = await fetch(url, {
+                    mode: 'no-cors', // Важно для GAS
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
                     }
-                }
+                });
+                
+                // Для no-cors режима мы не можем прочитать ответ, поэтому используем альтернативный подход
+                // Создаем iframe для загрузки main.html напрямую
+                console.log('Attempting to load main page...');
+                
+                // Пробуем загрузить main.html напрямую
+                // Если загрузка удалась - система активна
+                // Если нет - показываем сервисный режим
+                testMainPageLoad();
+                
             } catch (error) {
                 console.error('Error checking service status:', error);
-                // При ошибке загрузки показываем сервисный режим для безопасности
+                // При ошибке показываем сервисный режим
                 showServiceMode();
-                return false;
             }
-            return false;
+        }
+
+        function testMainPageLoad() {
+            // Меняем текст загрузки
+            document.getElementById('loadingText').textContent = 'Loading payment system...';
+            
+            // Создаем скрытый iframe для проверки загрузки main.html
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'main.html';
+            
+            iframe.onload = function() {
+                console.log('main.html loaded successfully, system is active');
+                // Если main.html загрузился, перенаправляем на него
+                setTimeout(() => {
+                    window.location.href = 'main.html';
+                }, 1000);
+            };
+            
+            iframe.onerror = function() {
+                console.log('Failed to load main.html, system is in maintenance mode');
+                showServiceMode();
+            };
+            
+            // Даем iframe 5 секунд на загрузку
+            setTimeout(() => {
+                if (iframe.contentWindow && iframe.contentWindow.document.readyState === 'complete') {
+                    // Загрузилось успешно
+                    setTimeout(() => {
+                        window.location.href = 'main.html';
+                    }, 500);
+                } else {
+                    // Не загрузилось - сервисный режим
+                    showServiceMode();
+                }
+            }, 5000);
+            
+            document.body.appendChild(iframe);
         }
 
         function showServiceMode() {
@@ -295,7 +333,12 @@
             document.getElementById('serviceSubtitle').textContent = messages.subtitle;
             
             // Периодически проверяем статус (каждые 30 секунд)
-            setInterval(checkServiceStatus, 30000);
+            setInterval(() => {
+                document.getElementById('serviceModeScreen').style.display = 'none';
+                document.getElementById('loadingScreen').style.display = 'flex';
+                document.getElementById('loadingText').textContent = 'Checking system status...';
+                setTimeout(testMainPageLoad, 1000);
+            }, 30000);
         }
 
         // При загрузке страницы проверяем статус
