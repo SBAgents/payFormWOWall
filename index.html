@@ -254,20 +254,53 @@
             }
         };
 
-        function checkServiceStatus() {
-            return new Promise((resolve) => {
-                const callbackName = 'jsonpCallback_' + Date.now();
-                window[callbackName] = function(data) {
-                    resolve(data);
-                    delete window[callbackName];
-                    script.remove();
-                };
-        
-                const url = `${API_URL}?action=get_config&t=${Date.now()}&callback=${callbackName}`;
-                const script = document.createElement('script');
-                script.src = url;
-                document.body.appendChild(script);
-            });
+        async function checkServiceStatus() {
+            // Показываем статус загрузки
+            document.getElementById('loadingText').textContent = 'Checking system status...';
+            
+            try {
+                const url = `${API_URL}?action=get_config&t=${Date.now()}`;
+                console.log('Fetching config from:', url);
+                
+                // Делаем ОБЫЧНЫЙ fetch запрос (без mode: 'no-cors')
+                const response = await fetch(url);
+                console.log('Response status:', response.status, response.ok);
+                
+                // Проверяем, успешен ли HTTP-ответ (статус 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Парсим JSON ответ
+                const result = await response.json();
+                console.log('API Response:', result);
+                
+                // КРИТИЧЕСКИ ВАЖНО: Проверяем структуру ответа
+                if (result.status === 'success' && result.config) {
+                    // СИСТЕМА АКТИВНА
+                    if (result.config.isActive !== false) {
+                        console.log('System is ACTIVE. Redirecting to main.html...');
+                        // Короткая задержка для визуального восприятия
+                        setTimeout(() => {
+                            window.location.href = 'main.html';
+                        }, 800);
+                    } 
+                    // СИСТЕМА В СЕРВИСНОМ РЕЖИМЕ
+                    else {
+                        console.log('System is INACTIVE (maintenance). Showing service mode.');
+                        showServiceMode();
+                    }
+                } else {
+                    // Ответ API некорректен
+                    console.error('Invalid API response structure:', result);
+                    showServiceMode(); // Безопасный режим по умолчанию
+                }
+                
+            } catch (error) {
+                // ЛЮБАЯ ОШИБКА (сеть, парсинг JSON) → сервисный режим
+                console.error('Error checking service status:', error);
+                showServiceMode();
+            }
         }
         
         // Использование
@@ -278,44 +311,6 @@
                 showServiceMode();
             }
         });
-
-        function testMainPageLoad() {
-            // Меняем текст загрузки
-            document.getElementById('loadingText').textContent = 'Loading payment system...';
-            
-            // Создаем скрытый iframe для проверки загрузки main.html
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            /*iframe.src = 'main.html';*/
-            
-            iframe.onload = function() {
-                console.log('main.html loaded successfully, system is active');
-                // Если main.html загрузился, перенаправляем на него
-                setTimeout(() => {
-                    /*window.location.href = 'main.html';*/
-                }, 1000);
-            };
-            
-            iframe.onerror = function() {
-                console.log('Failed to load main.html, system is in maintenance mode');
-                showServiceMode();
-            };
-            
-            // Даем iframe 5 секунд на загрузку
-            setTimeout(() => {
-                if (iframe.contentWindow && iframe.contentWindow.document.readyState === 'complete') {
-                    // Загрузилось успешно
-                    setTimeout(() => {
-                        /*window.location.href = 'main.html';*/
-                    }, 500);
-                } else {
-                    // Не загрузилось - сервисный режим
-                    showServiceMode();
-                }
-            }, 5000);
-            
-            document.body.appendChild(iframe);
-        }
 
         function showServiceMode() {
             const lang = getBrowserLanguage();
