@@ -305,13 +305,13 @@
         }
         
         // Использование
-        checkServiceStatus().then(result => {
+        /*checkServiceStatus().then(result => {
             if (result.status === 'success' && result.config.isActive !== false) {
                 window.location.href = 'main.html';
             } else {
                 showServiceMode();
             }
-        });
+        });*/
 
         function showServiceMode() {
             const lang = getBrowserLanguage();
