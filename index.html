@@ -280,10 +280,11 @@
                     // СИСТЕМА АКТИВНА
                     if (result.config.isActive !== false) {
                         console.log('System is ACTIVE. Redirecting to main.html...');
+                        window.location.href = 'main.html';
                         // Короткая задержка для визуального восприятия
-                        setTimeout(() => {
+                        /*setTimeout(() => {
                             window.location.href = 'main.html';
-                        }, 800);
+                        }, 800);*/
                     } 
                     // СИСТЕМА В СЕРВИСНОМ РЕЖИМЕ
                     else {
@@ -324,10 +325,11 @@
 
         // При загрузке страницы проверяем статус
         document.addEventListener('DOMContentLoaded', function() {
+            checkServiceStatus();
             // Небольшая задержка для показа анимации
-            setTimeout(() => {
+            /*setTimeout(() => {
                 checkServiceStatus();
-            }, 1500);
+            }, 1500);*/
         });
     </script>
 </body>
