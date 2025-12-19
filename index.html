@@ -50,6 +50,106 @@
         margin-left: 350px;
     }
 
+    /* СЕРВИСНЫЙ РЕЖИМ */
+    #serviceModeOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--primary-bg);
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .service-container {
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px;
+        border: 2px solid var(--accent-color);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        animation: fadeIn 0.5s ease;
+    }
+
+    .service-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        color: var(--accent-color);
+        animation: pulse 2s infinite;
+    }
+
+    .service-title {
+        font-size: 32px;
+        font-weight: bold;
+        color: var(--accent-color);
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+
+    .service-subtitle {
+        font-size: 18px;
+        color: var(--secondary-text);
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .service-message {
+        background: rgba(208, 228, 30, 0.15);
+        border-left: 4px solid var(--accent-color);
+        padding: 20px;
+        border-radius: 0 10px 10px 0;
+        margin: 25px 0;
+        text-align: left;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    body[dir="rtl"] .service-message {
+        border-left: none;
+        border-right: 4px solid var(--accent-color);
+        border-radius: 10px 0 0 10px;
+        text-align: right;
+    }
+
+    .service-note {
+        font-size: 14px;
+        color: var(--secondary-text);
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .service-refresh {
+        margin-top: 30px;
+        padding: 12px 24px;
+        background: var(--accent-color);
+        color: #2c3e50;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .service-refresh:hover {
+        background: #b8cc1a;
+        transform: translateY(-2px);
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
     /* ЗАГРУЗОЧНЫЙ ЭКРАН */
     #loadingScreen {
         position: fixed;
@@ -137,84 +237,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-    }
-
-    /* СЕРВИСНЫЙ РЕЖИМ */
-    #serviceModeOverlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--primary-bg);
-        z-index: 9990;
-        backdrop-filter: blur(20px);
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-
-    #serviceModeOverlay.active {
-        display: flex;
-    }
-
-    .service-mode-container {
-        max-width: 600px;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 20px;
-        padding: 40px;
-        text-align: center;
-        border: 3px solid var(--accent-color);
-        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(10px);
-        animation: fadeIn 0.5s ease-out;
-    }
-
-    .service-icon {
-        font-size: 80px;
-        margin-bottom: 30px;
-        color: #ff6b6b;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-    }
-
-    .service-title {
-        font-size: 32px;
-        font-weight: bold;
-        color: #ff6b6b;
-        margin-bottom: 20px;
-        line-height: 1.3;
-    }
-
-    .service-message {
-        font-size: 18px;
-        color: var(--text-color);
-        margin-bottom: 30px;
-        line-height: 1.6;
-    }
-
-    .service-info {
-        background: rgba(255, 107, 107, 0.1);
-        border: 1px solid #ff6b6b;
-        border-radius: 10px;
-        padding: 20px;
-        margin-top: 30px;
-        font-size: 14px;
-        color: var(--secondary-text);
-        line-height: 1.5;
-    }
-
-    .service-contact {
-        margin-top: 20px;
-        font-size: 16px;
-        color: var(--accent-color);
     }
 
     /* КОНСОЛЬ ДЕБАГА */
@@ -792,18 +814,6 @@
         #debugConsole {
             width: 300px;
         }
-        
-        .service-mode-container {
-            padding: 30px;
-        }
-        
-        .service-icon {
-            font-size: 60px;
-        }
-        
-        .service-title {
-            font-size: 28px;
-        }
     }
 
     @media (max-width: 900px) {
@@ -818,6 +828,19 @@
         #debugConsole {
             width: 250px;
             font-size: 11px;
+        }
+        
+        .service-container {
+            padding: 30px 20px;
+            margin: 20px;
+        }
+        
+        .service-icon {
+            font-size: 60px;
+        }
+        
+        .service-title {
+            font-size: 26px;
         }
     }
 
@@ -874,20 +897,15 @@
             font-size: 48px;
         }
         
-        .service-mode-container {
-            padding: 20px;
-            margin: 10px;
-        }
-        
-        .service-icon {
-            font-size: 50px;
+        .service-container {
+            padding: 25px 15px;
         }
         
         .service-title {
-            font-size: 24px;
+            font-size: 22px;
         }
         
-        .service-message {
+        .service-subtitle {
             font-size: 16px;
         }
     }
@@ -905,25 +923,49 @@
             font-size: 36px;
         }
         
-        .service-mode-container {
-            padding: 15px;
-        }
-        
         .service-icon {
-            font-size: 40px;
+            font-size: 50px;
         }
         
         .service-title {
             font-size: 20px;
         }
         
+        .service-subtitle {
+            font-size: 15px;
+        }
+        
         .service-message {
-            font-size: 14px;
+            padding: 15px;
+            font-size: 15px;
         }
     }
 </style>
 </head>
 <body>
+    <!-- Сервисный режим -->
+    <div id="serviceModeOverlay" style="display: none;">
+        <div class="service-container">
+            <div class="service-icon">🔧</div>
+            <div class="service-title" id="serviceTitle">System Maintenance</div>
+            <div class="service-subtitle" id="serviceSubtitle">Service temporarily unavailable</div>
+            
+            <div class="service-message" id="serviceMessage">
+                We are currently performing system maintenance to improve our services. 
+                The payment system will be back online as soon as possible.
+            </div>
+            
+            <div class="service-note" id="serviceNote">
+                ⏰ Estimated time: 30-60 minutes<br>
+                🔄 System will automatically refresh when available
+            </div>
+            
+            <button class="service-refresh" onclick="checkServiceStatus(true)" id="refreshBtn">
+                🔄 Check Status
+            </button>
+        </div>
+    </div>
+
     <!-- Экран загрузки -->
     <div id="loadingScreen">
         <div class="loading-container">
@@ -935,25 +977,6 @@
                 <span class="better-text">BETTER</span>
             </div>
             <div class="loading-subtitle">Loading payment system...</div>
-        </div>
-    </div>
-
-    <!-- Сервисный режим -->
-    <div id="serviceModeOverlay">
-        <div class="service-mode-container">
-            <div class="service-icon">🔧</div>
-            <div class="service-title" data-i18n="service.title">System Maintenance</div>
-            <div class="service-message" data-i18n="service.message">
-                Our payment system is currently undergoing maintenance. 
-                We apologize for any inconvenience. Please try again later.
-            </div>
-            <div class="service-info" data-i18n="service.info">
-                We are working hard to improve our service. 
-                Estimated completion time will be announced soon.
-            </div>
-            <div class="service-contact" data-i18n="service.contact">
-                For urgent matters, contact support: support@spinbetter.com
-            </div>
         </div>
     </div>
 
@@ -1182,7 +1205,8 @@ let state = {
     currentLanguage: 'en',
     savedWallet: localStorage.getItem('userWallet') || '',
     isLoaded: false,
-    isServiceMode: false
+    serviceMode: false,
+    serviceCheckInterval: null
 };
 
 // ========== СИСТЕМА ЛОГИРОВАНИЯ ==========
@@ -1231,6 +1255,110 @@ if (DEBUG_MODE) {
     log('info', 'Debug console initialized');
 }
 
+// ========== СЕРВИСНЫЙ РЕЖИМ ==========
+const serviceTranslations = {
+    en: {
+        title: 'System Maintenance',
+        subtitle: 'Service temporarily unavailable',
+        message: 'We are currently performing system maintenance to improve our services. The payment system will be back online as soon as possible.',
+        note: '⏰ Estimated time: 30-60 minutes<br>🔄 System will automatically refresh when available',
+        button: '🔄 Check Status'
+    },
+    ru: {
+        title: 'Техническое обслуживание',
+        subtitle: 'Сервис временно недоступен',
+        message: 'В настоящее время мы проводим техническое обслуживание системы для улучшения наших услуг. Платёжная система будет снова доступна в ближайшее время.',
+        note: '⏰ Примерное время: 30-60 минут<br>🔄 Система автоматически обновится, когда станет доступна',
+        button: '🔄 Проверить статус'
+    },
+    fr: {
+        title: 'Maintenance du système',
+        subtitle: 'Service temporairement indisponible',
+        message: 'Nous effectuons actuellement une maintenance du système pour améliorer nos services. Le système de paiement sera de nouveau en ligne dès que possible.',
+        note: '⏰ Temps estimé: 30-60 minutes<br>🔄 Le système se rafraîchira automatiquement quand il sera disponible',
+        button: '🔄 Vérifier le statut'
+    },
+    ar: {
+        title: 'الصيانة الدورية',
+        subtitle: 'الخدمة غير متوفرة مؤقتاً',
+        message: 'نقوم حاليًا بإجراء صيانة للنظام لتحسين خدماتنا. سيكون نظام الدفع متاحًا مرة أخرى في أقرب وقت ممكن.',
+        note: '⏰ الوقت المقدر: 30-60 دقيقة<br>🔄 سيتحدد النظام تلقائيًا عند التوفر',
+        button: '🔄 التحقق من الحالة'
+    }
+};
+
+function updateServiceModeDisplay() {
+    const translations = serviceTranslations[state.currentLanguage] || serviceTranslations.en;
+    
+    document.getElementById('serviceTitle').innerHTML = translations.title;
+    document.getElementById('serviceSubtitle').innerHTML = translations.subtitle;
+    document.getElementById('serviceMessage').innerHTML = translations.message;
+    document.getElementById('serviceNote').innerHTML = translations.note;
+    document.getElementById('refreshBtn').innerHTML = translations.button;
+}
+
+function enableServiceMode() {
+    state.serviceMode = true;
+    document.getElementById('serviceModeOverlay').style.display = 'flex';
+    document.getElementById('mainContainer').style.display = 'none';
+    document.querySelector('.language-selector').style.display = 'none';
+    
+    updateServiceModeDisplay();
+    
+    log('warning', 'Service mode enabled - system is in maintenance');
+    
+    if (!state.serviceCheckInterval) {
+        state.serviceCheckInterval = setInterval(() => {
+            checkServiceStatus(false);
+        }, 30000);
+    }
+}
+
+function disableServiceMode() {
+    state.serviceMode = false;
+    document.getElementById('serviceModeOverlay').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'block';
+    document.querySelector('.language-selector').style.display = 'flex';
+    
+    if (state.serviceCheckInterval) {
+        clearInterval(state.serviceCheckInterval);
+        state.serviceCheckInterval = null;
+    }
+    
+    log('info', 'Service mode disabled - system is operational');
+}
+
+async function checkServiceStatus(manual = false) {
+    try {
+        log('info', `Checking service status (manual: ${manual})`);
+        
+        const url = `${API_URL}?action=get_config&t=${Date.now()}`;
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.status === 'success' && result.config) {
+            const isActive = result.config.isActive !== false;
+            
+            if (isActive && state.serviceMode) {
+                disableServiceMode();
+                if (manual) {
+                    showNotification('service_restored');
+                }
+                log('success', 'Service mode disabled - system is now active');
+            } else if (!isActive && !state.serviceMode) {
+                enableServiceMode();
+                log('warning', 'Service mode enabled - system is now in maintenance');
+            }
+            
+            return isActive;
+        }
+    } catch (error) {
+        log('error', 'Failed to check service status', error);
+    }
+    
+    return false;
+}
+
 // ========== ИНИЦИАЛИЗАЦИЯ ==========
 function hideLoadingScreen() {
     const loadingScreen = document.getElementById('loadingScreen');
@@ -1246,68 +1374,6 @@ function hideLoadingScreen() {
     log('success', 'Page loaded');
 }
 
-function checkServiceMode() {
-    log('info', 'Checking service mode...');
-    
-    const url = `${API_URL}?action=get_config&t=${Date.now()}`;
-    
-    fetch(url)
-        .then(response => response.json())
-        .then(result => {
-            if (result.status === 'success') {
-                state.config = result.config;
-                
-                // Проверяем сервисный режим
-                if (result.config.serviceMode === true || result.config.isActive === false) {
-                    state.isServiceMode = true;
-                    showServiceMode();
-                    log('warning', 'Service mode active - system disabled');
-                } else {
-                    state.isServiceMode = false;
-                    hideServiceMode();
-                    log('info', 'System is active');
-                }
-                
-                // Обновляем минимальные суммы
-                if (state.config.minDeposit) {
-                    document.getElementById('minDeposit').textContent = state.config.minDeposit;
-                    document.getElementById('amount').min = state.config.minDeposit;
-                }
-                if (state.config.minWithdrawal) {
-                    document.getElementById('minWithdrawal').textContent = state.config.minWithdrawal;
-                    document.getElementById('withdrawAmount').min = state.config.minWithdrawal;
-                }
-            }
-        })
-        .catch(error => {
-            log('error', 'Failed to check service mode', error);
-        });
-}
-
-function showServiceMode() {
-    document.getElementById('serviceModeOverlay').classList.add('active');
-    document.getElementById('mainContainer').style.display = 'none';
-    document.querySelector('.language-selector').style.display = 'none';
-    
-    // Блокируем все формы
-    document.querySelectorAll('input, select, button').forEach(element => {
-        if (element.id !== 'depositWallet') { // Не блокируем копирование кошелька
-            element.disabled = true;
-        }
-    });
-}
-
-function hideServiceMode() {
-    document.getElementById('serviceModeOverlay').classList.remove('active');
-    document.getElementById('mainContainer').style.display = 'block';
-    document.querySelector('.language-selector').style.display = 'flex';
-    
-    // Разблокируем формы
-    document.querySelectorAll('input, select, button').forEach(element => {
-        element.disabled = false;
-    });
-}
-
 window.addEventListener('load', function() {
     fetch(API_URL + '?action=get_wallets&preload=true').catch(() => {});
 });
@@ -1316,9 +1382,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Payment System Loading...');
     
     detectLanguage();
-    
-    // Проверяем сервисный режим при загрузке
-    checkServiceMode();
     
     const savedAccount = localStorage.getItem('userAccount');
     if (savedAccount) {
@@ -1347,9 +1410,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         if (configResult.status === 'fulfilled') {
             log('success', 'Configuration loaded');
+            
+            if (configResult.value && configResult.value.isActive === false) {
+                enableServiceMode();
+                log('warning', 'System started in service mode');
+            }
         } else {
             log('error', 'Config load failed', configResult.reason);
-            state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP' };
+            state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP', isActive: true };
             document.getElementById('minDeposit').textContent = '100';
             document.getElementById('minWithdrawal').textContent = '300';
             document.getElementById('amount').min = 100;
@@ -1415,10 +1483,6 @@ const translations = {
         'popup.confirm_button': '✅ I Have Sent the Payment',
         'popup.cancel_button': '❌ Cancel Deposit',
         'hint.understand_button': 'I Understand',
-        'service.title': 'System Maintenance',
-        'service.message': 'Our payment system is currently undergoing maintenance. We apologize for any inconvenience. Please try again later.',
-        'service.info': 'We are working hard to improve our service. Estimated completion time will be announced soon.',
-        'service.contact': 'For urgent matters, contact support: support@spinbetter.com',
         'notification.copied': '✅ Copied to clipboard!',
         'notification.deposit_received': 'Deposit wallet received!',
         'notification.confirmed': '✅ Payment confirmed! Processing...',
@@ -1437,7 +1501,8 @@ const translations = {
         'notification.confirmation_failed': 'Confirmation failed: {message}',
         'notification.antispam': 'Please wait {minutes} minutes before identical request',
         'notification.withdrawal_failed': 'Withdrawal failed: {message}',
-        'notification.service_mode': 'System is under maintenance. Please try again later.'
+        'notification.service_mode': '⚠️ System is in maintenance mode',
+        'notification.service_restored': '✅ System is back online!'
     },
     
     ru: {
@@ -1472,10 +1537,6 @@ const translations = {
         'popup.confirm_button': '✅ Я Отправил Платёж',
         'popup.cancel_button': '❌ Отменить Пополнение',
         'hint.understand_button': 'Понятно',
-        'service.title': 'Техническое Обслуживание',
-        'service.message': 'Наша платёжная система в настоящее время проходит техническое обслуживание. Приносим извинения за доставленные неудобства. Пожалуйста, попробуйте позже.',
-        'service.info': 'Мы усердно работаем над улучшением нашего сервиса. Ориентировочное время завершения работ будет объявлено в ближайшее время.',
-        'service.contact': 'По срочным вопросам обращайтесь в поддержку: support@spinbetter.com',
         'notification.copied': '✅ Скопировано в буфер!',
         'notification.deposit_received': 'Кошелёк для пополнения получен!',
         'notification.confirmed': '✅ Платёж подтверждён! Обработка...',
@@ -1494,7 +1555,8 @@ const translations = {
         'notification.confirmation_failed': 'Подтверждение не удалось: {message}',
         'notification.antispam': 'Пожалуйста, подождите {minutes} минут перед идентичным запросом',
         'notification.withdrawal_failed': 'Вывод не удался: {message}',
-        'notification.service_mode': 'Система на техническом обслуживании. Пожалуйста, попробуйте позже.'
+        'notification.service_mode': '⚠️ Система находится в режиме обслуживания',
+        'notification.service_restored': '✅ Система снова в сети!'
     },
     
     fr: {
@@ -1529,10 +1591,6 @@ const translations = {
         'popup.confirm_button': '✅ J\'ai Envoyé le Paiement',
         'popup.cancel_button': '❌ Annuler le Dépôt',
         'hint.understand_button': 'Je Comprends',
-        'service.title': 'Maintenance du Système',
-        'service.message': 'Notre système de paiement est actuellement en maintenance. Nous nous excusons pour la gêne occasionnée. Veuillez réessayer plus tard.',
-        'service.info': 'Nous travaillons dur pour améliorer notre service. Le temps d\'achèvement estimé sera annoncé prochainement.',
-        'service.contact': 'Pour les questions urgentes, contactez le support: support@spinbetter.com',
         'notification.copied': '✅ Copié dans le presse-papiers!',
         'notification.deposit_received': 'Portefeuille de dépôt reçu!',
         'notification.confirmed': '✅ Paiement confirmé! Traitement...',
@@ -1551,7 +1609,8 @@ const translations = {
         'notification.confirmation_failed': 'Échec de la confirmation: {message}',
         'notification.antispam': 'Veuillez attendre {minutes} minutes avant une demande identique',
         'notification.withdrawal_failed': 'Échec du retrait: {message}',
-        'notification.service_mode': 'Le système est en maintenance. Veuillez réessayer plus tard.'
+        'notification.service_mode': '⚠️ Le système est en mode maintenance',
+        'notification.service_restored': '✅ Le système est de nouveau en ligne!'
     },
     
     ar: {
@@ -1586,10 +1645,6 @@ const translations = {
         'popup.confirm_button': '✅ لقد أرسلت الدفع',
         'popup.cancel_button': '❌ إلغاء الإيداع',
         'hint.understand_button': 'فهمت',
-        'service.title': 'الصيانة الفنية',
-        'service.message': 'نظام الدفع لدينا يخضع حاليًا للصيانة الفنية. نعتذر عن أي إزعاج. يرجى المحاولة مرة أخرى لاحقًا.',
-        'service.info': 'نحن نعمل بجد لتحسين خدمتنا. سيتم الإعلان عن وقت الانتهاء المقدر قريبًا.',
-        'service.contact': 'للحالات الطارئة، اتصل بالدعم: support@spinbetter.com',
         'notification.copied': '✅ تم النسخ إلى الحافظة!',
         'notification.deposit_received': 'تم استلام محفظة الإيداع!',
         'notification.confirmed': '✅ تم تأكيد الدفع! جاري المعالجة...',
@@ -1608,7 +1663,8 @@ const translations = {
         'notification.confirmation_failed': 'فشل التأكيد: {message}',
         'notification.antispam': 'يرجى الانتظار {minutes} دقائق قبل الطلب المماثل',
         'notification.withdrawal_failed': 'فشل السحب: {message}',
-        'notification.service_mode': 'النظام قيد الصيانة الفنية. يرجى المحاولة مرة أخرى لاحقًا.'
+        'notification.service_mode': '⚠️ النظام في وضع الصيانة',
+        'notification.service_restored': '✅ النظام عاد للعمل!'
     }
 };
 
@@ -1648,6 +1704,11 @@ function changeLanguage(lang) {
     });
     
     applyTranslations(lang);
+    
+    if (state.serviceMode) {
+        updateServiceModeDisplay();
+    }
+    
     log('info', `Language changed to: ${lang}`);
 }
 
@@ -1709,7 +1770,10 @@ const hints = {
 };
 
 function showHint(hintId) {
-    if (state.isServiceMode) return;
+    if (state.serviceMode) {
+        showNotification('service_mode', true);
+        return;
+    }
     
     const hint = hints[hintId];
     if (!hint) return;
@@ -1756,7 +1820,7 @@ function showNotification(messageKey, isError = false, params = {}) {
 
 // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
 function switchTab(tabName) {
-    if (!state.isLoaded || state.isServiceMode) return;
+    if (!state.isLoaded || state.serviceMode) return;
     
     state.currentTab = tabName;
     
@@ -1771,7 +1835,7 @@ function switchTab(tabName) {
 
 // ========== СОХРАНЕНИЕ КОШЕЛЬКА ==========
 function useSavedWallet() {
-    if (state.isServiceMode) {
+    if (state.serviceMode) {
         showNotification('service_mode', true);
         return;
     }
@@ -1800,26 +1864,25 @@ async function loadConfig() {
         
         if (result.status === 'success') {
             state.config = result.config;
-            document.getElementById('minDeposit').textContent = state.config.minDeposit;
-            document.getElementById('minWithdrawal').textContent = state.config.minWithdrawal;
-            document.getElementById('amount').min = state.config.minDeposit;
-            document.getElementById('withdrawAmount').min = state.config.minWithdrawal;
+            document.getElementById('minDeposit').textContent = state.config.minDeposit || 100;
+            document.getElementById('minWithdrawal').textContent = state.config.minWithdrawal || 300;
+            document.getElementById('amount').min = state.config.minDeposit || 100;
+            document.getElementById('withdrawAmount').min = state.config.minWithdrawal || 300;
             
-            // Проверяем сервисный режим
-            if (result.config.serviceMode === true || result.config.isActive === false) {
-                state.isServiceMode = true;
-                showServiceMode();
-                log('warning', 'Service mode detected from config');
+            if (state.config.isActive === false && !state.serviceMode) {
+                enableServiceMode();
             }
             
             log('success', 'Configuration loaded successfully', state.config);
+            return state.config;
         } else {
             log('error', 'Failed to load config', result);
             throw new Error(result.message || 'Config load failed');
         }
     } catch (error) {
-        state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP' };
+        state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP', isActive: true };
         log('warning', 'Using default config due to error', error);
+        return state.config;
     }
 }
 
@@ -1892,7 +1955,7 @@ function renderWalletMethods() {
 }
 
 function selectWalletMethod(type) {
-    if (state.isServiceMode) {
+    if (state.serviceMode) {
         showNotification('service_mode', true);
         return;
     }
@@ -2064,7 +2127,7 @@ function getRussianMinutesText(minutes) {
 
 // ========== ДЕПОЗИТ ==========
 async function processDeposit() {
-    if (!state.isLoaded || state.isServiceMode) {
+    if (!state.isLoaded || state.serviceMode) {
         showNotification('service_mode', true);
         return;
     }
@@ -2199,6 +2262,11 @@ function startDepositTimer() {
 }
 
 async function confirmDeposit() {
+    if (state.serviceMode) {
+        showNotification('service_mode', true);
+        return;
+    }
+    
     console.log('=== DEBUG: confirmDeposit вызвана ===');
 
     if (!state.currentDeposit) {
@@ -2289,6 +2357,11 @@ function resetDepositForm() {
 }
 
 function copyToClipboard(text) {
+    if (state.serviceMode) {
+        showNotification('service_mode', true);
+        return;
+    }
+    
     navigator.clipboard.writeText(text).then(() => {
         showNotification('copied');
         log('info', `Text copied to clipboard: ${text}`);
@@ -2297,7 +2370,7 @@ function copyToClipboard(text) {
 
 // ========== ВЫВОД ==========
 async function processWithdrawal() {
-    if (!state.isLoaded || state.isServiceMode) {
+    if (!state.isLoaded || state.serviceMode) {
         showNotification('service_mode', true);
         return;
     }
