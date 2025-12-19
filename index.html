@@ -50,106 +50,6 @@
         margin-left: 350px;
     }
 
-    /* СЕРВИСНЫЙ РЕЖИМ */
-    #serviceModeOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--primary-bg);
-        z-index: 99999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 20px;
-        backdrop-filter: blur(10px);
-    }
-
-    .service-container {
-        max-width: 600px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 40px;
-        border: 2px solid var(--accent-color);
-        backdrop-filter: blur(20px);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        animation: fadeIn 0.5s ease;
-    }
-
-    .service-icon {
-        font-size: 80px;
-        margin-bottom: 20px;
-        color: var(--accent-color);
-        animation: pulse 2s infinite;
-    }
-
-    .service-title {
-        font-size: 32px;
-        font-weight: bold;
-        color: var(--accent-color);
-        margin-bottom: 15px;
-        line-height: 1.3;
-    }
-
-    .service-subtitle {
-        font-size: 18px;
-        color: var(--secondary-text);
-        margin-bottom: 30px;
-        line-height: 1.5;
-    }
-
-    .service-message {
-        background: rgba(208, 228, 30, 0.15);
-        border-left: 4px solid var(--accent-color);
-        padding: 20px;
-        border-radius: 0 10px 10px 0;
-        margin: 25px 0;
-        text-align: left;
-        font-size: 16px;
-        line-height: 1.6;
-    }
-
-    body[dir="rtl"] .service-message {
-        border-left: none;
-        border-right: 4px solid var(--accent-color);
-        border-radius: 10px 0 0 10px;
-        text-align: right;
-    }
-
-    .service-note {
-        font-size: 14px;
-        color: var(--secondary-text);
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .service-refresh {
-        margin-top: 30px;
-        padding: 12px 24px;
-        background: var(--accent-color);
-        color: #2c3e50;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .service-refresh:hover {
-        background: #b8cc1a;
-        transform: translateY(-2px);
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.8; transform: scale(1.05); }
-    }
-
     /* ЗАГРУЗОЧНЫЙ ЭКРАН */
     #loadingScreen {
         position: fixed;
@@ -707,6 +607,61 @@
         flex-shrink: 0;
     }
 
+    /* Мобильная адаптация попапа */
+    @media (max-width: 768px) {
+        .deposit-popup {
+            padding: 20px;
+            max-width: 95%;
+            max-height: 85vh;
+        }
+        
+        .popup-title {
+            font-size: 22px;
+        }
+        
+        .amount-display {
+            font-size: 32px;
+            padding: 15px;
+        }
+        
+        .wallet-number {
+            font-size: 16px;
+            padding: 10px;
+        }
+        
+        .deposit-popup .btn {
+            padding: 12px;
+            font-size: 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .deposit-popup {
+            padding: 15px;
+        }
+        
+        .popup-icon {
+            font-size: 32px;
+        }
+        
+        .popup-title {
+            font-size: 20px;
+        }
+        
+        .amount-display {
+            font-size: 28px;
+        }
+        
+        .wallet-number {
+            font-size: 14px;
+        }
+        
+        .timer {
+            font-size: 14px;
+            padding: 10px;
+        }
+    }
+
     /* ПОПАП ПОДСКАЗОК */
     .hint-popup {
         display: none;
@@ -829,19 +784,6 @@
             width: 250px;
             font-size: 11px;
         }
-        
-        .service-container {
-            padding: 30px 20px;
-            margin: 20px;
-        }
-        
-        .service-icon {
-            font-size: 60px;
-        }
-        
-        .service-title {
-            font-size: 26px;
-        }
     }
 
     @media (max-width: 768px) {
@@ -896,18 +838,6 @@
         .spin-letter, .better-text {
             font-size: 48px;
         }
-        
-        .service-container {
-            padding: 25px 15px;
-        }
-        
-        .service-title {
-            font-size: 22px;
-        }
-        
-        .service-subtitle {
-            font-size: 16px;
-        }
     }
 
     @media (max-width: 480px) {
@@ -922,50 +852,10 @@
         .spin-letter, .better-text {
             font-size: 36px;
         }
-        
-        .service-icon {
-            font-size: 50px;
-        }
-        
-        .service-title {
-            font-size: 20px;
-        }
-        
-        .service-subtitle {
-            font-size: 15px;
-        }
-        
-        .service-message {
-            padding: 15px;
-            font-size: 15px;
-        }
     }
 </style>
 </head>
 <body>
-    <!-- Сервисный режим -->
-    <div id="serviceModeOverlay" style="display: none;">
-        <div class="service-container">
-            <div class="service-icon">🔧</div>
-            <div class="service-title" id="serviceTitle">System Maintenance</div>
-            <div class="service-subtitle" id="serviceSubtitle">Service temporarily unavailable</div>
-            
-            <div class="service-message" id="serviceMessage">
-                We are currently performing system maintenance to improve our services. 
-                The payment system will be back online as soon as possible.
-            </div>
-            
-            <div class="service-note" id="serviceNote">
-                ⏰ Estimated time: 30-60 minutes<br>
-                🔄 System will automatically refresh when available
-            </div>
-            
-            <button class="service-refresh" onclick="checkServiceStatus(true)" id="refreshBtn">
-                🔄 Check Status
-            </button>
-        </div>
-    </div>
-
     <!-- Экран загрузки -->
     <div id="loadingScreen">
         <div class="loading-container">
@@ -1204,9 +1094,7 @@ let state = {
     currentTab: 'deposit',
     currentLanguage: 'en',
     savedWallet: localStorage.getItem('userWallet') || '',
-    isLoaded: false,
-    serviceMode: false,
-    serviceCheckInterval: null
+    isLoaded: false
 };
 
 // ========== СИСТЕМА ЛОГИРОВАНИЯ ==========
@@ -1253,110 +1141,6 @@ function toggleConsole() {
 if (DEBUG_MODE) {
     document.getElementById('debugConsole').style.display = 'block';
     log('info', 'Debug console initialized');
-}
-
-// ========== СЕРВИСНЫЙ РЕЖИМ ==========
-const serviceTranslations = {
-    en: {
-        title: 'System Maintenance',
-        subtitle: 'Service temporarily unavailable',
-        message: 'We are currently performing system maintenance to improve our services. The payment system will be back online as soon as possible.',
-        note: '⏰ Estimated time: 30-60 minutes<br>🔄 System will automatically refresh when available',
-        button: '🔄 Check Status'
-    },
-    ru: {
-        title: 'Техническое обслуживание',
-        subtitle: 'Сервис временно недоступен',
-        message: 'В настоящее время мы проводим техническое обслуживание системы для улучшения наших услуг. Платёжная система будет снова доступна в ближайшее время.',
-        note: '⏰ Примерное время: 30-60 минут<br>🔄 Система автоматически обновится, когда станет доступна',
-        button: '🔄 Проверить статус'
-    },
-    fr: {
-        title: 'Maintenance du système',
-        subtitle: 'Service temporairement indisponible',
-        message: 'Nous effectuons actuellement une maintenance du système pour améliorer nos services. Le système de paiement sera de nouveau en ligne dès que possible.',
-        note: '⏰ Temps estimé: 30-60 minutes<br>🔄 Le système se rafraîchira automatiquement quand il sera disponible',
-        button: '🔄 Vérifier le statut'
-    },
-    ar: {
-        title: 'الصيانة الدورية',
-        subtitle: 'الخدمة غير متوفرة مؤقتاً',
-        message: 'نقوم حاليًا بإجراء صيانة للنظام لتحسين خدماتنا. سيكون نظام الدفع متاحًا مرة أخرى في أقرب وقت ممكن.',
-        note: '⏰ الوقت المقدر: 30-60 دقيقة<br>🔄 سيتحدد النظام تلقائيًا عند التوفر',
-        button: '🔄 التحقق من الحالة'
-    }
-};
-
-function updateServiceModeDisplay() {
-    const translations = serviceTranslations[state.currentLanguage] || serviceTranslations.en;
-    
-    document.getElementById('serviceTitle').innerHTML = translations.title;
-    document.getElementById('serviceSubtitle').innerHTML = translations.subtitle;
-    document.getElementById('serviceMessage').innerHTML = translations.message;
-    document.getElementById('serviceNote').innerHTML = translations.note;
-    document.getElementById('refreshBtn').innerHTML = translations.button;
-}
-
-function enableServiceMode() {
-    state.serviceMode = true;
-    document.getElementById('serviceModeOverlay').style.display = 'flex';
-    document.getElementById('mainContainer').style.display = 'none';
-    document.querySelector('.language-selector').style.display = 'none';
-    
-    updateServiceModeDisplay();
-    
-    log('warning', 'Service mode enabled - system is in maintenance');
-    
-    if (!state.serviceCheckInterval) {
-        state.serviceCheckInterval = setInterval(() => {
-            checkServiceStatus(false);
-        }, 30000);
-    }
-}
-
-function disableServiceMode() {
-    state.serviceMode = false;
-    document.getElementById('serviceModeOverlay').style.display = 'none';
-    document.getElementById('mainContainer').style.display = 'block';
-    document.querySelector('.language-selector').style.display = 'flex';
-    
-    if (state.serviceCheckInterval) {
-        clearInterval(state.serviceCheckInterval);
-        state.serviceCheckInterval = null;
-    }
-    
-    log('info', 'Service mode disabled - system is operational');
-}
-
-async function checkServiceStatus(manual = false) {
-    try {
-        log('info', `Checking service status (manual: ${manual})`);
-        
-        const url = `${API_URL}?action=get_config&t=${Date.now()}`;
-        const response = await fetch(url);
-        const result = await response.json();
-        
-        if (result.status === 'success' && result.config) {
-            const isActive = result.config.isActive !== false;
-            
-            if (isActive && state.serviceMode) {
-                disableServiceMode();
-                if (manual) {
-                    showNotification('service_restored');
-                }
-                log('success', 'Service mode disabled - system is now active');
-            } else if (!isActive && !state.serviceMode) {
-                enableServiceMode();
-                log('warning', 'Service mode enabled - system is now in maintenance');
-            }
-            
-            return isActive;
-        }
-    } catch (error) {
-        log('error', 'Failed to check service status', error);
-    }
-    
-    return false;
 }
 
 // ========== ИНИЦИАЛИЗАЦИЯ ==========
@@ -1410,14 +1194,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         if (configResult.status === 'fulfilled') {
             log('success', 'Configuration loaded');
-            
-            if (configResult.value && configResult.value.isActive === false) {
-                enableServiceMode();
-                log('warning', 'System started in service mode');
-            }
         } else {
             log('error', 'Config load failed', configResult.reason);
-            state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP', isActive: true };
+            state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP' };
             document.getElementById('minDeposit').textContent = '100';
             document.getElementById('minWithdrawal').textContent = '300';
             document.getElementById('amount').min = 100;
@@ -1500,9 +1279,7 @@ const translations = {
         'notification.server_error': 'Server error. Please try again.',
         'notification.confirmation_failed': 'Confirmation failed: {message}',
         'notification.antispam': 'Please wait {minutes} minutes before identical request',
-        'notification.withdrawal_failed': 'Withdrawal failed: {message}',
-        'notification.service_mode': '⚠️ System is in maintenance mode',
-        'notification.service_restored': '✅ System is back online!'
+        'notification.withdrawal_failed': 'Withdrawal failed: {message}'
     },
     
     ru: {
@@ -1554,9 +1331,7 @@ const translations = {
         'notification.server_error': 'Ошибка сервера. Пожалуйста, попробуйте снова.',
         'notification.confirmation_failed': 'Подтверждение не удалось: {message}',
         'notification.antispam': 'Пожалуйста, подождите {minutes} минут перед идентичным запросом',
-        'notification.withdrawal_failed': 'Вывод не удался: {message}',
-        'notification.service_mode': '⚠️ Система находится в режиме обслуживания',
-        'notification.service_restored': '✅ Система снова в сети!'
+        'notification.withdrawal_failed': 'Вывод не удался: {message}'
     },
     
     fr: {
@@ -1608,9 +1383,7 @@ const translations = {
         'notification.server_error': 'Erreur serveur. Veuillez réessayer.',
         'notification.confirmation_failed': 'Échec de la confirmation: {message}',
         'notification.antispam': 'Veuillez attendre {minutes} minutes avant une demande identique',
-        'notification.withdrawal_failed': 'Échec du retrait: {message}',
-        'notification.service_mode': '⚠️ Le système est en mode maintenance',
-        'notification.service_restored': '✅ Le système est de nouveau en ligne!'
+        'notification.withdrawal_failed': 'Échec du retrait: {message}'
     },
     
     ar: {
@@ -1662,9 +1435,7 @@ const translations = {
         'notification.server_error': 'خطأ في الخادم. يرجى المحاولة مرة أخرى.',
         'notification.confirmation_failed': 'فشل التأكيد: {message}',
         'notification.antispam': 'يرجى الانتظار {minutes} دقائق قبل الطلب المماثل',
-        'notification.withdrawal_failed': 'فشل السحب: {message}',
-        'notification.service_mode': '⚠️ النظام في وضع الصيانة',
-        'notification.service_restored': '✅ النظام عاد للعمل!'
+        'notification.withdrawal_failed': 'فشل السحب: {message}'
     }
 };
 
@@ -1704,11 +1475,6 @@ function changeLanguage(lang) {
     });
     
     applyTranslations(lang);
-    
-    if (state.serviceMode) {
-        updateServiceModeDisplay();
-    }
-    
     log('info', `Language changed to: ${lang}`);
 }
 
@@ -1770,11 +1536,6 @@ const hints = {
 };
 
 function showHint(hintId) {
-    if (state.serviceMode) {
-        showNotification('service_mode', true);
-        return;
-    }
-    
     const hint = hints[hintId];
     if (!hint) return;
     
@@ -1820,7 +1581,7 @@ function showNotification(messageKey, isError = false, params = {}) {
 
 // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
 function switchTab(tabName) {
-    if (!state.isLoaded || state.serviceMode) return;
+    if (!state.isLoaded) return;
     
     state.currentTab = tabName;
     
@@ -1835,11 +1596,6 @@ function switchTab(tabName) {
 
 // ========== СОХРАНЕНИЕ КОШЕЛЬКА ==========
 function useSavedWallet() {
-    if (state.serviceMode) {
-        showNotification('service_mode', true);
-        return;
-    }
-    
     if (state.savedWallet) {
         if (state.currentTab === 'deposit') {
             document.getElementById('wallet').value = state.savedWallet;
@@ -1864,25 +1620,19 @@ async function loadConfig() {
         
         if (result.status === 'success') {
             state.config = result.config;
-            document.getElementById('minDeposit').textContent = state.config.minDeposit || 100;
-            document.getElementById('minWithdrawal').textContent = state.config.minWithdrawal || 300;
-            document.getElementById('amount').min = state.config.minDeposit || 100;
-            document.getElementById('withdrawAmount').min = state.config.minWithdrawal || 300;
-            
-            if (state.config.isActive === false && !state.serviceMode) {
-                enableServiceMode();
-            }
+            document.getElementById('minDeposit').textContent = state.config.minDeposit;
+            document.getElementById('minWithdrawal').textContent = state.config.minWithdrawal;
+            document.getElementById('amount').min = state.config.minDeposit;
+            document.getElementById('withdrawAmount').min = state.config.minWithdrawal;
             
             log('success', 'Configuration loaded successfully', state.config);
-            return state.config;
         } else {
             log('error', 'Failed to load config', result);
             throw new Error(result.message || 'Config load failed');
         }
     } catch (error) {
-        state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP', isActive: true };
+        state.config = { minDeposit: 100, minWithdrawal: 300, currency: 'EGP' };
         log('warning', 'Using default config due to error', error);
-        return state.config;
     }
 }
 
@@ -1955,11 +1705,6 @@ function renderWalletMethods() {
 }
 
 function selectWalletMethod(type) {
-    if (state.serviceMode) {
-        showNotification('service_mode', true);
-        return;
-    }
-    
     state.selectedMethod = type;
     document.querySelectorAll('.wallet-type-btn').forEach(btn => btn.classList.remove('active'));
     const selectedBtn = document.querySelector(`.wallet-type-btn[data-type="${type}"]`);
@@ -2127,10 +1872,7 @@ function getRussianMinutesText(minutes) {
 
 // ========== ДЕПОЗИТ ==========
 async function processDeposit() {
-    if (!state.isLoaded || state.serviceMode) {
-        showNotification('service_mode', true);
-        return;
-    }
+    if (!state.isLoaded) return;
     
     const account = document.getElementById('account')?.value.trim() || '';
     const amount = document.getElementById('amount')?.value || '';
@@ -2262,11 +2004,6 @@ function startDepositTimer() {
 }
 
 async function confirmDeposit() {
-    if (state.serviceMode) {
-        showNotification('service_mode', true);
-        return;
-    }
-    
     console.log('=== DEBUG: confirmDeposit вызвана ===');
 
     if (!state.currentDeposit) {
@@ -2357,11 +2094,6 @@ function resetDepositForm() {
 }
 
 function copyToClipboard(text) {
-    if (state.serviceMode) {
-        showNotification('service_mode', true);
-        return;
-    }
-    
     navigator.clipboard.writeText(text).then(() => {
         showNotification('copied');
         log('info', `Text copied to clipboard: ${text}`);
@@ -2370,10 +2102,7 @@ function copyToClipboard(text) {
 
 // ========== ВЫВОД ==========
 async function processWithdrawal() {
-    if (!state.isLoaded || state.serviceMode) {
-        showNotification('service_mode', true);
-        return;
-    }
+    if (!state.isLoaded) return;
     
     const account = document.getElementById('withdrawAccount')?.value.trim() || '';
     const amount = document.getElementById('withdrawAmount')?.value || '';
