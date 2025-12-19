@@ -331,14 +331,6 @@
             document.getElementById('serviceModeScreen').style.display = 'block';
             document.getElementById('serviceTitle').textContent = messages.title;
             document.getElementById('serviceSubtitle').textContent = messages.subtitle;
-            
-            // Периодически проверяем статус (каждые 30 секунд)
-            setInterval(() => {
-                document.getElementById('serviceModeScreen').style.display = 'none';
-                document.getElementById('loadingScreen').style.display = 'flex';
-                document.getElementById('loadingText').textContent = 'Checking system status...';
-                setTimeout(testMainPageLoad, 1000);
-            }, 30000);
         }
 
         // При загрузке страницы проверяем статус
