@@ -254,36 +254,30 @@
             }
         };
 
-        async function checkServiceStatus() {
-            try {
-                // Используем JSONP для обхода CORS в GAS
-                const url = `${API_URL}?action=get_config&t=${Date.now()}`;
-                
-                console.log('Fetching config from:', url);
-                
-                // Простой fetch с обработкой CORS
-                const response = await fetch(url, {
-                    mode: 'no-cors', // Важно для GAS
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8'
-                    }
-                });
-                
-                // Для no-cors режима мы не можем прочитать ответ, поэтому используем альтернативный подход
-                // Создаем iframe для загрузки main.html напрямую
-                console.log('Attempting to load main page...');
-                
-                // Пробуем загрузить main.html напрямую
-                // Если загрузка удалась - система активна
-                // Если нет - показываем сервисный режим
-                testMainPageLoad();
-                
-            } catch (error) {
-                console.error('Error checking service status:', error);
-                // При ошибке показываем сервисный режим
+        function checkServiceStatus() {
+            return new Promise((resolve) => {
+                const callbackName = 'jsonpCallback_' + Date.now();
+                window[callbackName] = function(data) {
+                    resolve(data);
+                    delete window[callbackName];
+                    script.remove();
+                };
+        
+                const url = `${API_URL}?action=get_config&t=${Date.now()}&callback=${callbackName}`;
+                const script = document.createElement('script');
+                script.src = url;
+                document.body.appendChild(script);
+            });
+        }
+        
+        // Использование
+        checkServiceStatus().then(result => {
+            if (result.status === 'success' && result.config.isActive !== false) {
+                window.location.href = 'main.html';
+            } else {
                 showServiceMode();
             }
-        }
+        });
 
         function testMainPageLoad() {
             // Меняем текст загрузки
