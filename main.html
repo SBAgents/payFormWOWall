@@ -1801,17 +1801,23 @@ function renderWalletMethods() {
     if (wallet.enabled && hasAvailableNumbers) {
       enabledCount++;
       const isActive = state.selectedMethod === type;
-      const icon = type === 'vodafone' ? '📱' : type === 'instapay' ? '💳' : '💰';
+      
+      // Используем ТИП кошелька вместо имени
+      const displayName = type.toUpperCase(); // Например: VODAFONE, INSTAPAY
+      
+      // Иконка в зависимости от типа
+      let icon = '💰';
+      if (type.includes('vodafone') || type.includes('vodafon') || type.includes('vf')) icon = '📱';
+      if (type.includes('instapay') || type.includes('insta') || type.includes('ip')) icon = '💳';
+      if (type.includes('orange') || type.includes('orange')) icon = '🟠';
+      if (type.includes('etisalat') || type.includes('etisalat')) icon = '🟢';
       
       html += `
         <div class="wallet-type-btn ${isActive ? 'active' : ''}" 
              onclick="selectWalletMethod('${type}')"
              data-type="${type}"
-             title="${wallet.name} (${wallet.availableNumbers.length} available)">
-          ${icon} ${wallet.name || type}
-          <span style="font-size: 12px; opacity: 0.8; margin-left: 5px;">
-            (${wallet.availableNumbers.length})
-          </span>
+             title="${displayName} (${wallet.availableNumbers.length} available)">
+          ${icon} ${displayName}
         </div>
       `;
     }
@@ -1846,7 +1852,7 @@ function renderWalletMethods() {
     }
   }
   
-  log('info', `Rendered ${enabledCount} payment methods with available wallets`);
+  log('info', `Rendered ${enabledCount} payment methods (showing type instead of name)`);
 }
 
 function selectWalletMethod(type) {
