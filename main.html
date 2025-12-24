@@ -1498,7 +1498,7 @@ function translate(key, params = {}) {
     return text;
 }
 
-// ========== ПОДСКАЗКИ ==========
+/*// ========== ПОДСКАЗКИ ==========
 const hints = {
     'accountHint': {
         title: 'Player Account',
@@ -1532,9 +1532,9 @@ const hints = {
         title: 'Withdrawal Code',
         text: 'Enter the withdrawal code provided by the game or system. This code is required for security.'
     }
-};
+};*/
 
-function showHint(hintId) {
+/*function showHint(hintId) {
     const hint = hints[hintId];
     if (!hint) return;
     
@@ -1545,7 +1545,95 @@ function showHint(hintId) {
     document.getElementById('hintPopup').classList.add('active');
     
     log('info', `Hint shown: ${hintId}`);
-}
+}*/
+
+        // ========== ПОДСКАЗКИ ==========
+        const hints = {
+            'accountHint': {
+                en: 'Enter your game account username or ID. This is required to credit funds to your account.',
+                ru: 'Ваш номер игрового профиля. Вы можете найти его на сайте в настройках вашего профиля.',
+                fr: 'Votre numéro de profil de jeu. Vous pouvez le trouver sur le site dans les paramètres de votre profil.',
+                ar: 'رقم ملفك الشخصي للعبة. يمكنك العثور عليه على الموقع في إعدادات ملفك الشخصي.'
+            },
+            'amountHint': {
+                en: 'The amount you plan to deposit. Minimum {minDeposit} {currency}.',
+                ru: 'Сумма которую вы планируете внести. Минимум {minDeposit} {currency}.',
+                fr: 'Le montant que vous prévoyez de déposer. Minimum {minDeposit} {currency}.',
+                ar: 'المبلغ الذي تخطط للإيداع. الحد الأدنى {minDeposit} {currency}.'
+            },
+            'walletHint': {
+                en: 'Here you need to enter your wallet number from which you will transfer money. Be careful, if the number is entered incorrectly, the amount may not be credited to your profile, or may be credited with a delay.',
+                ru: 'Тут вам нужно указать номер вашего кошелька, с которого вы будете переводить деньги. Будьте внимательны, если номер будет указан не верно, сумма может не поступить на ваш профиль, или поступить с задержкой.',
+                fr: 'Ici, vous devez indiquer le numéro de votre portefeuille depuis lequel vous effectuerez le transfert. Soyez prudent, si le numéro est incorrect, le montant peut ne pas être crédité sur votre profil, ou peut être crédité avec un retard.',
+                ar: 'هنا تحتاج إلى إدخال رقم محفظتك التي ستقوم بالتحويل منها. كن حذرًا، إذا تم إدخال الرقم بشكل غير صحيح، فقد لا يتم إضافة المبلغ إلى ملفك الشخصي، أو قد يتم إضافته بتأخير.'
+            },
+            'methodHint': {
+                en: 'Select the payment method you want to use for this deposit.',
+                ru: 'Выберите способ оплаты, который вы хотите использовать для этого депозита.',
+                fr: 'Sélectionnez la méthode de paiement que vous souhaitez utiliser pour ce dépôt.',
+                ar: 'حدد طريقة الدفع التي تريد استخدامها لهذا الإيداع.'
+            },
+            'withdrawAccountHint': {
+                en: 'Enter your game account username or ID. This is required to process your withdrawal.',
+                ru: 'Ваш номер игрового профиля. Вы можете найти его на сайте в настройках вашего профиля.',
+                fr: 'Votre numéro de profil de jeu. Vous pouvez le trouver sur le site dans les paramètres de votre profil.',
+                ar: 'رقم ملفك الشخصي للعبة. يمكنك العثور عليه على الموقع في إعدادات ملفك الشخصي.'
+            },
+            'withdrawAmountHint': {
+                en: 'The amount of the withdrawal request you previously made on the website.',
+                ru: 'Сумма заявки на вывод которую вы ранее оформили на сайте.',
+                fr: 'Le montant de la demande de retrait que vous avez faite précédemment sur le site.',
+                ar: 'مبلغ طلب السحب الذي قمت به مسبقًا على الموقع.'
+            },
+            'withdrawWalletHint': {
+                en: 'Your wallet number where you want to receive the withdrawal. By default, the wallet number used for the last deposit is used.',
+                ru: 'Ваш номер кошелька на который вы хотите получить вывод. По умолчанию используется номер кошелька который был использован для депоита последним.',
+                fr: 'Votre numéro de portefeuille où vous souhaitez recevoir le retrait. Par défaut, le numéro de portefeuille utilisé pour le dernier dépôt est utilisé.',
+                ar: 'رقم محفظتك حيث تريد استلام السحب. افتراضيًا، يتم استخدام رقم المحفظة المستخدم للإيداع الأخير.'
+            },
+            'codeHint': {
+                en: 'Special code to confirm the withdrawal. You can get it on the website in the section (Withdrawal History -> Withdrawal Code).',
+                ru: 'Специальный код для подтверждения вывода. Вы можете получить его на сайте в разделе (История выводов->Код для вывода).',
+                fr: 'Code spécial pour confirmer le retrait. Vous pouvez l\'obtenir sur le site dans la section (Historique des retraits -> Code de retrait).',
+                ar: 'كود خاص لتأكيد السحب. يمكنك الحصول عليه على الموقع في القسم (سجل السحوبات -> كود السحب).'
+            }
+        };
+        
+        function showHint(hintId) {
+            const hint = hints[hintId];
+            if (!hint) return;
+            
+            // Get title translation based on field name
+            const titleKeys = {
+                'accountHint': 'Player Account',
+                'amountHint': 'Amount',
+                'walletHint': 'Your Wallet Number',
+                'methodHint': 'Payment Method',
+                'withdrawAccountHint': 'Player Account',
+                'withdrawAmountHint': 'Amount',
+                'withdrawWalletHint': 'Your Wallet Number',
+                'codeHint': 'Withdrawal Code'
+            };
+            
+            const title = translate(titleKeys[hintId] || 'Help Information');
+            const text = hint[state.currentLanguage] || hint.en;
+            
+            // Replace variables in hint text
+            let formattedText = text;
+            if (hintId === 'amountHint') {
+                formattedText = text
+                    .replace('{minDeposit}', state.config?.minDeposit || 100)
+                    .replace('{currency}', state.config?.currency || 'EGP');
+            }
+            
+            document.getElementById('hintTitle').textContent = title;
+            document.getElementById('hintText').textContent = formattedText;
+            
+            document.getElementById('hintOverlay').classList.add('active');
+            document.getElementById('hintPopup').classList.add('active');
+            
+            log('info', `Hint shown: ${hintId}`);
+        }
 
 function closeHint() {
     document.getElementById('hintOverlay').classList.remove('active');
