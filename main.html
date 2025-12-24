@@ -1725,70 +1725,128 @@ async function loadConfig() {
 
 // ========== ЗАГРУЗКА КОШЕЛЬКОВ ==========
 async function loadWallets() {
-    try {
-        const url = API_URL + '?action=get_wallets&t=' + Date.now();
-        log('info', `Fetching wallets from: ${url}`);
-        
-        const response = await fetch(url);
-        const result = await response.json();
-        
-        log('info', 'Wallets response received', { 
-            status: result.status,
-            source: result.source,
-            count: result.wallets ? Object.keys(result.wallets).length : 0
-        });
-        
-        if (result.status === 'success') {
-            state.wallets = result.wallets;
-            renderWalletMethods();
-            
-            log('success', 'Wallets loaded successfully', {
-                count: Object.keys(state.wallets).length,
-                types: Object.keys(state.wallets)
-            });
-        } else {
-            log('error', 'Failed to load wallets', result);
-            throw new Error(result.message || 'Wallets load failed');
-        }
-    } catch (error) {
-        state.wallets = {
-            vodafone: { name: 'Vodafone Cash', enabled: true, availableNumbers: ['01012345678'] },
-            instapay: { name: 'InstaPay QR', enabled: true, availableNumbers: ['01111111111'] }
-        };
-        renderWalletMethods();
-        log('warning', 'Using test wallets due to error', error);
+  try {
+    const url = API_URL + '?action=get_wallets&t=' + Date.now();
+    log('info', `Fetching wallets from: ${url}`);
+    
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    log('info', 'Wallets response received', { 
+      status: result.status,
+      source: result.source,
+      count: result.wallets ? Object.keys(result.wallets).length : 0
+    });
+    
+    if (result.status === 'success') {
+      // СИНХРОНИЗИРОВАННАЯ СТРУКТУРА: доступные номера в массиве availableNumbers
+      state.wallets = result.wallets;
+      renderWalletMethods();
+      
+      log('success', 'Wallets loaded successfully', {
+        count: Object.keys(state.wallets).length,
+        types: Object.keys(state.wallets).map(type => ({
+          type: type,
+          name: state.wallets[type].name,
+          available: state.wallets[type].availableNumbers?.length || 0
+        }))
+      });
+    } else {
+      log('error', 'Failed to load wallets', result);
+      throw new Error(result.message || 'Wallets load failed');
     }
+  } catch (error) {
+    // НИКАКИХ ТЕСТОВЫХ КОШЕЛЬКОВ - только сообщение об ошибке
+    log('error', 'Wallets load failed completely', error);
+    state.wallets = {};
+    
+    // Показываем сообщение пользователю
+    document.getElementById('walletMethods').innerHTML = `
+      <div style="text-align: center; padding: 20px; color: #e74c3c;">
+        <div style="font-size: 24px;">⚠️</div>
+        <div style="font-weight: bold; margin: 10px 0;">Payment methods not available</div>
+        <div style="color: var(--secondary-text); font-size: 14px;">
+          Please try again later or contact support
+        </div>
+      </div>
+    `;
+    
+    // Блокируем кнопку депозита
+    document.getElementById('depositBtn').disabled = true;
+    document.getElementById('depositBtn').innerHTML = 
+      '<span style="color: #e74c3c;">⚠️ Payment methods unavailable</span>';
+  }
 }
 
 function renderWalletMethods() {
-    const container = document.getElementById('walletMethods');
-    if (!state.wallets || Object.keys(state.wallets).length === 0) {
-        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #e74c3c;">⚠️ No payment methods available</div>';
-        log('warning', 'No payment methods available to render');
-        return;
+  const container = document.getElementById('walletMethods');
+  if (!state.wallets || Object.keys(state.wallets).length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 20px; color: var(--secondary-text);">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px;">Loading payment methods...</p>
+      </div>
+    `;
+    log('warning', 'No payment methods available to render');
+    return;
+  }
+  
+  let html = '';
+  let enabledCount = 0;
+  
+  Object.entries(state.wallets).forEach(([type, wallet]) => {
+    // Проверяем, есть ли доступные номера
+    const hasAvailableNumbers = wallet.availableNumbers && wallet.availableNumbers.length > 0;
+    
+    if (wallet.enabled && hasAvailableNumbers) {
+      enabledCount++;
+      const isActive = state.selectedMethod === type;
+      const icon = type === 'vodafone' ? '📱' : type === 'instapay' ? '💳' : '💰';
+      
+      html += `
+        <div class="wallet-type-btn ${isActive ? 'active' : ''}" 
+             onclick="selectWalletMethod('${type}')"
+             data-type="${type}"
+             title="${wallet.name} (${wallet.availableNumbers.length} available)">
+          ${icon} ${wallet.name || type}
+          <span style="font-size: 12px; opacity: 0.8; margin-left: 5px;">
+            (${wallet.availableNumbers.length})
+          </span>
+        </div>
+      `;
     }
-    
-    let html = '';
-    let enabledCount = 0;
-    
-    Object.entries(state.wallets).forEach(([type, wallet]) => {
-        if (wallet.enabled) {
-            enabledCount++;
-            const isActive = state.selectedMethod === type;
-            const icon = type === 'vodafone' ? '📱' : type === 'instapay' ? '💳' : '💰';
-            
-            html += `
-                <div class="wallet-type-btn ${isActive ? 'active' : ''}" 
-                     onclick="selectWalletMethod('${type}')"
-                     data-type="${type}">
-                    ${icon} ${wallet.name || type}
-                </div>
-            `;
-        }
-    });
-    
+  });
+  
+  if (enabledCount === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 20px; color: #e74c3c;">
+        <div style="font-size: 24px;">⚠️</div>
+        <div style="font-weight: bold; margin: 10px 0;">No active payment methods</div>
+        <div style="color: var(--secondary-text); font-size: 14px;">
+          All payment methods are currently unavailable. Please try again later.
+        </div>
+      </div>
+    `;
+    document.getElementById('depositBtn').disabled = true;
+    document.getElementById('depositBtn').innerHTML = 
+      '<span style="color: #e74c3c;">⚠️ No payment methods available</span>';
+  } else {
     container.innerHTML = html;
-    log('info', `Rendered ${enabledCount} payment methods`);
+    
+    // Автоматически выбираем первый доступный метод
+    if (!state.selectedMethod && enabledCount > 0) {
+      const firstType = Object.keys(state.wallets).find(type => 
+        state.wallets[type].enabled && 
+        state.wallets[type].availableNumbers && 
+        state.wallets[type].availableNumbers.length > 0
+      );
+      if (firstType) {
+        selectWalletMethod(firstType);
+      }
+    }
+  }
+  
+  log('info', `Rendered ${enabledCount} payment methods with available wallets`);
 }
 
 function selectWalletMethod(type) {
