@@ -259,7 +259,7 @@
             document.getElementById('loadingText').textContent = 'Checking system status...';
             
             try {
-                const url = `${API_URL}?action=get_config&t=${Date.now()}`;
+                const url = `${API_URL}?action=check_form_status&t=${Date.now()}`;
                 console.log('Fetching config from:', url);
                 
                 // Делаем ОБЫЧНЫЙ fetch запрос (без mode: 'no-cors')
