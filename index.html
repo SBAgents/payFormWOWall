@@ -278,7 +278,7 @@
                 // КРИТИЧЕСКИ ВАЖНО: Проверяем структуру ответа
                 if (result.status === 'success' && result.config) {
                     // СИСТЕМА АКТИВНА
-                    if (result.status === 'success' && result.isActive !== false) {
+                    if (result.status === 'success' && result.isActive === true) {
                           window.location.href = 'main.html';
                     /*if (result.config.isActive !== false) {
                         console.log('System is ACTIVE. Redirecting to main.html...');
