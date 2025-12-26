@@ -276,22 +276,11 @@
                 console.log('API Response:', result);
                 
                 // КРИТИЧЕСКИ ВАЖНО: Проверяем структуру ответа
-               /* if (result.status === 'success' && result.config?.isActive !== false) {*/
-                // СИСТЕМА АКТИВНА
-                    if (result.status === 'success' && result.config?.isActive !== false) {
-                     window.location.href = 'main.html';
-                    /*if (result.config.isActive !== false) {
-                        console.log('System is ACTIVE. Redirecting to main.html...');
-                        window.location.href = 'main.html';*/
-                    
-                    // СИСТЕМА В СЕРВИСНОМ РЕЖИМЕ
+               if (result.status === 'success' && result.isActive === true) {
+                      window.location.href = 'main.html';
                     } else {
-                        showServiceMode();
-                    } else {
-                    // Ответ API некорректен
-                    console.error('Invalid API response structure:', result);
-                    showServiceMode(); // Безопасный режим по умолчанию
-                }
+                      showServiceMode();
+                    }
                 
             } catch (error) {
                 // ЛЮБАЯ ОШИБКА (сеть, парсинг JSON) → сервисный режим
