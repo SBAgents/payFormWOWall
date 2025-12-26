@@ -276,9 +276,9 @@
                 console.log('API Response:', result);
                 
                 // КРИТИЧЕСКИ ВАЖНО: Проверяем структуру ответа
-                if (result.status === 'success' && result.config?.isActive !== false) {
+               /* if (result.status === 'success' && result.config?.isActive !== false) {*/
                 // СИСТЕМА АКТИВНА
-                    if (result.status === 'success' && result.config?.isActive !== false)
+                    if (result.status === 'success' && result.config?.isActive !== false) {
                      window.location.href = 'main.html';
                     /*if (result.config.isActive !== false) {
                         console.log('System is ACTIVE. Redirecting to main.html...');
@@ -286,7 +286,6 @@
                     } 
                     // СИСТЕМА В СЕРВИСНОМ РЕЖИМЕ
                     else {
-                        console.log('System is INACTIVE (maintenance). Showing service mode.');
                         showServiceMode();
                     }
                 } else {
