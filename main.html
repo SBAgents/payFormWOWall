@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment System</title>
+    <title>Payment system</title>
     <link rel="preconnect" href="https://script.google.com">
     <link rel="preconnect" href="https://api.telegram.org">
 <style>
@@ -234,6 +234,7 @@
 
     /* ЯЗЫКОВОЙ ПЕРЕКЛЮЧАТЕЛЬ */
     .language-selector {
+        display: none;
         position: absolute;
         top: 20px;
         right: 20px;
@@ -243,6 +244,7 @@
     }
 
     body[dir="rtl"] .language-selector {
+        display: none;
         right: auto;
         left: 20px;
     }
@@ -811,6 +813,7 @@
         }
         
         .language-selector {
+            display: none;
             position: relative;
             top: 0;
             right: 0;
@@ -879,27 +882,27 @@
     </div>
 
     <!-- Языковой переключатель -->
-    <div class="language-selector">
+   <!-- <div class="language-selector">
         <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
         <button class="lang-btn" onclick="changeLanguage('ru')">RU</button>
         <button class="lang-btn" onclick="changeLanguage('fr')">FR</button>
         <button class="lang-btn" onclick="changeLanguage('ar')">AR</button>
-    </div>
+    </div> -->
 
     <div class="container" id="mainContainer">
     <!-- Хедер -->
     <div class="header">
-        <div class="logo" data-i18n="title">Payment System</div>
-        <div class="subtitle" data-i18n="subtitle">Secure deposits & withdrawals</div>
+        <div class="logo" data-i18n="title">Payment system</div>
+        <!-- <div class="subtitle" data-i18n="subtitle">Secure deposits & withdrawals</div> -->
     </div>
 
         <!-- Переключатель вкладок -->
         <div class="tab-container">
             <div class="tab active" onclick="switchTab('deposit')">
-                <span data-i18n="deposit.tab">💰 Deposit</span>
+                <span data-i18n="deposit.tab">Deposit</span>
             </div>
             <div class="tab" onclick="switchTab('withdrawal')">
-                <span data-i18n="withdrawal.tab">💸 Withdrawal</span>
+                <span data-i18n="withdrawal.tab">Withdrawal</span>
             </div>
         </div>
 
@@ -1230,11 +1233,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ========== МНОГОЯЗЫЧНОСТЬ ==========
 const translations = {
     en: {
-        'title': 'Payment System',
+        'title': 'Payment system',
         'subtitle': 'Secure deposits & withdrawals',
         'currency': 'EGP',
-        'deposit.tab': '💰 Deposit',
-        'withdrawal.tab': '💸 Withdrawal',
+        'deposit.tab': 'Deposit',
+        'withdrawal.tab': 'Withdrawal',
         'deposit.account_label': 'Player Account',
         'deposit.amount_label': 'Amount',
         'deposit.wallet_label': 'Your Wallet Number',
@@ -1282,11 +1285,11 @@ const translations = {
     },
     
     ru: {
-        'title': 'Платёжная Система',
+        'title': 'Payment system',
         'subtitle': 'Безопасные пополнения и выводы',
         'currency': 'EGP',
-        'deposit.tab': '💰 Пополнение',
-        'withdrawal.tab': '💸 Вывод',
+        'deposit.tab': 'Пополнение',
+        'withdrawal.tab': 'Вывод',
         'deposit.account_label': 'Игровой Аккаунт',
         'deposit.amount_label': 'Сумма',
         'deposit.wallet_label': 'Ваш Номер Кошелька',
@@ -1334,11 +1337,11 @@ const translations = {
     },
     
     fr: {
-        'title': 'Système de Paiement',
+        'title': 'Payment system',
         'subtitle': 'Dépôts et retraits sécurisés',
         'currency': 'EGP',
-        'deposit.tab': '💰 Dépôt',
-        'withdrawal.tab': '💸 Retrait',
+        'deposit.tab': 'Dépôt',
+        'withdrawal.tab': 'Retrait',
         'deposit.account_label': 'Compte Joueur',
         'deposit.amount_label': 'Montant',
         'deposit.wallet_label': 'Votre Numéro de Portefeuille',
@@ -1386,11 +1389,11 @@ const translations = {
     },
     
     ar: {
-        'title': 'نظام الدفع',
+        'title': 'Payment system',
         'subtitle': 'إيداعات وسحوبات آمنة',
         'currency': 'جنيه مصري',
-        'deposit.tab': '💰 إيداع',
-        'withdrawal.tab': '💸 سحب',
+        'deposit.tab': 'إيداع',
+        'withdrawal.tab': 'سحب',
         'deposit.account_label': 'حساب اللاعب',
         'deposit.amount_label': 'المبلغ',
         'deposit.wallet_label': 'رقم محفظتك',
