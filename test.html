@@ -968,7 +968,7 @@
             </div>
 
             <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
-            <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 10000; justify-content: center; align-items: center;">
+            <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center;">
                 <div style="position: relative; width: 90%; max-width: 800px; background: #000; border-radius: 10px; overflow: hidden;">
                     <button id="closeVideoTutorial" style="position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); color: white; border: none; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 10001;">×</button>
                     <<video 
@@ -2396,11 +2396,23 @@ async function processWithdrawal() {
                     </iframe>
                 </div>
             `;
+
+          const iframe = document.getElementById('youtubePlayer');
+            iframe.onload = function() {
+                this.contentWindow.postMessage('{"event":"command","func":"addEventListener","args":["onStateChange"]}', '*');
+            };
+            
+            // Слушатель событий YouTube
+            window.addEventListener('message', function(e) {
+                if (e.data === 'YTPlayer.onStateChange=0') { // 0 = видео завершено
+                    closeTutorialVideo();
+                }
+            });
             
             modal.style.display = 'flex';
-            document.getElementById('closeVideoTutorial').onclick = closeTutorialVideo;
+            document.getElementById('closeVideoTutorial').onclick = closeTutorial;
             
-            if (autoplay) localStorage.setItem('hasSeenDepositTutorial', 'true');
+            if (autoplay) localStorage.setItem('tutorialWatched', 'true');
         }
       
       // 3. Закрываем видео
