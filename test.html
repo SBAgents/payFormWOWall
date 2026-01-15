@@ -2374,22 +2374,33 @@ async function processWithdrawal() {
       // 2. Показываем видео (автозапуск при первом просмотре)
       function showTutorial(autoplay = false) {
             const modal = document.getElementById('videoTutorialModal');
-            const videoUrl = getTutorialVideoFile();
+            const lang = navigator.language.split('-')[0];
+            
+            const youtubeIds = {
+                'ru': '5tanTK9-fhQ', // из youtube.com/watch?v=ID
+                'en': '5tanTK9-fhQ',
+                'ar': '5tanTK9-fhQ'
+            };
+            
+            const videoId = youtubeIds[lang] || youtubeIds.en;
+            const params = 'autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0';
             
             modal.innerHTML = `
                 <div class="video-container">
                     <button id="closeVideoTutorial">×</button>
-                    <iframe src="${videoUrl}" 
-                            frameborder="0" 
-                            allow="autoplay; fullscreen" 
-                            style="width:100%;height:450px;">
+                    <iframe 
+                        src="https://www.youtube.com/embed/${videoId}?${params}" 
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media" 
+                        style="width:100%;height:450px;">
                     </iframe>
                 </div>
             `;
             
             modal.style.display = 'flex';
-            // Обработчик закрытия
             document.getElementById('closeVideoTutorial').onclick = closeTutorialVideo;
+            
+            if (autoplay) localStorage.setItem('hasSeenDepositTutorial', 'true');
         }
       
       // 3. Закрываем видео
