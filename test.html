@@ -2362,39 +2362,35 @@ async function processWithdrawal() {
       // 1. Определяем язык и выбираем видеофайл
       function getTutorialVideoFile() {
             const lang = navigator.language.split('-')[0];
-            
-            const driveIds = {
-                'ru': '1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X', // ID русского видео
-                'en': '1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X',
-                'ar': '1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X'
+            const vimeoIds = {
+                'ru': '1154631666',
+                'en': '1154631629', 
+                'ar': '1154631589'
             };
-            
-            const fileId = driveIds[lang] || driveIds.en;
-            return `https://drive.google.com/uc?export=download&id=${fileId}`;
+            const id = vimeoIds[lang] || vimeoIds.en;
+            return `https://player.vimeo.com/video/${id}?autoplay=1&controls=0&muted=1`;
         }
       
       // 2. Показываем видео (автозапуск при первом просмотре)
-      function showTutorial(autoplay = false) {
-          const videoFile = getTutorialVideoFile();
-          const modal = document.getElementById('videoTutorialModal');
-          const video = document.getElementById('tutorialVideo');
-          
-          // Устанавливаем источник видео
-          video.src = videoFile;
-          
-          // Показываем модальное окно
-          modal.style.display = 'flex';
-          
-          // Автозапуск если нужно
-          if (autoplay) {
-              video.play().catch(e => console.log('Автозапуск заблокирован:', e));
-          }
-          
-          // Сохраняем просмотр в localStorage
-          if (autoplay) {
-              localStorage.setItem('tutorialWatched', 'true');
-          }
-      }
+      function showTutorialVideo(autoplay = false) {
+            const modal = document.getElementById('videoTutorialModal');
+            const videoUrl = getTutorialVideoFile();
+            
+            modal.innerHTML = `
+                <div class="video-container">
+                    <button id="closeVideoTutorial">×</button>
+                    <iframe src="${videoUrl}" 
+                            frameborder="0" 
+                            allow="autoplay; fullscreen" 
+                            style="width:100%;height:450px;">
+                    </iframe>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+            // Обработчик закрытия
+            document.getElementById('closeVideoTutorial').onclick = closeTutorialVideo;
+        }
       
       // 3. Закрываем видео
       function closeTutorial() {
