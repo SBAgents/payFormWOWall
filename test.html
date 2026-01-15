@@ -971,7 +971,7 @@
             <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 10000; justify-content: center; align-items: center;">
                 <div style="position: relative; width: 90%; max-width: 800px; background: #000; border-radius: 10px; overflow: hidden;">
                     <button id="closeVideoTutorial" style="position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); color: white; border: none; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 10001;">×</button>
-                    <video id="tutorialVideo" controls style="width: 100%; height: auto; display: block;">
+                    <video id="tutorialVideo" style="width: 100%; height: auto; display: block;">
                         Ваш браузер не поддерживает видео.
                     </video>
                 </div>
@@ -2366,10 +2366,10 @@ async function processWithdrawal() {
            const baseUrl = 'https://raw.githubusercontent.com/SBAgents/payFormWOWall/main/';
     
             const videoFiles = {
-                'ru': baseUrl + 'Deposit%20tutor%20RU.mp4',
-                'en': baseUrl + 'Deposit%20tutor%20EN.mp4',
-                'ar': baseUrl + 'Deposit%20tutor%20AR.mp4',
-                'fr': baseUrl + 'Deposit%20tutor%20EN.mp4'
+                'ru': baseUrl + 'https://drive.google.com/file/d/1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X/view?usp=sharing',
+                'en': baseUrl + 'https://drive.google.com/file/d/1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X/view?usp=sharing',
+                'ar': baseUrl + 'https://drive.google.com/file/d/1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X/view?usp=sharing',
+                'fr': baseUrl + 'https://drive.google.com/file/d/1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X/view?usp=sharing'
           };
           
           return videoFiles[langCode] || videoFiles['en'];
