@@ -2361,12 +2361,15 @@ async function processWithdrawal() {
       // 1. Определяем язык и выбираем видеофайл
       function getTutorialVideoFile() {
             const lang = navigator.language.split('-')[0];
+            
             const driveIds = {
-                'ru': '1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X',
-                'en': '1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X',
-                'ar': '1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X'
+                'ru': '1-Y9pCjObKGfW-tNv-HDknhbhp_Wy8r1X', // ID русского видео
+                'en': 'ID_английского_видео',
+                'ar': 'ID_арабского_видео'
             };
-            return `https://drive.google.com/uc?export=download&id=${driveIds[lang] || driveIds.en}`;
+            
+            const fileId = driveIds[lang] || driveIds.en;
+            return `https://drive.google.com/uc?export=download&id=${fileId}`;
         }
       
       // 2. Показываем видео (автозапуск при первом просмотре)
