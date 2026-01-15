@@ -2363,12 +2363,14 @@ async function processWithdrawal() {
       function getTutorialVideo() {
           const userLang = navigator.language || navigator.userLanguage;
           const langCode = userLang.split('-')[0].toLowerCase();
-          
-          const videos = {
-              'ru': 'Deposit tutor RU.mp4',
-              'en': 'https://github.com/SBAgents/payFormWOWall/blob/main/Deposit%20tutor%20EN.mp4', 
-              'ar': 'Deposit tutor AR.mp4',
-              'fr': 'https://github.com/SBAgents/payFormWOWall/blob/main/Deposit%20tutor%20EN.mp4'
+
+           const baseUrl = 'https://raw.githubusercontent.com/SBAgents/payFormWOWall/main/';
+    
+            const videoFiles = {
+                'ru': baseUrl + 'Deposit%20tutor%20RU.mp4',
+                'en': baseUrl + 'Deposit%20tutor%20EN.mp4',
+                'ar': baseUrl + 'Deposit%20tutor%20AR.mp4',
+                'fr': baseUrl + 'Deposit%20tutor%20EN.
           };
           
           return videos[langCode] || videos['en'];
