@@ -968,21 +968,19 @@
             </div>
 
             <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
-            <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center;">
-                <div style="position: relative; width: 90%; max-width: 800px; background: #000; border-radius: 10px; overflow: hidden;">
-                    <button id="closeVideoTutorial" style="position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); color: white; border: none; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 10001;">×</button>
-                    <<video 
-                        id="tutorialVideo" controls crossorigin="anonymous" style="width:100%;">
-                    <!-- src установится через JS -->
-                </video>>
+            <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
+                <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 15px; overflow: hidden; border: 2px solid var(--accent-color);">
+                    <button id="closeVideoTutorial" style="position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 10001;">×</button>
+                    <iframe 
+                        id="youtubePlayer"
+                        src=""
+                        frameborder="0"
+                        allow="autoplay; encrypted-media; accelerometer; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        style="width:100%; height:450px;">
+                    </iframe>
                 </div>
             </div>
-            
-            <!-- ПЛАВАЮЩАЯ КНОПКА ДЛЯ ПОВТОРНОГО ЗАПУСКА -->
-            <button id="replayTutorialBtn" style="display: none; position: fixed; bottom: 80px; right: 20px; background: #D0E41E; color: #2c3e50; border: none; padding: 10px 15px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(208, 228, 30, 0.3); z-index: 9997;">
-                🎥 Видеоинструкция
-            </button>
-
 
             <!-- Вкладка Вывода -->
             <div id="withdrawalTab" class="tab-content">
@@ -1297,7 +1295,8 @@ const translations = {
         'notification.server_error': 'Server error. Please try again.',
         'notification.confirmation_failed': 'Confirmation failed: {message}',
         'notification.antispam': 'Please wait {minutes} minutes before identical request',
-        'notification.withdrawal_failed': 'Withdrawal failed: {message}'
+        'notification.withdrawal_failed': 'Withdrawal failed: {message}',
+        'tutorial.link': 'Video tutorial'
     },
     
     ru: {
@@ -1349,7 +1348,8 @@ const translations = {
         'notification.server_error': 'Ошибка сервера. Пожалуйста, попробуйте снова.',
         'notification.confirmation_failed': 'Подтверждение не удалось: {message}',
         'notification.antispam': 'Пожалуйста, подождите {minutes} минут перед идентичным запросом',
-        'notification.withdrawal_failed': 'Вывод не удался: {message}'
+        'notification.withdrawal_failed': 'Вывод не удался: {message}',
+        'tutorial.link': 'Видеоинструкция'
     },
     
     fr: {
@@ -1401,7 +1401,8 @@ const translations = {
         'notification.server_error': 'Erreur serveur. Veuillez réessayer.',
         'notification.confirmation_failed': 'Échec de la confirmation: {message}',
         'notification.antispam': 'Veuillez attendre {minutes} minutes avant une demande identique',
-        'notification.withdrawal_failed': 'Échec du retrait: {message}'
+        'notification.withdrawal_failed': 'Échec du retrait: {message}',
+        'tutorial.link': 'Tutoriel vidéo'
     },
     
     ar: {
@@ -1453,7 +1454,8 @@ const translations = {
         'notification.server_error': 'خطأ في الخادم. يرجى المحاولة مرة أخرى.',
         'notification.confirmation_failed': 'فشل التأكيد: {message}',
         'notification.antispam': 'يرجى الانتظار {minutes} دقائق قبل الطلب المماثل',
-        'notification.withdrawal_failed': 'فشل السحب: {message}'
+        'notification.withdrawal_failed': 'فشل السحب: {message}',
+        'tutorial.link': 'تعليمات الفيديو'
     }
 };
 
@@ -2360,59 +2362,28 @@ async function processWithdrawal() {
       // ========== ФУНКЦИИ ТУТОРИАЛА (ТОЛЬКО ЭТО НОВОЕ) ==========
       
       // 1. Определяем язык и выбираем видеофайл
-      function getTutorialVideoFile() {
+     function getTutorialVideoFile() {
             const lang = navigator.language.split('-')[0];
-            const vimeoIds = {
-                'ru': '1154631666',
-                'en': '1154631629', 
-                'ar': '1154631589'
+            const youtubeIds = {
+                'ru': 'CKlaeDHDp6o',
+                'en': 'Ys68V3Viy5c', 
+                'ar': '5tanTK9-fhQ'
             };
-            const id = vimeoIds[lang] || vimeoIds.en;
-            return `https://player.vimeo.com/video/${id}?autoplay=1&controls=0&muted=1`;
+            const videoId = youtubeIds[lang] || youtubeIds.en;
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1`;
         }
       
       // 2. Показываем видео (автозапуск при первом просмотре)
       function showTutorial(autoplay = false) {
             const modal = document.getElementById('videoTutorialModal');
-            const lang = navigator.language.split('-')[0];
+            const iframe = document.getElementById('youtubePlayer');
             
-            const youtubeIds = {
-                'ru': 'CKlaeDHDp6o', // из youtube.com/watch?v=ID
-                'en': 'Ys68V3Viy5c',
-                'ar': '5tanTK9-fhQ'
-            };
-            
-            const videoId = youtubeIds[lang] || youtubeIds.en;
-            const params = 'autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0';
-            
-            modal.innerHTML = `
-                <div class="video-container">
-                    <button id="closeVideoTutorial">×</button>
-                    <iframe 
-                        src="https://www.youtube.com/embed/${videoId}?${params}" 
-                        frameborder="0" 
-                        allow="autoplay; encrypted-media" 
-                        style="width:100%;height:450px;">
-                    </iframe>
-                </div>
-            `;
-
-          const iframe = document.getElementById('youtubePlayer');
-            iframe.onload = function() {
-                this.contentWindow.postMessage('{"event":"command","func":"addEventListener","args":["onStateChange"]}', '*');
-            };
-            
-            // Слушатель событий YouTube
-            window.addEventListener('message', function(e) {
-                if (e.data === 'YTPlayer.onStateChange=0') { // 0 = видео завершено
-                    closeTutorialVideo();
-                }
-            });
-            
+            iframe.src = getTutorialVideoFile();
             modal.style.display = 'flex';
-            document.getElementById('closeVideoTutorial').onclick = closeTutorial;
             
-            if (autoplay) localStorage.setItem('tutorialWatched', 'true');
+            if (autoplay) {
+                localStorage.setItem('tutorialWatched', 'true');
+            }
         }
       
       // 3. Закрываем видео
@@ -2427,44 +2398,41 @@ async function processWithdrawal() {
       
       // 4. Проверяем первый ли это визит
       function checkFirstVisit() {
-          const hasWatched = localStorage.getItem('tutorialWatched');
-          
-          if (!hasWatched) {
-              // Первый визит - показываем видео через 2 секунды
-              setTimeout(() => {
-                  showTutorial(true);
-              }, 2000);
-          }
-      }
+            const hasWatched = localStorage.getItem('tutorialWatched');
+            
+            if (!hasWatched) {
+                setTimeout(() => {
+                    showTutorial(true);
+                }, 1000);
+            }
+        }
       
       // 5. Добавляем ссылку "Видеоинструкция" под кнопкой "Получить кошелёк"
       function addVideoLink() {
-          // Ищем кнопку "Получить кошелёк" (или "Get Wallet")
-          const getWalletBtn = document.querySelector('#getWalletBtn');
-          
-          if (getWalletBtn) {
-              // Создаем ссылку для видео
-              const videoLink = document.createElement('div');
-              videoLink.id = 'videoTutorialLink';
-              videoLink.innerHTML = '🎥 Видеоинструкция';
-              videoLink.style.cssText = `
-                  text-align: center;
-                  margin-top: 10px;
-                  color: #D0E41E;
-                  cursor: pointer;
-                  font-size: 14px;
-                  text-decoration: underline;
-                  transition: opacity 0.3s;
-              `;
-              
-              videoLink.onmouseover = () => videoLink.style.opacity = '0.8';
-              videoLink.onmouseout = () => videoLink.style.opacity = '1';
-              videoLink.onclick = () => showTutorial(false);
-              
-              // Вставляем после кнопки
-              getWalletBtn.parentNode.insertBefore(videoLink, getWalletBtn.nextSibling);
-          }
-      }
+            const depositBtn = document.getElementById('depositBtn');
+            const parent = depositBtn.parentNode;
+            
+            const videoLink = document.createElement('div');
+            videoLink.id = 'videoTutorialLink';
+            videoLink.style.cssText = `
+                text-align: center;
+                margin-top: 15px;
+                color: var(--accent-color);
+                cursor: pointer;
+                font-size: 14px;
+                text-decoration: underline;
+                transition: opacity 0.3s;
+                opacity: 0.9;
+            `;
+            
+            videoLink.onmouseover = () => videoLink.style.opacity = '1';
+            videoLink.onmouseout = () => videoLink.style.opacity = '0.9';
+            videoLink.onclick = () => showTutorial(false);
+            
+            videoLink.setAttribute('data-i18n', 'tutorial.link');
+            
+            parent.insertBefore(videoLink, depositBtn.nextSibling);
+        }
       
       // 6. Инициализируем плавающую кнопку
       function initFloatingButton() {
