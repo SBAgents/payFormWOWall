@@ -2489,17 +2489,30 @@ async function processWithdrawal() {
             
             // Ждём загрузки iframe
             iframe.onload = function() {
-                // 1. Отправляем "слушающий" сигнал
                 this.contentWindow.postMessage('{"event":"listening","id":"youtubePlayer"}', '*');
-                console.log("YouTube iframe готов к командам");
                 
-                // 2. Регистрируем глобальный обработчик событий YouTube
-                window.ytStateHandler = function(event) {
-                    if (event.data && event.data.info === 'YT_VIDEO_ENDED') {
-                        showRepeatDialog();
+                // Отслеживаем конец видео каждую секунду
+                const checkEndInterval = setInterval(() => {
+                    try {
+                        // Запрашиваем текущее состояние у YouTube
+                        this.contentWindow.postMessage('{"event":"command","func":"getCurrentTime"}', '*');
+                    } catch(e) {}
+                }, 1000);
+                
+                // Слушаем ответы от YouTube
+                window.addEventListener('message', function checkEnd(event) {
+                    if (event.data && event.data.event === 'infoDelivery') {
+                        const duration = event.data.info.duration;
+                        const currentTime = event.data.info.currentTime;
+                        
+                        // Если видео закончилось (последние 0.5 секунд)
+                        if (duration && currentTime && duration - currentTime < 0.5) {
+                            clearInterval(checkEndInterval); // Останавливаем проверку
+                            window.removeEventListener('message', checkEnd); // Убираем слушатель
+                            showRepeatDialog(); // Показываем диалог
+                        }
                     }
-                };
-                window.addEventListener('message', window.ytStateHandler);
+                });
             };
             
             if (autoplay) localStorage.setItem('tutorialWatched', 'true');
@@ -2586,7 +2599,7 @@ async function processWithdrawal() {
             const modal = document.getElementById('videoTutorialModal');
             const iframe = document.getElementById('youtubePlayer');
             
-            // Создаём диалог (используем ту же структуру, что и для закрытия)
+            // Создаём диалог (такая же структура как в closeTutorial)
             const repeatDialog = document.createElement('div');
             repeatDialog.className = 'close-confirm-dialog';
             repeatDialog.innerHTML = `
@@ -2604,18 +2617,19 @@ async function processWithdrawal() {
             repeatDialog.style.display = 'block';
             applyTranslations(state.currentLanguage);
             
-            // Обработчики кнопок
+            // Обработчик "Watch again" - перезапуск видео
             repeatDialog.querySelector('.repeat-yes').onclick = function() {
-                // Перезапускаем видео с начала
+                // Перематываем на начало и играем
                 iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0, true]}', '*');
                 iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                repeatDialog.remove();
+                repeatDialog.remove(); // Удаляем диалог
             };
             
+            // Обработчик "I understand" - закрытие
             repeatDialog.querySelector('.repeat-no').onclick = function() {
-                iframe.src = '';
-                modal.style.display = 'none';
-                repeatDialog.remove();
+                iframe.src = ''; // Останавливаем видео
+                modal.style.display = 'none'; // Закрываем модалку
+                repeatDialog.remove(); // Удаляем диалог
             };
         }
       
