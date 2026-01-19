@@ -2478,45 +2478,68 @@ async function processWithdrawal() {
         }
       
       // 2. Показываем видео (автозапуск при первом просмотре)
-      function showTutorial(autoplay = false) {
-            const modal = document.getElementById('videoTutorialModal');
-            const iframe = document.getElementById('youtubePlayer');
-            
-            // Генерируем URL с ВСЕМИ нужными параметрами
-            const videoUrl = getTutorialVideoFile();
-            iframe.src = videoUrl;
-            modal.style.display = 'flex';
-            
-            // Ждём загрузки iframe
-            iframe.onload = function() {
-                this.contentWindow.postMessage('{"event":"listening","id":"youtubePlayer"}', '*');
-                
-                // Отслеживаем конец видео каждую секунду
-                const checkEndInterval = setInterval(() => {
-                    try {
-                        // Запрашиваем текущее состояние у YouTube
-                        this.contentWindow.postMessage('{"event":"command","func":"getCurrentTime"}', '*');
-                    } catch(e) {}
-                }, 1000);
-                
-                // Слушаем ответы от YouTube
-                window.addEventListener('message', function checkEnd(event) {
-                    if (event.data && event.data.event === 'infoDelivery') {
-                        const duration = event.data.info.duration;
-                        const currentTime = event.data.info.currentTime;
-                        
-                        // Если видео закончилось (последние 0.5 секунд)
-                        if (duration && currentTime && duration - currentTime < 0.5) {
-                            clearInterval(checkEndInterval); // Останавливаем проверку
-                            window.removeEventListener('message', checkEnd); // Убираем слушатель
-                            showRepeatDialog(); // Показываем диалог
-                        }
-                    }
-                });
-            };
-            
-            if (autoplay) localStorage.setItem('tutorialWatched', 'true');
-        }
+     function showTutorial(autoplay = false) {
+        const modal = document.getElementById('videoTutorialModal');
+        const iframe = document.getElementById('youtubePlayer');
+        
+        // Устанавливаем URL с параметрами
+        iframe.src = getTutorialVideoFile();
+        modal.style.display = 'flex';
+        
+        // 1. Узнаём какое видео загружено (по языку)
+        const lang = navigator.language.split('-')[0];
+        const videoDurations = {
+            'ru': 62,   // Замени на нужные секунды
+            'en': 75,  // Замени на нужные секунды
+            'ar': 90,  // Замени на нужные секунды
+            'default': 75
+        };
+        
+        const videoDuration = videoDurations[lang] || videoDurations['default'];
+        
+        // 2. Fallback 1: Основной таймер (длительность видео + 5 секунд)
+        const mainTimer = setTimeout(() => {
+            console.log(`⏱️ Основной таймер (${videoDuration}с): показываю диалог`);
+            if (modal.style.display === 'flex') {
+                showRepeatDialog();
+            }
+        }, (videoDuration + 5) * 1000); // +5 секунд запаса
+        
+        // 3. Fallback 2: Дополнительный таймер (на 20% длиннее)
+        const extendedTimer = setTimeout(() => {
+            console.log(`⏱️ Дополнительный таймер (${Math.round(videoDuration * 1.2)}с): показываю диалог`);
+            if (modal.style.display === 'flex') {
+                showRepeatDialog();
+            }
+        }, videoDuration * 1.2 * 1000);
+        
+        // 4. Fallback 3: Максимальный таймер (фиксированно 3 минуты)
+        const maxTimer = setTimeout(() => {
+            console.log('⏱️ Максимальный таймер (180с): показываю диалог');
+            clearTimeout(mainTimer);
+            clearTimeout(extendedTimer);
+            if (modal.style.display === 'flex') {
+                showRepeatDialog();
+            }
+        }, 180000); // 3 минуты
+        
+        // 5. Очистка таймеров при закрытии модалки
+        const cleanupTimers = function() {
+            clearTimeout(mainTimer);
+            clearTimeout(extendedTimer);
+            clearTimeout(maxTimer);
+            modal.removeEventListener('close', cleanupTimers);
+        };
+        
+        // Вешаем очистку на закрытие
+        modal.addEventListener('close', cleanupTimers);
+        
+        // 6. Сохраняем функцию очистки для ручного вызова
+        modal.cleanupTimers = cleanupTimers;
+        
+        if (autoplay) localStorage.setItem('tutorialWatched', 'true');
+        console.log(`🎬 Видео запущено. Fallback таймеры: ${videoDuration}с, ${Math.round(videoDuration * 1.2)}с, 180с`);
+    }
       
       // 3. Закрываем видео
         function closeTutorial() {
