@@ -49,6 +49,64 @@
         margin-left: 350px;
     }
 
+    .close-confirm-dialog {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: none;
+    z-index: 10002;
+    justify-content: center;
+    align-items: center;
+    }
+    .confirm-content {
+        background: var(--card-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 15px;
+        padding: 25px;
+        max-width: 320px;
+        text-align: center;
+        backdrop-filter: blur(20px);
+    }
+    .confirm-title {
+        color: var(--accent-color);
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .confirm-text {
+        color: var(--text-color);
+        margin-bottom: 25px;
+    }
+    .confirm-buttons {
+        display: flex;
+        gap: 15px;
+    }
+    .confirm-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .confirm-yes {
+        background: #e74c3c;
+        color: white;
+    }
+    .confirm-yes:hover {
+        background: #c0392b;
+    }
+    .confirm-no {
+        background: #2ecc71;
+        color: white;
+    }
+    .confirm-no:hover {
+        background: #27ae60;
+    }
+
     /* ЗАГРУЗОЧНЫЙ ЭКРАН */
     #loadingScreen {
         position: fixed;
@@ -1305,7 +1363,10 @@ const translations = {
         'notification.antispam': 'Please wait {minutes} minutes before identical request',
         'notification.withdrawal_failed': 'Withdrawal failed: {message}',
         'tutorial.link': 'Video tutorial',
-        'tutorial.close_confirm': 'Are you sure you want to close the tutorial video?'
+        'tutorial.close_confirm_title': 'Close tutorial?',
+        'tutorial.close_confirm_text': 'Are you sure you want to close?',
+        'tutorial.close_confirm_no': 'No, continue',
+        'tutorial.close_confirm_yes': 'Yes, close'
     },
     
     ru: {
@@ -1359,7 +1420,10 @@ const translations = {
         'notification.antispam': 'Пожалуйста, подождите {minutes} минут перед идентичным запросом',
         'notification.withdrawal_failed': 'Вывод не удался: {message}',
         'tutorial.link': 'Видеоинструкция',
-         'tutorial.close_confirm': 'Вы действительно хотите закрыть обучающее видео?'
+        'tutorial.close_confirm_title': 'Закрыть обучение?',
+        'tutorial.close_confirm_text': 'Вы действительно хотите закрыть?',
+        'tutorial.close_confirm_no': 'Нет, продолжить',
+        'tutorial.close_confirm_yes': 'Да, закрыть'
     },
     
     fr: {
@@ -1413,7 +1477,10 @@ const translations = {
         'notification.antispam': 'Veuillez attendre {minutes} minutes avant une demande identique',
         'notification.withdrawal_failed': 'Échec du retrait: {message}',
         'tutorial.link': 'Tutoriel vidéo',
-        'tutorial.close_confirm': 'Êtes-vous sûr de vouloir fermer le tutoriel vidéo ?'
+        'tutorial.close_confirm_title': 'Fermer le tutoriel ?',
+        'tutorial.close_confirm_text': 'Êtes-vous sûr de vouloir fermer ?',
+        'tutorial.close_confirm_no': 'Non, continuer',
+        'tutorial.close_confirm_yes': 'Oui, fermer'
     },
     
     ar: {
@@ -1467,7 +1534,10 @@ const translations = {
         'notification.antispam': 'يرجى الانتظار {minutes} دقائق قبل الطلب المماثل',
         'notification.withdrawal_failed': 'فشل السحب: {message}',
         'tutorial.link': 'تعليمات الفيديو',
-        'tutorial.close_confirm': 'هل أنت متأكد أنك تريد إغلاق فيديو التعليمات؟'
+        'tutorial.close_confirm_title': 'إغلاق التعليمات؟',
+        'tutorial.close_confirm_text': 'هل أنت متأكد أنك تريد الإغلاق؟',
+        'tutorial.close_confirm_no': 'لا، استمر',
+        'tutorial.close_confirm_yes': 'نعم، أغلق'
     }
 };
 
@@ -2399,7 +2469,7 @@ async function processWithdrawal() {
         }
       
       // 3. Закрываем видео
-      function closeTutorial() {
+      /*function closeTutorial() {
             const modal = document.getElementById('videoTutorialModal');
             const iframe = document.getElementById('youtubePlayer');
             
@@ -2416,7 +2486,50 @@ async function processWithdrawal() {
                 iframe.src = '';
             }
             modal.style.display = 'none';
-        } 
+        } */
+        function closeTutorial() {
+            const modal = document.getElementById('videoTutorialModal');
+            const iframe = document.getElementById('youtubePlayer');
+            
+            // Пауза видео при открытии подтверждения
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
+            
+            // Создаём или находим контейнер для диалога подтверждения
+            let confirmDialog = modal.querySelector('.close-confirm-dialog');
+            if (!confirmDialog) {
+                confirmDialog = document.createElement('div');
+                confirmDialog.className = 'close-confirm-dialog';
+                confirmDialog.innerHTML = `
+                    <div class="confirm-content">
+                        <p class="confirm-title" data-i18n="tutorial.close_confirm_title">Close tutorial?</p>
+                        <p class="confirm-text" data-i18n="tutorial.close_confirm_text">Are you sure you want to close?</p>
+                        <div class="confirm-buttons">
+                            <button class="confirm-btn confirm-no" data-i18n="tutorial.close_confirm_no">No, continue</button>
+                            <button class="confirm-btn confirm-yes" data-i18n="tutorial.close_confirm_yes">Yes, close</button>
+                        </div>
+                    </div>
+                `;
+                modal.appendChild(confirmDialog);
+                
+                // Назначаем обработчики кнопок
+                confirmDialog.querySelector('.confirm-yes').onclick = function() {
+                    iframe.src = '';
+                    modal.style.display = 'none';
+                };
+                
+                confirmDialog.querySelector('.confirm-no').onclick = function() {
+                    // Возобновляем воспроизведение
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    confirmDialog.remove();
+                };
+            }
+            
+            // Показываем диалог
+            confirmDialog.style.display = 'block';
+            applyTranslations(state.currentLanguage); // Применяем переводы
+        }
       
       // 4. Проверяем первый ли это визит
       function checkFirstVisit() {
