@@ -50,14 +50,22 @@
     }
 
     .close-confirm-dialog {
-        position: absolute;
-        /*top: 0; left: 0;*/
+        /*position: absolute;
+        /*top: 0; left: 0;
         width: 100%; height: 100%;
         backdrop-filter: blur(10px);
         display: none;
         z-index: 10002;
         justify-content: center;
-        align-items: center;
+        align-items: center;*/
+        display: flex;               /* Включить flex */
+        justify-content: center;     /* Центр по горизонтали */
+        align-items: center;         /* Центр по вертикали ← ЭТО ключ */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     }
     .confirm-content {
         background: var(--primary-bg);
