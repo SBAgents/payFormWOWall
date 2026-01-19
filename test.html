@@ -2434,33 +2434,7 @@ async function processWithdrawal() {
             parent.insertBefore(videoLink, depositBtn.nextSibling);
         }
       
-      // 6. Инициализируем плавающую кнопку
-      function initFloatingButton() {
-          const btn = document.getElementById('replayTutorialBtn');
-          
-          // Показываем кнопку через 3 секунды
-          setTimeout(() => {
-              btn.style.display = 'block';
-          }, 3000);
-          
-          // Назначаем обработчик
-          btn.onclick = () => showTutorial(true);
-          
-          // Локализуем текст кнопки
-          const userLang = navigator.language || navigator.userLanguage;
-          const langCode = userLang.split('-')[0].toLowerCase();
-          
-          const texts = {
-              'ru': '🎥 Видеоинструкция',
-              'en': '🎥 Video tutorial',
-              'ar': '🎥 تعليمات الفيديو',
-              'fr': '🎥 Instructions vidéo'
-          };
-          
-          btn.innerHTML = texts[langCode] || texts['en'];
-      }
-      
-      // 7. Инициализируем всё после загрузки страницы
+      // 6. Инициализируем всё после загрузки страницы
       window.addEventListener('load', function() {
           // Даем время на загрузку основной страницы
           setTimeout(() => {
