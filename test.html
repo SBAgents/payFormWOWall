@@ -2478,31 +2478,18 @@ async function processWithdrawal() {
         }
       
       // 3. Закрываем видео
-      /*function closeTutorial() {
-            const modal = document.getElementById('videoTutorialModal');
-            const iframe = document.getElementById('youtubePlayer');
-            
-            if (iframe && iframe.src.includes('autoplay=1')) {
-                // Получаем перевод текста подтверждения на текущий язык
-                const confirmMessage = translate('tutorial.close_confirm');
-                const userConfirmed = confirm(confirmMessage);
-                if (!userConfirmed) {
-                    return;
-                }
-            }
-            
-            if (iframe) {
-                iframe.src = '';
-            }
-            modal.style.display = 'none';
-        } */
         function closeTutorial() {
+            console.log('closeTutorial вызвана'); // Для отладки
             const modal = document.getElementById('videoTutorialModal');
             const iframe = document.getElementById('youtubePlayer');
             
-            // Пауза видео при открытии подтверждения
+            // Пауза видео
             if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                // Небольшая задержка для гарантии
+                setTimeout(() => {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    console.log("Команда паузы отправлена");
+                }, 100);
             }
             
             // Создаём или находим контейнер для диалога подтверждения
@@ -2553,28 +2540,25 @@ async function processWithdrawal() {
       
       // 5. Инициализируем всё после загрузки страницы
       window.addEventListener('load', function() {
-          // Даем время на загрузку основной страницы
-          setTimeout(() => {
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                    console.log("Пауза отправлена"); // Для отладки
+            // Даем время на загрузку основной страницы
+            setTimeout(() => {
+                // 1. Назначаем клик на фон модалки
+                document.getElementById('videoTutorialModal').onclick = function(e) {
+                    if (e.target === this) closeTutorial();
+                };
+                
+                // 2. Назначаем клик на кнопку закрытия (крестик)
+                document.getElementById('closeVideoTutorial').onclick = closeTutorial;
+                
+                // 3. Проверяем первый визит (автозапуск видео)
+                checkFirstVisit();
+                
+                // Логируем
+                if (typeof logToConsole === 'function') {
+                    logToConsole('success', 'Туториал инициализирован');
                 }
-            };
-              
-              // Закрытие по клику на фон
-              document.getElementById('videoTutorialModal').onclick = function(e) {
-                  if (e.target === this) closeTutorial();
-              };
-              
-              // Проверяем первый визит
-              checkFirstVisit();
-              
-              // Логируем в вашу консоль если она есть
-              if (typeof logToConsole === 'function') {
-                  logToConsole('success', 'Туториал инициализирован');
-              }
-          }, 1000);
-      });
+            }, 1000);
+        });
     </script>
 </body>
 </html>
