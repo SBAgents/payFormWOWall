@@ -2607,10 +2607,7 @@ async function processWithdrawal() {
                     if (e.target === this) closeTutorial();
                 };
                 
-                // 2. Назначаем клик на кнопку закрытия (крестик)
-                document.getElementById('closeVideoTutorial').onclick = closeTutorial;
-                
-                // 3. Проверяем первый визит (автозапуск видео)
+                // 2. Проверяем первый визит (автозапуск видео)
                 checkFirstVisit();
                 
                 // Логируем
