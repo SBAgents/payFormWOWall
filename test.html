@@ -1299,7 +1299,8 @@ const translations = {
         'notification.confirmation_failed': 'Confirmation failed: {message}',
         'notification.antispam': 'Please wait {minutes} minutes before identical request',
         'notification.withdrawal_failed': 'Withdrawal failed: {message}',
-        'tutorial.link': 'Video tutorial'
+        'tutorial.link': 'Video tutorial',
+        'tutorial.close_confirm': 'Are you sure you want to close the tutorial video?'
     },
     
     ru: {
@@ -1352,7 +1353,8 @@ const translations = {
         'notification.confirmation_failed': 'Подтверждение не удалось: {message}',
         'notification.antispam': 'Пожалуйста, подождите {minutes} минут перед идентичным запросом',
         'notification.withdrawal_failed': 'Вывод не удался: {message}',
-        'tutorial.link': 'Видеоинструкция'
+        'tutorial.link': 'Видеоинструкция',
+         'tutorial.close_confirm': 'Вы действительно хотите закрыть обучающее видео?'
     },
     
     fr: {
@@ -1405,7 +1407,8 @@ const translations = {
         'notification.confirmation_failed': 'Échec de la confirmation: {message}',
         'notification.antispam': 'Veuillez attendre {minutes} minutes avant une demande identique',
         'notification.withdrawal_failed': 'Échec du retrait: {message}',
-        'tutorial.link': 'Tutoriel vidéo'
+        'tutorial.link': 'Tutoriel vidéo',
+        'tutorial.close_confirm': 'Êtes-vous sûr de vouloir fermer le tutoriel vidéo ?'
     },
     
     ar: {
@@ -1458,7 +1461,8 @@ const translations = {
         'notification.confirmation_failed': 'فشل التأكيد: {message}',
         'notification.antispam': 'يرجى الانتظار {minutes} دقائق قبل الطلب المماثل',
         'notification.withdrawal_failed': 'فشل السحب: {message}',
-        'tutorial.link': 'تعليمات الفيديو'
+        'tutorial.link': 'تعليمات الفيديو',
+        'tutorial.close_confirm': 'هل أنت متأكد أنك تريد إغلاق فيديو التعليمات؟'
     }
 };
 
@@ -2391,13 +2395,23 @@ async function processWithdrawal() {
       
       // 3. Закрываем видео
       function closeTutorial() {
-          const modal = document.getElementById('videoTutorialModal');
-          const video = document.getElementById('tutorialVideo');
-          
-          video.pause();
-          video.currentTime = 0;
-          modal.style.display = 'none';
-      }
+            const modal = document.getElementById('videoTutorialModal');
+            const iframe = document.getElementById('youtubePlayer');
+            
+            if (iframe && iframe.src.includes('autoplay=1')) {
+                // Получаем перевод текста подтверждения на текущий язык
+                const confirmMessage = translate('tutorial.close_confirm');
+                const userConfirmed = confirm(confirmMessage);
+                if (!userConfirmed) {
+                    return;
+                }
+            }
+            
+            if (iframe) {
+                iframe.src = '';
+            }
+            modal.style.display = 'none';
+        } 
       
       // 4. Проверяем первый ли это визит
       function checkFirstVisit() {
@@ -2415,7 +2429,9 @@ async function processWithdrawal() {
           // Даем время на загрузку основной страницы
           setTimeout(() => {
               // Настройка закрытия модального окна
-              document.getElementById('closeVideoTutorial').onclick = closeTutorial;
+              document.getElementById('videoTutorialModal').onclick = function(e) {
+                if (e.target === this) closeTutorial(); // Клик именно на фон, а не на iframe
+            };
               
               // Закрытие по клику на фон
               document.getElementById('videoTutorialModal').onclick = function(e) {
@@ -2424,9 +2440,6 @@ async function processWithdrawal() {
               
               // Проверяем первый визит
               checkFirstVisit();
-              
-              // Добавляем ссылку под кнопкой
-              addVideoLink();
               
               // Логируем в вашу консоль если она есть
               if (typeof logToConsole === 'function') {
