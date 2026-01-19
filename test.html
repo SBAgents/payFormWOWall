@@ -2465,6 +2465,11 @@ async function processWithdrawal() {
             const iframe = document.getElementById('youtubePlayer');
             
             iframe.src = getTutorialVideoFile();
+            iframe.onload = function() {
+                // YouTube API требует, чтобы iframe сначала "подписался" на команды
+                this.contentWindow.postMessage('{"event":"listening","id":"youtubePlayer"}', '*');
+                console.log("YouTube iframe готов");
+            };
             modal.style.display = 'flex';
             
             if (autoplay) {
@@ -2550,10 +2555,11 @@ async function processWithdrawal() {
       window.addEventListener('load', function() {
           // Даем время на загрузку основной страницы
           setTimeout(() => {
-              // Настройка закрытия модального окна
-              document.getElementById('videoTutorialModal').onclick = function(e) {
-                if (e.target === this) closeTutorial(); // Клик именно на фон, а не на iframe
-            };
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    console.log("Пауза отправлена"); // Для отладки
+                }
+            }, 300);
               
               // Закрытие по клику на фон
               document.getElementById('videoTutorialModal').onclick = function(e) {
