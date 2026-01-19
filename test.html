@@ -2464,7 +2464,7 @@ async function processWithdrawal() {
       // ========== ФУНКЦИИ ТУТОРИАЛА (ТОЛЬКО ЭТО НОВОЕ) ==========
       
       // 1. Определяем язык и выбираем видеофайл
-     function getTutorialVideoFile() {
+         function getTutorialVideoFile() {
             const lang = navigator.language.split('-')[0];
             const youtubeIds = {
                 'ru': 'CKlaeDHDp6o',
@@ -2472,7 +2472,9 @@ async function processWithdrawal() {
                 'ar': '5tanTK9-fhQ'
             };
             const videoId = youtubeIds[lang] || youtubeIds.en;
-            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1`;
+            
+            // КРИТИЧЕСКИ ВАЖНЫЕ ПАРАМЕТРЫ:
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
         }
       
       // 2. Показываем видео (автозапуск при первом просмотре)
@@ -2480,20 +2482,25 @@ async function processWithdrawal() {
             const modal = document.getElementById('videoTutorialModal');
             const iframe = document.getElementById('youtubePlayer');
             
-            iframe.src = getTutorialVideoFile();
+            // Генерируем URL с ВСЕМИ нужными параметрами
+            const videoUrl = getTutorialVideoFile();
+            iframe.src = videoUrl;
             modal.style.display = 'flex';
             
-            // Отслеживаем окончание видео
+            // Ждём загрузки iframe
             iframe.onload = function() {
+                // 1. Отправляем "слушающий" сигнал
                 this.contentWindow.postMessage('{"event":"listening","id":"youtubePlayer"}', '*');
+                console.log("YouTube iframe готов к командам");
+                
+                // 2. Регистрируем глобальный обработчик событий YouTube
+                window.ytStateHandler = function(event) {
+                    if (event.data && event.data.info === 'YT_VIDEO_ENDED') {
+                        showRepeatDialog();
+                    }
+                };
+                window.addEventListener('message', window.ytStateHandler);
             };
-            
-            // Слушаем события от YouTube
-            window.addEventListener('message', function(event) {
-                if (event.data === 'YTPlayer.onStateChange=0') { // 0 = видео закончилось
-                    showRepeatDialog();
-                }
-            });
             
             if (autoplay) localStorage.setItem('tutorialWatched', 'true');
         }
@@ -2506,10 +2513,10 @@ async function processWithdrawal() {
             
             // Пауза видео
             if (iframe && iframe.contentWindow) {
-                // Небольшая задержка для гарантии
+                // Используем новую функцию паузы
                 setTimeout(() => {
-                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                    console.log("Команда паузы отправлена");
+                    pauseYouTubeVideo(); // ← ЗДЕСЬ ВЫЗОВ
+                    console.log("Пауза вызвана через функцию");
                 }, 100);
             }
             
@@ -2547,6 +2554,31 @@ async function processWithdrawal() {
             // Показываем диалог
             confirmDialog.style.display = 'block';
             applyTranslations(state.currentLanguage); // Применяем переводы
+        }
+
+        function pauseYouTubeVideo() {
+            const iframe = document.getElementById('youtubePlayer');
+            if (!iframe || !iframe.contentWindow) return false;
+            
+            // 3 разных способа паузы (сработает хотя бы один)
+            try {
+                // Способ 1: Стандартная команда YouTube
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                
+                // Способ 2: Альтернативный формат
+                iframe.contentWindow.postMessage('{"method":"pause"}', '*');
+                
+                // Способ 3: Через YouTube Player API (если подключён)
+                if (iframe.playerInstance) {
+                    iframe.playerInstance.pauseVideo();
+                }
+                
+                console.log("Пауза YouTube отправлена");
+                return true;
+            } catch (e) {
+                console.error("Ошибка паузы YouTube:", e);
+                return false;
+            }
         }
 
         //4. Уточняем, нужно ли повторить видео пользователю
