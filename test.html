@@ -2511,6 +2511,7 @@ async function processWithdrawal() {
                 
                 // Назначаем обработчики кнопок
                 confirmDialog.querySelector('.confirm-yes').onclick = function() {
+                    confirmDialog.remove();
                     iframe.src = '';
                     modal.style.display = 'none';
                 };
