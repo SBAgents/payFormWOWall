@@ -2559,7 +2559,7 @@ async function processWithdrawal() {
                     iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
                     console.log("Пауза отправлена"); // Для отладки
                 }
-            }, 300);
+            };
               
               // Закрытие по клику на фон
               document.getElementById('videoTutorialModal').onclick = function(e) {
