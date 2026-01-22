@@ -2700,28 +2700,29 @@ async function processWithdrawal() {
                 }
             }, 1000);
         });
+        
         function setupVideoEndDetection() {
-    console.log('🔍 [DETECTOR] Запуск детектора конца видео');
+    log('🔍 [DETECTOR] Запуск детектора конца видео');
     
     const iframe = document.getElementById('youtubePlayer');
     const modal = document.getElementById('videoTutorialModal');
     
     if (!iframe) {
-        console.log('❌ [DETECTOR] iframe не найден');
+        log('❌ [DETECTOR] iframe не найден');
         return;
     }
     if (!modal) {
-        console.log('❌ [DETECTOR] modal не найден');
+        log('❌ [DETECTOR] modal не найден');
         return;
     }
     
-    console.log('✅ [DETECTOR] Элементы найдены');
+    log('✅ [DETECTOR] Элементы найдены');
     
     // 1. Удаляем старый маркер если есть
     const oldMarker = modal.querySelector('#videoEndMarker');
     if (oldMarker) {
         oldMarker.remove();
-        console.log('🗑️ [DETECTOR] Удалён старый маркер');
+        log('🗑️ [DETECTOR] Удалён старый маркер');
     }
     
     // 2. Создаём новый маркер
@@ -2748,10 +2749,10 @@ async function processWithdrawal() {
     `;
     
     modal.appendChild(endMarker);
-    console.log('📍 [DETECTOR] Маркер создан', endMarker);
+    log('📍 [DETECTOR] Маркер создан', endMarker);
     
     // 3. Проверяем видимость маркера
-    console.log('👀 [DETECTOR] Положение маркера:', {
+    log('👀 [DETECTOR] Положение маркера:', {
         bottom: endMarker.style.bottom,
         right: endMarker.style.right,
         parentHeight: modal.clientHeight
@@ -2759,25 +2760,25 @@ async function processWithdrawal() {
     
     // 4. Создаём observer
     const observer = new IntersectionObserver((entries) => {
-        console.log('[DETECTOR] IntersectionObserver сработал', entries);
+        log('[DETECTOR] IntersectionObserver сработал', entries);
         
         entries.forEach(entry => {
-            console.log(`🎯 [DETECTOR] Маркер виден: ${entry.isIntersecting} (${entry.intersectionRatio * 100}%)`);
+            log(`🎯 [DETECTOR] Маркер виден: ${entry.isIntersecting} (${entry.intersectionRatio * 100}%)`);
             
             if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-                console.log('🎬 [DETECTOR] ВИДЕО ЗАКОНЧИЛОСЬ! Показываю диалог...');
+                log('🎬 [DETECTOR] ВИДЕО ЗАКОНЧИЛОСЬ! Показываю диалог...');
                 
                 // Останавливаем наблюдение
                 observer.disconnect();
-                console.log('⏹️ [DETECTOR] Наблюдение остановлено');
+                log('⏹️ [DETECTOR] Наблюдение остановлено');
                 
                 // Показываем диалог
                 setTimeout(() => {
                     if (modal.style.display === 'flex') {
-                        console.log('🔄 [DETECTOR] Вызываю showRepeatDialog()');
+                        log('🔄 [DETECTOR] Вызываю showRepeatDialog()');
                         showRepeatDialog();
                     } else {
-                        console.log('⚠️ [DETECTOR] Модалка уже закрыта');
+                        log('⚠️ [DETECTOR] Модалка уже закрыта');
                     }
                 }, 800);
             }
@@ -2790,7 +2791,7 @@ async function processWithdrawal() {
     
     // 5. Запускаем наблюдение с задержкой
     setTimeout(() => {
-        console.log('👁️ [DETECTOR] Начинаю наблюдение за маркером...');
+        log('👁️ [DETECTOR] Начинаю наблюдение за маркером...');
         observer.observe(endMarker);
         
         // Дополнительная проверка через 5 секунд
@@ -2806,7 +2807,7 @@ async function processWithdrawal() {
     
     // 6. Сохраняем observer для очистки
     modal._videoObserver = observer;
-    console.log('💾 [DETECTOR] Observer сохранён в modal._videoObserver');
+    log('💾 [DETECTOR] Observer сохранён в modal._videoObserver');
     
     return observer;
 }    
