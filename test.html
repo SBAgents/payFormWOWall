@@ -2702,115 +2702,71 @@ async function processWithdrawal() {
         });
         
         function setupVideoEndDetection() {
-    log('🔍 [DETECTOR] Запуск детектора конца видео');
-    
-    const iframe = document.getElementById('youtubePlayer');
-    const modal = document.getElementById('videoTutorialModal');
-    
-    if (!iframe) {
-        log('❌ [DETECTOR] iframe не найден');
-        return;
-    }
-    if (!modal) {
-        log('❌ [DETECTOR] modal не найден');
-        return;
-    }
-    
-    log('✅ [DETECTOR] Элементы найдены');
-    
-    // 1. Удаляем старый маркер если есть
-    const oldMarker = modal.querySelector('#videoEndMarker');
-    if (oldMarker) {
-        oldMarker.remove();
-        log('🗑️ [DETECTOR] Удалён старый маркер');
-    }
-    
-    // 2. Создаём новый маркер
-    const endMarker = document.createElement('div');
-    endMarker.id = 'videoEndMarker';
-    endMarker.innerHTML = '🎬'; // Видимый текст для отладки
-    endMarker.style.cssText = `
-        position: absolute;
-        bottom: 70px; // Выше чем контролы YouTube
-        right: 20px;
-        width: 40px;
-        height: 40px;
-        background: #ff0000;
-        color: white;
-        font-size: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        z-index: 10010;
-        pointer-events: none;
-        opacity: 0.7;
-        box-shadow: 0 0 10px red;
-    `;
-    
-    modal.appendChild(endMarker);
-    log('📍 [DETECTOR] Маркер создан', endMarker);
-    
-    // 3. Проверяем видимость маркера
-    log('👀 [DETECTOR] Положение маркера:', {
-        bottom: endMarker.style.bottom,
-        right: endMarker.style.right,
-        parentHeight: modal.clientHeight
-    });
-    
-    // 4. Создаём observer
-    const observer = new IntersectionObserver((entries) => {
-        log('[DETECTOR] IntersectionObserver сработал', entries);
-        
-        entries.forEach(entry => {
-            log(`🎯 [DETECTOR] Маркер виден: ${entry.isIntersecting} (${entry.intersectionRatio * 100}%)`);
+            console.log('🔍 [DETECTOR] Запуск детектора конца видео');
             
-            if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-                log('🎬 [DETECTOR] ВИДЕО ЗАКОНЧИЛОСЬ! Показываю диалог...');
+            const iframe = document.getElementById('youtubePlayer');
+            const modal = document.getElementById('videoTutorialModal');
+            
+            if (!iframe || !modal) return;
+            
+            // 1. Удаляем старый маркер
+            const oldMarker = modal.querySelector('#videoEndMarker');
+            if (oldMarker) oldMarker.remove();
+            
+            // 2. Создаём маркер НИЖЕ видео (вне видимой области)
+            const endMarker = document.createElement('div');
+            endMarker.id = 'videoEndMarker';
+            endMarker.innerHTML = '⬇️'; // Индикатор для отладки
+            endMarker.style.cssText = `
+                position: absolute;
+                top: 100%; /* НИЖЕ плеера */
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 40px;
+                background: transparent;
+                color: transparent;
+                font-size: 24px;
+                z-index: 10010;
+                pointer-events: none;
+                border: 2px dashed red; /* Только для отладки */
+            `;
+            
+            modal.appendChild(endMarker);
+            console.log('📍 [DETECTOR] Маркер размещён НИЖЕ плеера');
+            
+            // 3. Ждём 5 секунд пока видео прогрузится, потом начинаем следить
+            setTimeout(() => {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        console.log(`🎯 [DETECTOR] Маркер в зоне видимости: ${entry.isIntersecting} (${Math.round(entry.intersectionRatio * 100)}%)`);
+                        
+                        // Сработает только если маркер стал видимым БОЛЕЕ чем на 50%
+                        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+                            console.log('🎬 [DETECTOR] ВИДЕО ЗАКОНЧИЛОСЬ!');
+                            observer.disconnect();
+                            
+                            setTimeout(() => {
+                                if (modal.style.display === 'flex') {
+                                    showRepeatDialog();
+                                }
+                            }, 1000);
+                        }
+                    });
+                }, {
+                    threshold: [0, 0.1, 0.3, 0.5, 0.7, 1.0], // Пороги срабатывания
+                    root: modal,
+                    rootMargin: '0px'
+                });
                 
-                // Останавливаем наблюдение
-                observer.disconnect();
-                log('⏹️ [DETECTOR] Наблюдение остановлено');
+                observer.observe(endMarker);
+                console.log('👁️ [DETECTOR] Наблюдение начато (маркер ниже плеера)');
                 
-                // Показываем диалог
-                setTimeout(() => {
-                    if (modal.style.display === 'flex') {
-                        log('🔄 [DETECTOR] Вызываю showRepeatDialog()');
-                        showRepeatDialog();
-                    } else {
-                        log('⚠️ [DETECTOR] Модалка уже закрыта');
-                    }
-                }, 800);
-            }
-        });
-    }, {
-        threshold: [0, 0.1, 0.3, 0.5, 0.7, 1.0],
-        root: modal,
-        rootMargin: '0px'
-    });
-    
-    // 5. Запускаем наблюдение с задержкой
-    setTimeout(() => {
-        log('👁️ [DETECTOR] Начинаю наблюдение за маркером...');
-        observer.observe(endMarker);
-        
-        // Дополнительная проверка через 5 секунд
-        setTimeout(() => {
-            const rect = endMarker.getBoundingClientRect();
-            console.log('📏 [DETECTOR] Позиция маркера через 5с:', {
-                top: rect.top,
-                bottom: rect.bottom,
-                visible: rect.top >= 0 && rect.bottom <= window.innerHeight
-            });
-        }, 5000);
-    }, 2000);
-    
-    // 6. Сохраняем observer для очистки
-    modal._videoObserver = observer;
-    log('💾 [DETECTOR] Observer сохранён в modal._videoObserver');
-    
-    return observer;
-}    
+                // Сохраняем для очистки
+                modal._videoObserver = observer;
+                
+            }, 5000); // Ждём 5 секунд перед началом наблюдения
+        }    
     </script>
 </body>
 </html>
