@@ -2701,60 +2701,115 @@ async function processWithdrawal() {
             }, 1000);
         });
         function setupVideoEndDetection() {
-            const iframe = document.getElementById('youtubePlayer');
-            const modal = document.getElementById('videoTutorialModal');
+    console.log('🔍 [DETECTOR] Запуск детектора конца видео');
+    
+    const iframe = document.getElementById('youtubePlayer');
+    const modal = document.getElementById('videoTutorialModal');
+    
+    if (!iframe) {
+        console.log('❌ [DETECTOR] iframe не найден');
+        return;
+    }
+    if (!modal) {
+        console.log('❌ [DETECTOR] modal не найден');
+        return;
+    }
+    
+    console.log('✅ [DETECTOR] Элементы найдены');
+    
+    // 1. Удаляем старый маркер если есть
+    const oldMarker = modal.querySelector('#videoEndMarker');
+    if (oldMarker) {
+        oldMarker.remove();
+        console.log('🗑️ [DETECTOR] Удалён старый маркер');
+    }
+    
+    // 2. Создаём новый маркер
+    const endMarker = document.createElement('div');
+    endMarker.id = 'videoEndMarker';
+    endMarker.innerHTML = '🎬'; // Видимый текст для отладки
+    endMarker.style.cssText = `
+        position: absolute;
+        bottom: 70px; // Выше чем контролы YouTube
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background: #ff0000;
+        color: white;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        z-index: 10010;
+        pointer-events: none;
+        opacity: 0.7;
+        box-shadow: 0 0 10px red;
+    `;
+    
+    modal.appendChild(endMarker);
+    console.log('📍 [DETECTOR] Маркер создан', endMarker);
+    
+    // 3. Проверяем видимость маркера
+    console.log('👀 [DETECTOR] Положение маркера:', {
+        bottom: endMarker.style.bottom,
+        right: endMarker.style.right,
+        parentHeight: modal.clientHeight
+    });
+    
+    // 4. Создаём observer
+    const observer = new IntersectionObserver((entries) => {
+        console.log('[DETECTOR] IntersectionObserver сработал', entries);
+        
+        entries.forEach(entry => {
+            console.log(`🎯 [DETECTOR] Маркер виден: ${entry.isIntersecting} (${entry.intersectionRatio * 100}%)`);
             
-            if (!iframe || !modal) {
-                console.log('❌ Элементы для отслеживания не найдены');
-                return;
-            }
-            
-            // 1. Создаём индикатор конца видео (прячем его)
-            const endMarker = document.createElement('div');
-            endMarker.id = 'videoEndMarker';
-            endMarker.style.cssText = `
-                position: absolute;
-                bottom: 50px;
-                right: 30px;
-                width: 1px;
-                height: 1px;
-                opacity: 0;
-                pointer-events: none;
-                z-index: -1;
-            `;
-            
-            // 2. Добавляем в модалку (если ещё нет)
-            if (!modal.querySelector('#videoEndMarker')) {
-                modal.appendChild(endMarker);
-            }
-            
-            // 3. Отслеживаем
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        console.log('🎬 ДЕТЕКТОР: видео достигло конца');
-                        observer.disconnect();
-                        // Даём небольшую задержку для красоты
-                        setTimeout(() => showRepeatDialog(), 500);
+            if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                console.log('🎬 [DETECTOR] ВИДЕО ЗАКОНЧИЛОСЬ! Показываю диалог...');
+                
+                // Останавливаем наблюдение
+                observer.disconnect();
+                console.log('⏹️ [DETECTOR] Наблюдение остановлено');
+                
+                // Показываем диалог
+                setTimeout(() => {
+                    if (modal.style.display === 'flex') {
+                        console.log('🔄 [DETECTOR] Вызываю showRepeatDialog()');
+                        showRepeatDialog();
+                    } else {
+                        console.log('⚠️ [DETECTOR] Модалка уже закрыта');
                     }
-                });
-            }, {
-                threshold: 0.1, // Сработает когда 10% маркера будет видно
-                root: modal
+                }, 800);
+            }
+        });
+    }, {
+        threshold: [0, 0.1, 0.3, 0.5, 0.7, 1.0],
+        root: modal,
+        rootMargin: '0px'
+    });
+    
+    // 5. Запускаем наблюдение с задержкой
+    setTimeout(() => {
+        console.log('👁️ [DETECTOR] Начинаю наблюдение за маркером...');
+        observer.observe(endMarker);
+        
+        // Дополнительная проверка через 5 секунд
+        setTimeout(() => {
+            const rect = endMarker.getBoundingClientRect();
+            console.log('📏 [DETECTOR] Позиция маркера через 5с:', {
+                top: rect.top,
+                bottom: rect.bottom,
+                visible: rect.top >= 0 && rect.bottom <= window.innerHeight
             });
-            
-            // 4. Начинаем наблюдение через 3 секунды (ждём загрузки видео)
-            setTimeout(() => {
-                const marker = modal.querySelector('#videoEndMarker');
-                if (marker) {
-                    observer.observe(marker);
-                    console.log('🔍 ДЕТЕКТОР: наблюдение начато');
-                }
-            }, 3000);
-            
-            // 5. Очистка при закрытии
-            modal._videoObserver = observer;
-        }
+        }, 5000);
+    }, 2000);
+    
+    // 6. Сохраняем observer для очистки
+    modal._videoObserver = observer;
+    console.log('💾 [DETECTOR] Observer сохранён в modal._videoObserver');
+    
+    return observer;
+}    
     </script>
 </body>
 </html>
