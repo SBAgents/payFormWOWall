@@ -6,6 +6,7 @@
     <title>Payment system</title>
     <link rel="preconnect" href="https://script.google.com">
     <link rel="preconnect" href="https://api.telegram.org">
+    <script src="https://www.youtube.com/iframe_api"></script>
 <style>
     :root {
     --primary-bg: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
@@ -1047,14 +1048,8 @@
             <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
             <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
                 <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 15px; overflow: hidden; border: 2px solid var(--accent-color);">
-                    <iframe 
-                        id="youtubePlayer"
-                        src=""
-                        frameborder="0"
-                        allow="autoplay; encrypted-media; accelerometer; gyroscope; picture-in-picture"
-                        allowfullscreen
-                        style="width:100%; height:450px;">
-                    </iframe>
+                    <divdiv id="youtubePlayer" style="width:100%; height:450px;">
+                    </div>
                 </div>
             </div>
 
@@ -2492,7 +2487,7 @@ async function processWithdrawal() {
         iframe.src = getTutorialVideoFile();
         modal.style.display = 'flex';
          setTimeout(() => {
-                setupVideoEndDetection();
+                initYouTubePlayer();
             }, 1000);
         
         // 1. Узнаём какое видео загружено (по языку)
@@ -2548,6 +2543,9 @@ async function processWithdrawal() {
         
         if (autoplay) localStorage.setItem('tutorialWatched', 'true');
         console.log(`🎬 Видео запущено. Fallback таймеры: ${videoDuration}с, ${Math.round(videoDuration * 1.2)}с, 180с`);
+        console.log('YouTube API загружен:', !!window.YT);
+        console.log('Контейнер найден:', !!document.getElementById('youtubePlayer'));
+        console.log('Функция initYouTubePlayer:', typeof initYouTubePlayer);
     }
       
       // 3. Закрываем видео
@@ -2701,72 +2699,64 @@ async function processWithdrawal() {
             }, 1000);
         });
         
-        function setupVideoEndDetection() {
-            console.log('🔍 [DETECTOR] Запуск детектора конца видео');
-            
-            const iframe = document.getElementById('youtubePlayer');
-            const modal = document.getElementById('videoTutorialModal');
-            
-            if (!iframe || !modal) return;
-            
-            // 1. Удаляем старый маркер
-            const oldMarker = modal.querySelector('#videoEndMarker');
-            if (oldMarker) oldMarker.remove();
-            
-            // 2. Создаём маркер НИЖЕ видео (вне видимой области)
-            const endMarker = document.createElement('div');
-            endMarker.id = 'videoEndMarker';
-            endMarker.innerHTML = '⬇️'; // Индикатор для отладки
-            endMarker.style.cssText = `
-                position: absolute;
-                top: 100%; /* НИЖЕ плеера */
-                left: 50%;
-                transform: translateX(-50%);
-                width: 40px;
-                height: 40px;
-                background: transparent;
-                color: transparent;
-                font-size: 24px;
-                z-index: 10010;
-                pointer-events: none;
-                border: 2px dashed red; /* Только для отладки */
-            `;
-            
-            modal.appendChild(endMarker);
-            console.log('📍 [DETECTOR] Маркер размещён НИЖЕ плеера');
-            
-            // 3. Ждём 5 секунд пока видео прогрузится, потом начинаем следить
-            setTimeout(() => {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        console.log(`🎯 [DETECTOR] Маркер в зоне видимости: ${entry.isIntersecting} (${Math.round(entry.intersectionRatio * 100)}%)`);
-                        
-                        // Сработает только если маркер стал видимым БОЛЕЕ чем на 50%
-                        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-                            console.log('🎬 [DETECTOR] ВИДЕО ЗАКОНЧИЛОСЬ!');
-                            observer.disconnect();
-                            
-                            setTimeout(() => {
-                                if (modal.style.display === 'flex') {
-                                    showRepeatDialog();
-                                }
-                            }, 1000);
-                        }
-                    });
-                }, {
-                    threshold: [0, 0.1, 0.3, 0.5, 0.7, 1.0], // Пороги срабатывания
-                    root: modal,
-                    rootMargin: '0px'
-                });
+        let youtubePlayer;
+
+function initYouTubePlayer() {
+    const container = document.getElementById('youtubePlayer');
+    const videoId = getYouTubeVideoId(); // Твоя функция получения ID
+    
+    youtubePlayer = new YT.Player(container, {
+        videoId: videoId,
+        playerVars: {
+            autoplay: 1,
+            mute: 0,
+            controls: 1,
+            rel: 0,
+            modestbranding: 1
+        },
+        events: {
+            onReady: function(event) {
+                console.log('✅ YouTube Player API готов');
+                event.target.playVideo();
+            },
+            onStateChange: function(event) {
+                // event.data состояния:
+                // -1 - не началось, 0 - конец, 1 - играет, 2 - пауза
+                console.log('📊 Состояние видео:', event.data);
                 
-                observer.observe(endMarker);
-                console.log('👁️ [DETECTOR] Наблюдение начато (маркер ниже плеера)');
-                
-                // Сохраняем для очистки
-                modal._videoObserver = observer;
-                
-            }, 5000); // Ждём 5 секунд перед началом наблюдения
-        }    
+                if (event.data === YT.PlayerState.ENDED) {
+                    console.log('🎬 КОНЕЦ ВИДЕО (определено YouTube API)');
+                    setTimeout(() => showRepeatDialog(), 500);
+                }
+            },
+            onError: function(error) {
+                console.error('❌ Ошибка YouTube:', error.data);
+            }
+        }
+    });
+}
+
+// 3. В showTutorial() замени iframe на div
+function showTutorial(autoplay = false) {
+    const modal = document.getElementById('videoTutorialModal');
+    modal.style.display = 'flex';
+    
+    // Очищаем контейнер
+    const container = document.getElementById('youtubePlayer');
+    container.innerHTML = '';
+    
+    // Инициализируем плеер
+    if (!window.YT) {
+        console.error('Библиотека YouTube не загружена');
+        return;
+    }
+    
+    if (!youtubePlayer) {
+        initYouTubePlayer();
+    }
+    
+    if (autoplay) localStorage.setItem('tutorialWatched', 'true');
+}   
     </script>
 </body>
 </html>
