@@ -2701,6 +2701,16 @@ async function processWithdrawal() {
         
         let youtubePlayer;
 
+        function getYouTubeVideoId() {
+    const lang = navigator.language.split('-')[0];
+    const youtubeIds = {
+        'ru': 'CKlaeDHDp6o',
+        'en': 'Ys68V3Viy5c', 
+        'ar': '5tanTK9-fhQ'
+    };
+    return youtubeIds[lang] || youtubeIds.en;
+}
+
 function initYouTubePlayer() {
     const container = document.getElementById('youtubePlayer');
     const videoId = getYouTubeVideoId(); // Твоя функция получения ID
