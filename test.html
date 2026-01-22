@@ -2578,7 +2578,7 @@ async function processWithdrawal() {
                         </div>
                     </div>
                 `;
-                modal.appendChild(confirmDialog);
+                document.getElementById('videoTutorialModal').appendChild(confirmDialog);
                 
                 // Назначаем обработчики кнопок
                 confirmDialog.querySelector('.confirm-yes').onclick = function() {
@@ -2649,7 +2649,7 @@ async function processWithdrawal() {
                 </div>
             `;
             
-            modal.appendChild(repeatDialog);
+            document.getElementById('videoTutorialModal').appendChild(repeatDialog);
             repeatDialog.style.display = 'block';
             applyTranslations(state.currentLanguage);
             
