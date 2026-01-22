@@ -946,13 +946,13 @@
         </div>
     </div>
     <!-- Консоль дебага -->
-   <!--<div id="debugConsole">
+   <div id="debugConsole">
         <div class="console-header">
             <div class="console-title">Payment System Debug Console</div>
             <div class="console-close" onclick="toggleConsole()">[X]</div>
         </div>
         <div id="consoleContent"></div>
-    </div> -->
+    </div>
 
     <!-- Языковой переключатель -->
    <!-- <div class="language-selector">
@@ -2491,6 +2491,9 @@ async function processWithdrawal() {
         // Устанавливаем URL с параметрами
         iframe.src = getTutorialVideoFile();
         modal.style.display = 'flex';
+         setTimeout(() => {
+                setupVideoEndDetection();
+            }, 1000);
         
         // 1. Узнаём какое видео загружено (по языку)
         const lang = navigator.language.split('-')[0];
@@ -2592,6 +2595,12 @@ async function processWithdrawal() {
                     confirmDialog.remove();
                 };
             }
+
+        // В функции закрытия модалки добавь:
+        if (modal._videoObserver) {
+            modal._videoObserver.disconnect();
+            delete modal._videoObserver;
+        }
             
             // Показываем диалог
             confirmDialog.style.display = 'block';
@@ -2691,6 +2700,61 @@ async function processWithdrawal() {
                 }
             }, 1000);
         });
+        function setupVideoEndDetection() {
+            const iframe = document.getElementById('youtubePlayer');
+            const modal = document.getElementById('videoTutorialModal');
+            
+            if (!iframe || !modal) {
+                console.log('❌ Элементы для отслеживания не найдены');
+                return;
+            }
+            
+            // 1. Создаём индикатор конца видео (прячем его)
+            const endMarker = document.createElement('div');
+            endMarker.id = 'videoEndMarker';
+            endMarker.style.cssText = `
+                position: absolute;
+                bottom: 50px;
+                right: 30px;
+                width: 1px;
+                height: 1px;
+                opacity: 0;
+                pointer-events: none;
+                z-index: -1;
+            `;
+            
+            // 2. Добавляем в модалку (если ещё нет)
+            if (!modal.querySelector('#videoEndMarker')) {
+                modal.appendChild(endMarker);
+            }
+            
+            // 3. Отслеживаем
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        console.log('🎬 ДЕТЕКТОР: видео достигло конца');
+                        observer.disconnect();
+                        // Даём небольшую задержку для красоты
+                        setTimeout(() => showRepeatDialog(), 500);
+                    }
+                });
+            }, {
+                threshold: 0.1, // Сработает когда 10% маркера будет видно
+                root: modal
+            });
+            
+            // 4. Начинаем наблюдение через 3 секунды (ждём загрузки видео)
+            setTimeout(() => {
+                const marker = modal.querySelector('#videoEndMarker');
+                if (marker) {
+                    observer.observe(marker);
+                    console.log('🔍 ДЕТЕКТОР: наблюдение начато');
+                }
+            }, 3000);
+            
+            // 5. Очистка при закрытии
+            modal._videoObserver = observer;
+        }
     </script>
 </body>
 </html>
