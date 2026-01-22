@@ -1176,57 +1176,6 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbzsrKx2P-G6XsaqpWb6YctaOIG8WslO-a9qNSQhnOiPD8S30roYmXCJqYL3TdiSAox4/exec';
 const DEBUG_MODE = true;
 
-        // ========== ПЕРЕХВАТ ВСЕХ ОШИБОК ==========
-        if (DEBUG_MODE) {
-            // 1. Перехват консоли браузера
-            const consoleMethods = ['log', 'error', 'warn', 'info', 'debug'];
-            consoleMethods.forEach(method => {
-                const original = console[method];
-                console[method] = function(...args) {
-                    original.apply(console, args);
-                    const msg = args.map(a => 
-                        typeof a === 'object' ? JSON.stringify(a) : String(a)
-                    ).join(' ');
-                    log(method === 'error' ? 'error' : 
-                        method === 'warn' ? 'warning' : 'info', 
-                        `[console.${method}] ${msg}`);
-                };
-            });
-            
-            // 2. Перехват глобальных ошибок
-            window.addEventListener('error', (e) => {
-                log('error', `[Global Error] ${e.message} at ${e.filename}:${e.lineno}`);
-            });
-            
-            // 3. Перехват ошибок в промисах
-            window.addEventListener('unhandledrejection', (e) => {
-                log('error', `[Promise Error] ${e.reason}`);
-            });
-            
-            // 4. Мониторинг iframe (работает только для iframe с тем же origin)
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('iframe').forEach((iframe, i) => {
-                    try {
-                        const iframeConsole = iframe.contentWindow.console;
-                        consoleMethods.forEach(method => {
-                            const original = iframeConsole[method];
-                            iframeConsole[method] = function(...args) {
-                                original?.apply(iframeConsole, args);
-                                const msg = args.map(a => 
-                                    typeof a === 'object' ? JSON.stringify(a) : String(a)
-                                ).join(' ');
-                                log('info', `[iframe#${i}.${method}] ${msg}`);
-                            };
-                        });
-                    } catch (e) {
-                        log('warning', `Cannot access iframe#${i} console (CORS)`);
-                    }
-                });
-            });
-            
-            log('info', 'Full error interception initialized');
-        }
-
 // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
 let state = {
     config: null,
