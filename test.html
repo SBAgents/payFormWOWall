@@ -51,15 +51,7 @@
     }
 
     .close-confirm-dialog {
-        /*display: flex;              
-        justify-content: center;     
-        align-items: center;         
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;*/
-        position: fixed !important; /* Важно: fixed вместо absolute */
+        position: fixed !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
@@ -510,7 +502,6 @@
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
-        /*margin-top: 10px;*/
     }
 
     .btn:hover {
@@ -1172,7 +1163,7 @@
     <script>
 // ========== КОНФИГУРАЦИЯ ==========
 const API_URL = 'https://script.google.com/macros/s/AKfycbzsrKx2P-G6XsaqpWb6YctaOIG8WslO-a9qNSQhnOiPD8S30roYmXCJqYL3TdiSAox4/exec';
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
 let state = {
@@ -1625,55 +1616,6 @@ function translate(key, params = {}) {
     return text;
 }
 
-/*// ========== ПОДСКАЗКИ ==========
-const hints = {
-    'accountHint': {
-        title: 'Player Account',
-        text: 'Enter your game account username or ID. This is required to credit funds to your account.'
-    },
-    'amountHint': {
-        title: 'Amount',
-        text: 'Enter the amount you want to deposit. Minimum deposit is 100 EGP.'
-    },
-    'walletHint': {
-        title: 'Your Wallet Number',
-        text: 'Enter your personal wallet number (Vodafone Cash, InstaPay, etc.). This wallet will be used for withdrawals.'
-    },
-    'methodHint': {
-        title: 'Payment Method',
-        text: 'Select the payment method you want to use for this deposit.'
-    },
-    'withdrawAccountHint': {
-        title: 'Player Account',
-        text: 'Enter your game account username or ID. This is required to process your withdrawal.'
-    },
-    'withdrawAmountHint': {
-        title: 'Amount',
-        text: 'Enter the amount you want to withdraw. Minimum withdrawal is 300 EGP.'
-    },
-    'withdrawWalletHint': {
-        title: 'Your Wallet Number',
-        text: 'Enter your personal wallet number where you want to receive the withdrawal.'
-    },
-    'codeHint': {
-        title: 'Withdrawal Code',
-        text: 'Enter the withdrawal code provided by the game or system. This code is required for security.'
-    }
-};*/
-
-/*function showHint(hintId) {
-    const hint = hints[hintId];
-    if (!hint) return;
-    
-    document.getElementById('hintTitle').textContent = translateHint(hint.title);
-    document.getElementById('hintText').textContent = translateHint(hint.text);
-    
-    document.getElementById('hintOverlay').classList.add('active');
-    document.getElementById('hintPopup').classList.add('active');
-    
-    log('info', `Hint shown: ${hintId}`);
-}*/
-
         // ========== ПОДСКАЗКИ ==========
         const hints = {
             'accountHint': {
@@ -1766,20 +1708,6 @@ function closeHint() {
     document.getElementById('hintOverlay').classList.remove('active');
     document.getElementById('hintPopup').classList.remove('active');
 }
-
-/*function translateHint(text) {
-    if (state.currentLanguage === 'ru') {
-        const ruHints = {
-            'Player Account': 'Игровой Аккаунт',
-            'Amount': 'Сумма',
-            'Your Wallet Number': 'Ваш Номер Кошелька',
-            'Payment Method': 'Способ Оплаты',
-            'Withdrawal Code': 'Код Вывода'
-        };
-        return ruHints[text] || text;
-    }
-    return text;
-}*/
 
 // ========== УТИЛИТЫ ==========
 function showNotification(messageKey, isError = false, params = {}) {
