@@ -57,8 +57,7 @@
         transform: translate(-50%, -50%) !important;
         width: 100% !important;
         height: 100% !important;
-        /*background: rgba(0, 0, 0, 0.8) !important;*/
-        display: /*flex !important;*/none;
+        display: flex !important;;
         justify-content: center !important;
         align-items: center !important;
         border-radius: 2%;
@@ -85,7 +84,7 @@
         margin-bottom: 25px;
     }
     .confirm-buttons {
-        display: /*flex*/none;
+        display: flex;
         gap: 15px;
     }
     .confirm-btn {
@@ -1730,8 +1729,9 @@ function switchTab(tabName) {
     
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    
-    document.querySelector(`.tab[onclick*="${tabName}"]`).classList.add('active');
+
+    document.querySelectorAll('.tab')[tabName === 'deposit' ? 0 : 1].classList.add('active');
+    /*document.querySelector(`.tab[onclick*="${tabName}"]`).classList.add('active');*/
     document.getElementById(tabName + 'Tab').classList.add('active');
 }
 
