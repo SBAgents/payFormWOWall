@@ -1733,8 +1733,6 @@ function switchTab(tabName) {
     
     document.querySelector(`.tab[onclick*="${tabName}"]`).classList.add('active');
     document.getElementById(tabName + 'Tab').classList.add('active');
-    
-    log('info', `Tab switched to: ${tabName}`);
 }
 
 // ========== СОХРАНЕНИЕ КОШЕЛЬКА ==========
