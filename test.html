@@ -1030,7 +1030,7 @@
                 <button class="btn" onclick="processDeposit()" id="depositBtn" data-i18n="deposit.get_wallet_button">
                     Get Deposit Wallet
                 </button>
-                <div id="videoTutorialLink" class="tutorial-link" onclick="showTutorial(false)" data-i18n="tutorial.link">
+                <div id="videoTutorialLink" class="tutorial-link" onclick="showTutorial(autoplay = false)" data-i18n="tutorial.link">
                     🎥 Video tutorial
                 </div>
                 
@@ -2715,7 +2715,7 @@ function stopAndHideTutorial() {
     const modal = document.getElementById('videoTutorialModal');
     
     // 1. Останавливаем видео, но НЕ уничтожаем плеер
-    if (window.youtubePlayer && typeof youtubePlayer.pauseYouTubeVideo === 'function') {
+    if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
         youtubePlayer.pauseVideo(); // Пауза вместо stopVideo()
         // youtubePlayer.seekTo(0); // Если нужно сбросить на начало при закрытии
     }
