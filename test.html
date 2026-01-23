@@ -2631,7 +2631,7 @@ async function processWithdrawal() {
         
         let youtubePlayer;
 
-        function getYouTubeVideoId() {
+ function getYouTubeVideoId() {
     const lang = navigator.language.split('-')[0];
     const youtubeIds = {
         'ru': 'CKlaeDHDp6o',
@@ -2676,14 +2676,15 @@ function initYouTubePlayer() {
     });
 }
 
-// 3. В showTutorial() замени iframe на div
-function showTutorial(autoplay = false) {
+// 3. Показываем тутор
+/*function showTutorial(autoplay = false) {
     const modal = document.getElementById('videoTutorialModal');
     modal.style.display = 'flex';
     
     // Очищаем контейнер
     const container = document.getElementById('youtubePlayer');
-    /*container.innerHTML = '';*/
+    /*container.innerHTML = '';
+    stopAndHideTutorial()
     
     // Инициализируем плеер
     if (!window.YT) {
@@ -2696,7 +2697,57 @@ function showTutorial(autoplay = false) {
     }
     
     if (autoplay) localStorage.setItem('tutorialWatched', 'true');
-}   
+}   */
+function showTutorial(autoplay = false) {
+    const modal = document.getElementById('videoTutorialModal');
+    const container = document.getElementById('youtubePlayer');
+    
+    // Показываем контейнер ПЕРЕД инициализацией
+    container.style.display = 'block';
+    modal.style.display = 'flex';
+    
+    // Если плеер ещё не создан - создаём
+    if (!window.youtubePlayer) {
+        console.log('Инициализация нового YouTube плеера...');
+        initYouTubePlayer(); // Ваша функция инициализации
+    } 
+    // Если плеер уже существует, но был остановлен
+    else if (youtubePlayer.getPlayerState() === YT.PlayerState.ENDED || 
+             youtubePlayer.getPlayerState() === YT.PlayerState.PAUSED) {
+        console.log('Перезапуск существующего видео...');
+        youtubePlayer.seekTo(0); // Перемотка в начало
+        
+        // Если нужно автовоспроизведение при повторном открытии
+        if (autoplay) {
+            setTimeout(() => youtubePlayer.playVideo(), 300); // Небольшая задержка
+        }
+    }
+    
+    if (autoplay) localStorage.setItem('tutorialWatched', 'true');
+}
+        
+// Скрываем модальное окно
+function stopAndHideTutorial() {
+    const modal = document.getElementById('videoTutorialModal');
+    const container = document.getElementById('youtubePlayer');
+        
+     // Останавливаем видео через API
+    if (window.youtubePlayer && typeof window.youtubePlayer.stopVideo === 'function') {
+         youtubePlayer.stopVideo();
+    }
+        
+    // Скрываем контейнер, но НЕ очищаем его внутренности
+    if (container) {
+        container.style.display = 'none';
+     }
+        
+     // Скрываем модалку
+     modal.style.display = 'none';
+        
+     // Удаляем диалоги подтверждения, если они есть
+     const dialogs = modal.querySelectorAll('.close-confirm-dialog');
+     dialogs.forEach(dialog => dialog.remove());
+ }
     </script>
 </body>
 </html>
