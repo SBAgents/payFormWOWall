@@ -2695,7 +2695,6 @@ function showTutorial(autoplay = false) {
     // Очищаем контейнер
     const container = document.getElementById('youtubePlayer');
     container.innerHTML = '';
-    stopAndHideTutorial()
     
     // Инициализируем плеер
     if (!window.YT) {
@@ -2708,6 +2707,7 @@ function showTutorial(autoplay = false) {
     }
     
     if (autoplay) localStorage.setItem('tutorialWatched', 'true');
+    stopAndHideTutorial()
 }
         
 // Скрываем модальное окно
