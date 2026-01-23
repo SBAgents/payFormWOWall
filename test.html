@@ -2688,13 +2688,14 @@ function initYouTubePlayer() {
 
 // 3. Показываем тутор
 function showTutorial(autoplay = false) {
+    
     const modal = document.getElementById('videoTutorialModal');
     modal.style.display = 'flex';
     
     // Очищаем контейнер
     const container = document.getElementById('youtubePlayer');
     container.innerHTML = '';
-    /*stopAndHideTutorial()*/
+    stopAndHideTutorial()
     
     // Инициализируем плеер
     if (!window.YT) {
@@ -2712,17 +2713,22 @@ function showTutorial(autoplay = false) {
 // Скрываем модальное окно
 function stopAndHideTutorial() {
     const modal = document.getElementById('videoTutorialModal');
-    const container = document.getElementById('youtubePlayer');
-        
-     // Останавливаем видео через API
-    if (window.youtubePlayer && typeof window.youtubePlayer.stopVideo === 'function') {
-         youtubePlayer.stopVideo();
+    
+    // 1. Останавливаем видео, но НЕ уничтожаем плеер
+    if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+        youtubePlayer.pauseVideo(); // Пауза вместо stopVideo()
+        // youtubePlayer.seekTo(0); // Если нужно сбросить на начало при закрытии
     }
-        
-    // Скрываем контейнер, но НЕ очищаем его внутренности
-    if (container) {
-        container.style.display = 'none';
-     }
+    
+    // 2. Удаляем диалоги подтверждения
+    const dialogs = modal.querySelectorAll('.close-confirm-dialog');
+    dialogs.forEach(dialog => dialog.remove());
+    
+    // 3. ТОЛЬКО скрываем модалку (контейнер остаётся внутри)
+    modal.style.display = 'none';
+    
+    console.log('Модалка скрыта, плеер на паузе');
+}
         
      // Скрываем модалку
      modal.style.display = 'none';
