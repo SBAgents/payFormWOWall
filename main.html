@@ -6,6 +6,7 @@
     <title>Payment system</title>
     <link rel="preconnect" href="https://script.google.com">
     <link rel="preconnect" href="https://api.telegram.org">
+    <script src="https://www.youtube.com/iframe_api"></script>
 <style>
     :root {
     --primary-bg: linear-gradient(135deg, #042F28 0%, #0A5C4A 100%);
@@ -49,12 +50,73 @@
         margin-left: 350px;
     }
 
+    .close-confirm-dialog {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;;
+        justify-content: center !important;
+        align-items: center !important;
+        border-radius: 2%;
+        z-index: 10010 !important;
+    }
+    .confirm-content {
+        background: var(--primary-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 15px;
+        padding: 25px;
+        min-width: 250px;
+        max-width: 720px;
+        text-align: center;
+        backdrop-filter: blur(50px);
+    }
+    .confirm-title {
+        color: var(--accent-color);
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .confirm-text {
+        color: var(--text-color);
+        margin-bottom: 25px;
+    }
+    .confirm-buttons {
+        display: flex;
+        gap: 15px;
+    }
+    .confirm-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .confirm-yes {
+        background: #e74c3c;
+        color: white;
+    }
+    .confirm-yes:hover {
+        background: #c0392b;
+    }
+    .confirm-no {
+        background: #2ecc71;
+        color: white;
+    }
+    .confirm-no:hover {
+        background: #27ae60;
+    }
+
     /* ЗАГРУЗОЧНЫЙ ЭКРАН */
     #loadingScreen {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 100%; 
         height: 100%;
         background: var(--primary-bg);
         display: flex;
@@ -230,6 +292,14 @@
     .container.loaded {
     opacity: 1;
     transform: translateY(0);
+    }
+
+    .tutorial-link {
+        margin: 10px 30% 0 30%;
+        width: 40%;
+        color: var(--accent-color);
+        text-align: center;
+        cursor: pointer;
     }
 
     /* ЯЗЫКОВОЙ ПЕРЕКЛЮЧАТЕЛЬ */
@@ -432,7 +502,6 @@
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 10px;
     }
 
     .btn:hover {
@@ -467,7 +536,7 @@
         display: block;
     }
 
-         /* ПОПАП РЕЗУЛЬТАТА ДЕПОЗИТА */
+    /* ПОПАП РЕЗУЛЬТАТА ДЕПОЗИТА */
     .deposit-popup {
         position: fixed;
         top: 50%;
@@ -871,9 +940,8 @@
             <div class="loading-subtitle">Loading payment system...</div>
         </div>
     </div>
-
     <!-- Консоль дебага -->
-    <div id="debugConsole">
+   <div id="debugConsole">
         <div class="console-header">
             <div class="console-title">Payment System Debug Console</div>
             <div class="console-close" onclick="toggleConsole()">[X]</div>
@@ -881,19 +949,10 @@
         <div id="consoleContent"></div>
     </div>
 
-    <!-- Языковой переключатель -->
-   <!-- <div class="language-selector">
-        <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
-        <button class="lang-btn" onclick="changeLanguage('ru')">RU</button>
-        <button class="lang-btn" onclick="changeLanguage('fr')">FR</button>
-        <button class="lang-btn" onclick="changeLanguage('ar')">AR</button>
-    </div> -->
-
     <div class="container" id="mainContainer">
     <!-- Хедер -->
     <div class="header">
         <div class="logo" data-i18n="title">Payment system</div>
-        <!-- <div class="subtitle" data-i18n="subtitle">Secure deposits & withdrawals</div> -->
     </div>
 
         <!-- Переключатель вкладок -->
@@ -962,9 +1021,20 @@
                 <button class="btn" onclick="processDeposit()" id="depositBtn" data-i18n="deposit.get_wallet_button">
                     Get Deposit Wallet
                 </button>
+                <div id="videoTutorialLink" class="tutorial-link" onclick="showTutorial(autoplay = false)" data-i18n="tutorial.link">
+                    🎥 Video tutorial
+                </div>
                 
                 <div class="note" data-i18n="deposit.note">
                     💡 Send exact amount to the provided wallet. Transaction will be processed within 5-10 minutes.
+                </div>
+            </div>
+
+            <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
+            <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
+                <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
+                    <divdiv id="youtubePlayer" style="width:100%; height:450px;">
+                    </div>
                 </div>
             </div>
 
@@ -1281,7 +1351,16 @@ const translations = {
         'notification.server_error': 'Server error. Please try again.',
         'notification.confirmation_failed': 'Confirmation failed: {message}',
         'notification.antispam': 'Please wait {minutes} minutes before identical request',
-        'notification.withdrawal_failed': 'Withdrawal failed: {message}'
+        'notification.withdrawal_failed': 'Withdrawal failed: {message}',
+        'tutorial.link': 'Video tutorial',
+        'tutorial.close_confirm_title': 'Close tutorial?',
+        'tutorial.close_confirm_text': 'Are you sure you want to close?',
+        'tutorial.close_confirm_no': 'No, continue',
+        'tutorial.close_confirm_yes': 'Yes, close',
+        'tutorial.repeat_title': 'Tutorial finished',
+        'tutorial.repeat_text': 'Want to watch again?',
+        'tutorial.repeat_yes': 'Watch again',
+        'tutorial.repeat_no': 'I understand'
     },
     
     ru: {
@@ -1333,7 +1412,16 @@ const translations = {
         'notification.server_error': 'Ошибка сервера. Пожалуйста, попробуйте снова.',
         'notification.confirmation_failed': 'Подтверждение не удалось: {message}',
         'notification.antispam': 'Пожалуйста, подождите {minutes} минут перед идентичным запросом',
-        'notification.withdrawal_failed': 'Вывод не удался: {message}'
+        'notification.withdrawal_failed': 'Вывод не удался: {message}',
+        'tutorial.link': 'Видеоинструкция',
+        'tutorial.close_confirm_title': 'Закрыть обучение?',
+        'tutorial.close_confirm_text': 'Вы действительно хотите закрыть?',
+        'tutorial.close_confirm_no': 'Нет, продолжить',
+        'tutorial.close_confirm_yes': 'Да, закрыть',
+        'tutorial.repeat_title': 'Обучение завершено',
+        'tutorial.repeat_text': 'Хотите посмотреть ещё раз?',
+        'tutorial.repeat_yes': 'Посмотреть ещё раз',
+        'tutorial.repeat_no': 'Я всё понял'
     },
     
     fr: {
@@ -1385,7 +1473,16 @@ const translations = {
         'notification.server_error': 'Erreur serveur. Veuillez réessayer.',
         'notification.confirmation_failed': 'Échec de la confirmation: {message}',
         'notification.antispam': 'Veuillez attendre {minutes} minutes avant une demande identique',
-        'notification.withdrawal_failed': 'Échec du retrait: {message}'
+        'notification.withdrawal_failed': 'Échec du retrait: {message}',
+        'tutorial.link': 'Tutoriel vidéo',
+        'tutorial.close_confirm_title': 'Fermer le tutoriel ?',
+        'tutorial.close_confirm_text': 'Êtes-vous sûr de vouloir fermer ?',
+        'tutorial.close_confirm_no': 'Non, continuer',
+        'tutorial.close_confirm_yes': 'Oui, fermer',
+        'tutorial.repeat_title': 'Tutoriel terminé',
+        'tutorial.repeat_text': 'Voulez-vous regarder à nouveau?',
+        'tutorial.repeat_yes': 'Regarder à nouveau',
+        'tutorial.repeat_no': 'J\'ai compris'
     },
     
     ar: {
@@ -1437,7 +1534,16 @@ const translations = {
         'notification.server_error': 'خطأ في الخادم. يرجى المحاولة مرة أخرى.',
         'notification.confirmation_failed': 'فشل التأكيد: {message}',
         'notification.antispam': 'يرجى الانتظار {minutes} دقائق قبل الطلب المماثل',
-        'notification.withdrawal_failed': 'فشل السحب: {message}'
+        'notification.withdrawal_failed': 'فشل السحب: {message}',
+        'tutorial.link': 'تعليمات الفيديو',
+        'tutorial.close_confirm_title': 'إغلاق التعليمات؟',
+        'tutorial.close_confirm_text': 'هل أنت متأكد أنك تريد الإغلاق؟',
+        'tutorial.close_confirm_no': 'لا، استمر',
+        'tutorial.close_confirm_yes': 'نعم، أغلق',
+        'tutorial.repeat_title': 'انتهى البرنامج التعليمي',
+        'tutorial.repeat_text': 'هل تريد المشاهدة مرة أخرى؟',
+        'tutorial.repeat_yes': 'شاهد مرة أخرى',
+        'tutorial.repeat_no': 'لقد فهمت'
     }
 };
 
@@ -1500,55 +1606,6 @@ function translate(key, params = {}) {
     
     return text;
 }
-
-/*// ========== ПОДСКАЗКИ ==========
-const hints = {
-    'accountHint': {
-        title: 'Player Account',
-        text: 'Enter your game account username or ID. This is required to credit funds to your account.'
-    },
-    'amountHint': {
-        title: 'Amount',
-        text: 'Enter the amount you want to deposit. Minimum deposit is 100 EGP.'
-    },
-    'walletHint': {
-        title: 'Your Wallet Number',
-        text: 'Enter your personal wallet number (Vodafone Cash, InstaPay, etc.). This wallet will be used for withdrawals.'
-    },
-    'methodHint': {
-        title: 'Payment Method',
-        text: 'Select the payment method you want to use for this deposit.'
-    },
-    'withdrawAccountHint': {
-        title: 'Player Account',
-        text: 'Enter your game account username or ID. This is required to process your withdrawal.'
-    },
-    'withdrawAmountHint': {
-        title: 'Amount',
-        text: 'Enter the amount you want to withdraw. Minimum withdrawal is 300 EGP.'
-    },
-    'withdrawWalletHint': {
-        title: 'Your Wallet Number',
-        text: 'Enter your personal wallet number where you want to receive the withdrawal.'
-    },
-    'codeHint': {
-        title: 'Withdrawal Code',
-        text: 'Enter the withdrawal code provided by the game or system. This code is required for security.'
-    }
-};*/
-
-/*function showHint(hintId) {
-    const hint = hints[hintId];
-    if (!hint) return;
-    
-    document.getElementById('hintTitle').textContent = translateHint(hint.title);
-    document.getElementById('hintText').textContent = translateHint(hint.text);
-    
-    document.getElementById('hintOverlay').classList.add('active');
-    document.getElementById('hintPopup').classList.add('active');
-    
-    log('info', `Hint shown: ${hintId}`);
-}*/
 
         // ========== ПОДСКАЗКИ ==========
         const hints = {
@@ -1643,20 +1700,6 @@ function closeHint() {
     document.getElementById('hintPopup').classList.remove('active');
 }
 
-/*function translateHint(text) {
-    if (state.currentLanguage === 'ru') {
-        const ruHints = {
-            'Player Account': 'Игровой Аккаунт',
-            'Amount': 'Сумма',
-            'Your Wallet Number': 'Ваш Номер Кошелька',
-            'Payment Method': 'Способ Оплаты',
-            'Withdrawal Code': 'Код Вывода'
-        };
-        return ruHints[text] || text;
-    }
-    return text;
-}*/
-
 // ========== УТИЛИТЫ ==========
 function showNotification(messageKey, isError = false, params = {}) {
     const message = translate(messageKey, params);
@@ -1674,14 +1717,23 @@ function switchTab(tabName) {
     if (!state.isLoaded) return;
     
     state.currentTab = tabName;
+
+    const contentArea = document.querySelector('.content-area');
     
+    // Логика для работы с display
+    if (contentArea.style.display === 'none') {
+        // Если скрыт — показываем
+        contentArea.style.display = 'block';
+    } else {
+        // Если видим — скрываем
+        contentArea.style.display = 'none';
+    }
+
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    
+
     document.querySelector(`.tab[onclick*="${tabName}"]`).classList.add('active');
     document.getElementById(tabName + 'Tab').classList.add('active');
-    
-    log('info', `Tab switched to: ${tabName}`);
 }
 
 // ========== СОХРАНЕНИЕ КОШЕЛЬКА ==========
@@ -2340,6 +2392,309 @@ async function processWithdrawal() {
         }
     }
 }
+
+// ВИДЕО ТУТОРИАЛ НАЧАЛО
+      // 1. Определяем язык и выбираем видеофайл
+         function getTutorialVideoFile() {
+            const lang = navigator.language.split('-')[0];
+            const youtubeIds = {
+                'ru': 'CKlaeDHDp6o',
+                'en': 'Ys68V3Viy5c', 
+                'ar': '5tanTK9-fhQ'
+            };
+            const videoId = youtubeIds[lang] || youtubeIds.en;
+            
+            // КРИТИЧЕСКИ ВАЖНЫЕ ПАРАМЕТРЫ:
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
+        }
+      
+      // 2. Показываем видео (автозапуск при первом просмотре)
+     function showTutorial(autoplay = false) {
+        const modal = document.getElementById('videoTutorialModal');
+        const iframe = document.getElementById('youtubePlayer');
+        
+        // Устанавливаем URL с параметрами
+        iframe.src = getTutorialVideoFile();
+        modal.style.display = 'flex';
+         setTimeout(() => {
+                initYouTubePlayer();
+            }, 1000);
+        
+        // 1. Узнаём какое видео загружено (по языку)
+        const lang = navigator.language.split('-')[0];
+        const videoDurations = {
+            'ru': 62,   // Замени на нужные секунды
+            'en': 75,  // Замени на нужные секунды
+            'ar': 90,  // Замени на нужные секунды
+            'default': 75
+        };
+        
+        const videoDuration = videoDurations[lang] || videoDurations['default'];
+        
+        // 2. Fallback 1: Основной таймер (длительность видео + 5 секунд)
+        const mainTimer = setTimeout(() => {
+            console.log(`⏱️ Основной таймер (${videoDuration}с): показываю диалог`);
+            if (modal.style.display === 'flex') {
+                showRepeatDialog();
+            }
+        }, (videoDuration + 5) * 1000); // +5 секунд запаса
+        
+        // 3. Fallback 2: Дополнительный таймер (на 20% длиннее)
+        const extendedTimer = setTimeout(() => {
+            console.log(`⏱️ Дополнительный таймер (${Math.round(videoDuration * 1.2)}с): показываю диалог`);
+            if (modal.style.display === 'flex') {
+                showRepeatDialog();
+            }
+        }, videoDuration * 1.2 * 1000);
+        
+        // 4. Fallback 3: Максимальный таймер (фиксированно 3 минуты)
+        const maxTimer = setTimeout(() => {
+            console.log('⏱️ Максимальный таймер (180с): показываю диалог');
+            clearTimeout(mainTimer);
+            clearTimeout(extendedTimer);
+            if (modal.style.display === 'flex') {
+                showRepeatDialog();
+            }
+        }, 180000); // 3 минуты
+        
+        // 5. Очистка таймеров при закрытии модалки
+        const cleanupTimers = function() {
+            clearTimeout(mainTimer);
+            clearTimeout(extendedTimer);
+            clearTimeout(maxTimer);
+            modal.removeEventListener('close', cleanupTimers);
+        };
+        
+        // Вешаем очистку на закрытие
+        modal.addEventListener('close', cleanupTimers);
+        
+        // 6. Сохраняем функцию очистки для ручного вызова
+        modal.cleanupTimers = cleanupTimers;
+        
+        if (autoplay) localStorage.setItem('tutorialWatched', 'true');
+        console.log(`🎬 Видео запущено. Fallback таймеры: ${videoDuration}с, ${Math.round(videoDuration * 1.2)}с, 180с`);
+        console.log('YouTube API загружен:', !!window.YT);
+        console.log('Контейнер найден:', !!document.getElementById('youtubePlayer'));
+        console.log('Функция initYouTubePlayer:', typeof initYouTubePlayer);
+    }
+      
+      // 3. Закрываем видео
+        function closeTutorial() {
+            console.log('closeTutorial вызвана'); // Для отладки
+            const modal = document.getElementById('videoTutorialModal');
+            const iframe = document.getElementById('youtubePlayer');
+            
+            // Пауза видео
+            if (iframe && iframe.contentWindow) {
+                // Используем новую функцию паузы
+                setTimeout(() => {
+                    pauseYouTubeVideo(); // ← ЗДЕСЬ ВЫЗОВ
+                    console.log("Пауза вызвана через функцию");
+                }, 100);
+            }
+            
+            // Создаём или находим контейнер для диалога подтверждения
+            let confirmDialog = modal.querySelector('.close-confirm-dialog');
+            if (!confirmDialog) {
+                confirmDialog = document.createElement('div');
+                confirmDialog.className = 'close-confirm-dialog';
+                confirmDialog.innerHTML = `
+                    <div class="confirm-content">
+                        <p class="confirm-title" data-i18n="tutorial.close_confirm_title">Close tutorial?</p>
+                        <p class="confirm-text" data-i18n="tutorial.close_confirm_text">Are you sure you want to close?</p>
+                        <div class="confirm-buttons">
+                            <button class="confirm-btn confirm-no" data-i18n="tutorial.close_confirm_no">No, continue</button>
+                            <button class="confirm-btn confirm-yes" data-i18n="tutorial.close_confirm_yes">Yes, close</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('videoTutorialModal').appendChild(confirmDialog);
+                
+                // Назначаем обработчики кнопок
+                confirmDialog.querySelector('.confirm-yes').onclick = function() {
+                    confirmDialog.remove();
+                    iframe.src = '';
+                    modal.style.display = 'none';
+                };
+                
+                confirmDialog.querySelector('.confirm-no').onclick = function() {
+                    // Возобновляем воспроизведение
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    confirmDialog.remove();
+                };
+            }
+
+        // В функции закрытия модалки добавь:
+        if (modal._videoObserver) {
+            modal._videoObserver.disconnect();
+            delete modal._videoObserver;
+        }
+            
+            // Показываем диалог
+            confirmDialog.style.display = 'block';
+            applyTranslations(state.currentLanguage); // Применяем переводы
+        }
+
+        function pauseYouTubeVideo() {
+            const iframe = document.getElementById('youtubePlayer');
+            if (!iframe || !iframe.contentWindow) return false;
+            
+            // 3 разных способа паузы (сработает хотя бы один)
+            try {
+                // Способ 1: Стандартная команда YouTube
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseYouTubeVideo","args":""}', '*');
+                
+                // Способ 2: Альтернативный формат
+                iframe.contentWindow.postMessage('{"method":"pause"}', '*');
+                
+                // Способ 3: Через YouTube Player API (если подключён)
+                if (iframe.playerInstance) {
+                    iframe.playerInstance.pauseVideo();
+                }
+                
+                console.log("Пауза YouTube отправлена");
+                return true;
+            } catch (e) {
+                console.error("Ошибка паузы YouTube:", e);
+                return false;
+            }
+        }
+
+        //4. Уточняем, нужно ли повторить видео пользователю
+        function showRepeatDialog() {
+            const modal = document.getElementById('videoTutorialModal');
+            const iframe = document.getElementById('youtubePlayer');
+            
+            // Создаём диалог (такая же структура как в closeTutorial)
+            const repeatDialog = document.createElement('div');
+            repeatDialog.className = 'close-confirm-dialog';
+            repeatDialog.innerHTML = `
+                <div class="confirm-content">
+                    <p class="confirm-title" data-i18n="tutorial.repeat_title">Tutorial finished</p>
+                    <p class="confirm-text" data-i18n="tutorial.repeat_text">Want to watch again?</p>
+                    <div class="confirm-buttons">
+                        <button class="confirm-btn repeat-yes" data-i18n="tutorial.repeat_yes">Watch again</button>
+                        <button class="confirm-btn repeat-no" data-i18n="tutorial.repeat_no">I understand</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('videoTutorialModal').appendChild(repeatDialog);
+            repeatDialog.style.display = 'block';
+            applyTranslations(state.currentLanguage);
+            
+            // Обработчик "Watch again" - перезапуск видео
+            repeatDialog.querySelector('.repeat-yes').onclick = function() {
+                // Перематываем на начало и играем
+                iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0, true]}', '*');
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                repeatDialog.remove(); // Удаляем диалог
+            };
+            
+            // Обработчик "I understand" - закрытие
+            repeatDialog.querySelector('.repeat-no').onclick = function() {
+                iframe.src = ''; // Останавливаем видео
+                modal.style.display = 'none'; // Закрываем модалку
+                repeatDialog.remove(); // Удаляем диалог
+            };
+        }
+      
+      // 5. Проверяем первый ли это визит
+      function checkFirstVisit() {
+            const hasWatched = localStorage.getItem('tutorialWatched');
+            
+            if (!hasWatched) {
+                setTimeout(() => {
+                    showTutorial(true);
+                }, 1000);
+            }
+        }
+      
+      // 6. Инициализируем всё после загрузки страницы
+      window.addEventListener('load', function() {
+            // Даем время на загрузку основной страницы
+            setTimeout(() => {
+                // 1. Назначаем клик на фон модалки
+                document.getElementById('videoTutorialModal').onclick = function(e) {
+                    if (e.target === this) closeTutorial();
+                };
+                
+                // 2. Проверяем первый визит (автозапуск видео)
+                checkFirstVisit();
+                
+                // Логируем
+                if (typeof logToConsole === 'function') {
+                    logToConsole('success', 'Туториал инициализирован');
+                }
+            }, 1000);
+        });
+        
+        let youtubePlayer;
+
+ function getYouTubeVideoId() {
+    const lang = navigator.language.split('-')[0];
+    const youtubeIds = {
+        'ru': 'CKlaeDHDp6o',
+        'en': 'Ys68V3Viy5c', 
+        'ar': '5tanTK9-fhQ'
+    };
+    return youtubeIds[lang] || youtubeIds.en;
+}
+
+function initYouTubePlayer() {
+    const container = document.getElementById('youtubePlayer');
+    const videoId = getYouTubeVideoId(); // Твоя функция получения ID
+    
+    youtubePlayer = new YT.Player(container, {
+        videoId: videoId,
+        playerVars: {
+            autoplay: 1,
+            mute: 0,
+            controls: 1,
+            rel: 0,
+            modestbranding: 1
+        },
+        events: {
+            onReady: function(event) {
+                console.log('✅ YouTube Player API готов');
+                event.target.playVideo();
+            },
+            onStateChange: function(event) {
+                // event.data состояния:
+                // -1 - не началось, 0 - конец, 1 - играет, 2 - пауза
+                console.log('📊 Состояние видео:', event.data);
+                
+                if (event.data === YT.PlayerState.ENDED) {
+                    console.log('🎬 КОНЕЦ ВИДЕО (определено YouTube API)');
+                    setTimeout(() => showRepeatDialog(), 500);
+                }
+            },
+            onError: function(error) {
+                console.error('❌ Ошибка YouTube:', error.data);
+            }
+        }
+    });
+}
+        
+// Скрываем модальное окно
+function stopAndHideTutorial() {
+    const modal = document.getElementById('videoTutorialModal');
+    
+    // 1. Останавливаем видео, но НЕ уничтожаем плеер
+    if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+        youtubePlayer.pauseVideo(); // Пауза вместо stopVideo()
+    }
+    
+    // 2. Удаляем диалоги подтверждения
+    const dialogs = modal.querySelectorAll('.close-confirm-dialog');
+    dialogs.forEach(dialog => dialog.remove());
+    
+    // 3. ТОЛЬКО скрываем модалку (контейнер остаётся внутри)
+    modal.style.display = 'none';
+    
+    console.log('Модалка скрыта, плеер на паузе');
+}
+//ВИДЕО ТУТОРИАЛ КОНЕЦ
     </script>
 </body>
 </html>
