@@ -2726,7 +2726,7 @@ function stopAndHideTutorial() {
     console.log('Модалка скрыта, плеер на паузе');
 }
 
-function getWithdrawalTutorialVideoFile() {
+function getWithdrawalTutorialVideoFile1() {
     const lang = navigator.language.split('-')[0];
     const youtubeIds = {
         'ru': 'nZu93LRos5w',
@@ -2737,6 +2737,16 @@ function getWithdrawalTutorialVideoFile() {
             
      // КРИТИЧЕСКИ ВАЖНЫЕ ПАРАМЕТРЫ:
      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
+}
+
+function getWithdrawalTutorialVideoFile() {
+    const lang = navigator.language.split('-')[0];
+    const youtubeIds = {
+        'ru': 'nZu93LRos5w',
+        'en': 'nZu93LRos5w', 
+        'ar': 'Ws4Vo0zUldY'
+    };
+    return youtubeIds[lang] || youtubeIds.en;
 }
 
     function showWithdrawalTutorial(autoplay = false) {
