@@ -1056,7 +1056,7 @@
             <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
             <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
                 <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
-                    <divdiv id="youtubePlayer" style="width:100%; height:450px;">
+                    <div id="youtubePlayer" style="width:100%; height:450px;">
                     </div>
                 </div>
             </div>
@@ -1122,6 +1122,14 @@
             </div>
         </div>
     </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
+            <div id="videoTutorialModalWithdrawal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
+                <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
+                    <div id="youtubePlayerWithdrawal" style="width:100%; height:450px;">
+                    </div>
+                </div>
+            </div>
 
     <!-- Попап результата депозита -->
     <div class="popup-overlay" id="popupOverlay" onclick="closeDepositPopup()"></div>
@@ -2750,8 +2758,8 @@ function getWithdrawalTutorialVideoFile1() {
 }
 
     function showWithdrawalTutorial(autoplay = false) {
-        const modal = document.getElementById('videoTutorialModal');
-        const iframe = document.getElementById('youtubePlayer');
+        const modal = document.getElementById('videoTutorialModalWithdrawal');
+        const iframe = document.getElementById('youtubePlayerWithdrawal');
         
         // Устанавливаем URL с параметрами
         iframe.src = getWithdrawalTutorialVideoFile();
