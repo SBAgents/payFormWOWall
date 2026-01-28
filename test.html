@@ -1114,7 +1114,7 @@
                     <span>Street: </span>
                     <span> agent street</span>
                 </div>
-                <div class="withdrawalTutor" onclick="showWithdrawalTutorial(autoplay = true)"> Video tutorial</div>
+                <div class="withdrawalTutor" onclick="showWithdrawalTutorial(autoplay = false)"> Video tutorial</div>
                 
                 <div class="note" data-i18n="withdrawal.note">
                     🔒 Withdrawals are processed within 24 hours. Make sure the code is correct.
@@ -2739,7 +2739,7 @@ function getWithdrawalTutorialVideoFile() {
      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
 }
 
-    function showWithdrawalTutorial(autoplay = true) {
+    function showWithdrawalTutorial(autoplay = false) {
         const modal = document.getElementById('videoTutorialModal');
         const iframe = document.getElementById('youtubePlayer');
         
@@ -2807,6 +2807,41 @@ function getWithdrawalTutorialVideoFile() {
         console.log('Контейнер найден:', !!document.getElementById('youtubePlayer'));
         console.log('Функция initYouTubePlayer:', typeof initYouTubePlayer);
     }
+
+function initYouTubePlayerWithdrawal() {
+    const container = document.getElementById('youtubePlayer');
+    const videoId = getWithdrawalTutorialVideoFile(); // Твоя функция получения ID
+    
+    youtubePlayer = new YT.Player(container, {
+        videoId: videoId,
+        playerVars: {
+            autoplay: 1,
+            mute: 0,
+            controls: 1,
+            rel: 0,
+            modestbranding: 1
+        },
+        events: {
+            onReady: function(event) {
+                console.log('✅ YouTube Player API готов');
+                event.target.playVideo();
+            },
+            onStateChange: function(event) {
+                // event.data состояния:
+                // -1 - не началось, 0 - конец, 1 - играет, 2 - пауза
+                console.log('📊 Состояние видео:', event.data);
+                
+                if (event.data === YT.PlayerState.ENDED) {
+                    console.log('🎬 КОНЕЦ ВИДЕО (определено YouTube API)');
+                    setTimeout(() => showRepeatDialog(), 500);
+                }
+            },
+            onError: function(error) {
+                console.error('❌ Ошибка YouTube:', error.data);
+            }
+        }
+    });
+}
 //ВИДЕО ТУТОРИАЛ КОНЕЦ
     </script>
 </body>
