@@ -2797,7 +2797,7 @@ function stopAndHideTutorial() {
             if (modal.style.display === 'flex') {
                 showRepeatDialog();
             }
-        }, 180000); // 3 минуты
+        }, 180000); // 3 минуты*/
         
         // 5. Очистка таймеров при закрытии модалки
         const cleanupTimers = function() {
@@ -2805,7 +2805,7 @@ function stopAndHideTutorial() {
             clearTimeout(extendedTimer);
             clearTimeout(maxTimer);
             modal.removeEventListener('close', cleanupTimers);
-        };*/
+        };
         
         // Вешаем очистку на закрытие
         modal.addEventListener('close', cleanupTimers);
@@ -2882,7 +2882,7 @@ function stopAndHideTutorial() {
             // 3 разных способа паузы (сработает хотя бы один)
             try {
                 // Способ 1: Стандартная команда YouTube
-                iframe.contentWindow.postMessage('{"event":"command","func":"pauseYouTubeVideo","args":""}', '*');
+                iframe.contentWindow.postMessage('{"event":"command","func":"stopYouTubeVideo","args":""}', '*');
                 
                 // Способ 2: Альтернативный формат
                 iframe.contentWindow.postMessage('{"method":"pause"}', '*');
