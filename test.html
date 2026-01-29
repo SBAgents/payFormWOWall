@@ -2568,7 +2568,7 @@ async function processWithdrawal() {
         function pauseYouTubeVideo() {
     // Способ 1 (Основной): Если объект плеера существует и доступен
     if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
-        youtubePlayerWithdrawal.pauseVideo();
+        youtubePlayer.pauseVideo();
         log('success', 'Видео для вывода поставлено на паузу через YouTube API');
         return true;
     }
@@ -2588,28 +2588,6 @@ async function processWithdrawal() {
     }
     return false;
 }
-        
-        function pauseWithdrawalVideo() {
-            const iframe = document.getElementById('youtubePlayerWithdrawal');
-            if (!iframe || !iframe.contentWindow) return false;
-            
-            // 3 разных способа паузы (сработает хотя бы один)
-            try {
-                // Способ 1: Стандартная команда YouTube
-                iframe.contentWindow.postMessage('{"event":"command","func":"pauseYouTubeVideo","args":""}', '*');
-                
-                // Способ 2: Альтернативный формат
-                iframe.contentWindow.postMessage('{"method":"pause"}', '*');
-                
-                // Способ 3: Через YouTube Player API (если подключён)
-                if (iframe.playerInstance) {
-                    iframe.playerInstance.stopVideo();
-                }
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
 
         //4. Уточняем, нужно ли повторить видео пользователю
         function showRepeatDialog() {
@@ -2791,6 +2769,32 @@ function stopAndHideTutorial() {
         
         if (autoplay) localStorage.setItem('tutorialWatched', 'true');
     }
+
+function pauseWithdrawalVideo() {
+    // Способ 1 (Основной): Если объект плеера существует и доступен
+    if (window.youtubePlayerWithdrawal && typeof youtubePlayerWithdrawal.pauseVideo === 'function') {
+        youtubePlayerWithdrawal.pauseVideo();
+        log('success', 'Видео для вывода поставлено на паузу через YouTube API');
+        return true;
+    }
+    
+    // Способ 2 (Fallback): Если объект недоступен, но iframe есть
+    const iframe = document.getElementById('youtubePlayerWithdrawal');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // ТОЛЬКО этот метод через postMessage может сработать с API
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            log('info', 'Команда паузы отправлена через postMessage');
+            return true;
+        } catch(e) {
+            log('error', 'Ошибка паузы через postMessage:', e);
+            return false;
+        }
+    }
+    
+    log('warning', 'Объект youtubePlayerWithdrawal или iframe не найден');
+    return false;
+}
       
       // 3. Закрываем видео
         function closeWithdrawalTutorial() {
