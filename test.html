@@ -1119,6 +1119,13 @@
                 <div class="note" data-i18n="withdrawal.note">
                     🔒 Withdrawals are processed within 24 hours. Make sure the code is correct.
                 </div>
+                 <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
+            <div id="videoTutorialModalWithdrawal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
+                <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
+                    <div id="youtubePlayerWithdrawal" style="width:100%; height:450px;">
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
@@ -2818,7 +2825,7 @@ function getWithdrawalTutorialVideoFile1() {
         console.log('Функция initYouTubePlayer:', typeof initYouTubePlayer);
     }
 
-/*function initYouTubePlayerWithdrawal() {
+function initYouTubePlayerWithdrawal() {
     const container = document.getElementById('youtubePlayer');
     const videoId = getWithdrawalTutorialVideoFile(); // Твоя функция получения ID
     
@@ -2851,7 +2858,7 @@ function getWithdrawalTutorialVideoFile1() {
             }
         }
     });
-}*/
+}
 //ВИДЕО ТУТОРИАЛ КОНЕЦ
     </script>
 </body>
