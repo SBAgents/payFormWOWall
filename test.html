@@ -2751,43 +2751,6 @@ function stopAndHideTutorial() {
                 initYouTubePlayerWithdrawal();
             }, 1000);
         
-        // 1. Узнаём какое видео загружено (по языку)
-        /*const lang = navigator.language.split('-')[0];
-        const videoDurations = {
-            'ru': 62,   // Замени на нужные секунды
-            'en': 75,  // Замени на нужные секунды
-            'ar': 90,  // Замени на нужные секунды
-            'default': 75
-        };
-        
-        const videoDuration = videoDurations[lang] || videoDurations['default'];
-        
-        // 2. Fallback 1: Основной таймер (длительность видео + 5 секунд)
-        const mainTimer = setTimeout(() => {
-            console.log(`⏱️ Основной таймер (${videoDuration}с): показываю диалог`);
-            if (modal.style.display === 'flex') {
-                showRepeatDialog();
-            }
-        }, (videoDuration + 5) * 1000); // +5 секунд запаса
-        
-        // 3. Fallback 2: Дополнительный таймер (на 20% длиннее)
-        const extendedTimer = setTimeout(() => {
-            console.log(`⏱️ Дополнительный таймер (${Math.round(videoDuration * 1.2)}с): показываю диалог`);
-            if (modal.style.display === 'flex') {
-                showRepeatDialog();
-            }
-        }, videoDuration * 1.2 * 1000);
-        
-        // 4. Fallback 3: Максимальный таймер (фиксированно 3 минуты)
-        const maxTimer = setTimeout(() => {
-            console.log('⏱️ Максимальный таймер (180с): показываю диалог');
-            clearTimeout(mainTimer);
-            clearTimeout(extendedTimer);
-            if (modal.style.display === 'flex') {
-                showRepeatDialog();
-            }
-        }, 180000); // 3 минуты*/
-        
         // 5. Очистка таймеров при закрытии модалки
         const cleanupTimers = function() {
             clearTimeout(mainTimer);
@@ -2860,7 +2823,7 @@ function stopAndHideTutorial() {
             applyTranslations(state.currentLanguage); // Применяем переводы
         }
 
-        function pauseYouTubeVideo() {
+       /* function pauseYouTubeVideo() {
             const iframe = document.getElementById('youtubePlayerWithdrawal');
             if (!iframe || !iframe.contentWindow) return false;
             
@@ -2881,7 +2844,33 @@ function stopAndHideTutorial() {
                 console.error("Ошибка паузы YouTube:", e);
                 return false;
             }
+        }*/
+
+        function pauseYouTubeVideo() {
+    // Способ 1 (Основной): Если объект плеера существует и доступен
+    if (window.youtubePlayerWithdrawal && typeof youtubePlayerWithdrawal.pauseVideo === 'function') {
+        youtubePlayerWithdrawal.pauseVideo();
+        log('success', 'Видео для вывода поставлено на паузу через YouTube API');
+        return true;
+    }
+    
+    // Способ 2 (Fallback): Если объект недоступен, но iframe есть
+    const iframe = document.getElementById('youtubePlayerWithdrawal');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // ТОЛЬКО этот метод через postMessage может сработать с API
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            log('info', 'Команда паузы отправлена через postMessage');
+            return true;
+        } catch(e) {
+            log('error', 'Ошибка паузы через postMessage:', e);
+            return false;
         }
+    }
+    
+    log('warning', 'Объект youtubePlayerWithdrawal или iframe не найден');
+    return false;
+}
 
         //4. Уточняем, нужно ли повторить видео пользователю
         function showRepeatDialog() {
