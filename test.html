@@ -2821,8 +2821,7 @@ function stopAndHideTutorial() {
     }
       
       // 3. Закрываем видео
-        function closeTutorial() {
-            console.log('closeTutorial вызвана'); // Для отладки
+        function closeWithdrawalTutorial() {
             const modal = document.getElementById('withdrawalTutorialModal');
             const iframe = document.getElementById('youtubePlayerWithdrawal');
             
@@ -2830,8 +2829,7 @@ function stopAndHideTutorial() {
             if (iframe && iframe.contentWindow) {
                 // Используем новую функцию паузы
                 setTimeout(() => {
-                    pauseYouTubeVideo(); // ← ЗДЕСЬ ВЫЗОВ
-                    console.log("Пауза вызвана через функцию");
+                    pauseYouTubeVideo(); 
                 }, 100);
             }
             
