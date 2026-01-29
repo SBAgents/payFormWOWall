@@ -2744,6 +2744,7 @@ function stopAndHideTutorial() {
                 'ar': 'Ws4Vo0zUldY'
             };
             const videoId = youtubeIds[lang] || youtubeIds.en;
+            console.log("Видео запущено из getWithdrawalVideoFile");
             
             // КРИТИЧЕСКИ ВАЖНЫЕ ПАРАМЕТРЫ:
             return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
@@ -2980,10 +2981,11 @@ function stopAndHideTutorial() {
         'ar': 'Ws4Vo0zUldY'
     };
     return youtubeIds[lang] || youtubeIds.en;
+    console.log("Видео запущено из getYouTubeVideoIdWithdrawal");
 }
 
 function initYouTubePlayerWithdrawal() {
-    const container = document.getElementById('youtubePlayerwithdrawal');
+    const container = document.getElementById('youtubePlayerWithdrawal');
     const videoId = getYouTubeVideoIdWithdrawal(); // Твоя функция получения ID
     
     youtubePlayer = new YT.Player(container, {
@@ -3018,11 +3020,11 @@ function initYouTubePlayerWithdrawal() {
 }
         
 // Скрываем модальное окно
-function stopAndHideTutorial() {
+function stopAndHideTutorialWithdrawal() {
     const modal = document.getElementById('withdrawalTutorialModal');
     
     // 1. Останавливаем видео, но НЕ уничтожаем плеер
-    if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+    if (window.youtubePlayerWithdrawal && typeof youtubePlayer.pauseVideo === 'function') {
         youtubePlayer.pauseVideo(); // Пауза вместо stopVideo()
         // youtubePlayer.seekTo(0); // Если нужно сбросить на начало при закрытии
     }
