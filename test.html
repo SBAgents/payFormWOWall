@@ -2763,7 +2763,7 @@ function stopAndHideTutorial() {
             }, 1000);
         
         // 1. Узнаём какое видео загружено (по языку)
-        const lang = navigator.language.split('-')[0];
+        /*const lang = navigator.language.split('-')[0];
         const videoDurations = {
             'ru': 62,   // Замени на нужные секунды
             'en': 75,  // Замени на нужные секунды
@@ -2805,7 +2805,7 @@ function stopAndHideTutorial() {
             clearTimeout(extendedTimer);
             clearTimeout(maxTimer);
             modal.removeEventListener('close', cleanupTimers);
-        };
+        };*/
         
         // Вешаем очистку на закрытие
         modal.addEventListener('close', cleanupTimers);
