@@ -1062,6 +1062,14 @@
             </div>
 
             <!-- Вкладка Вывода -->
+            <!-- Туториал вывода начало-->
+            <div id="withdrawalTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
+                <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
+                    <div id="youtubePlayerWithdrawal" style="width:100%; height:450px;">
+                    </div>
+                </div>
+            </div>
+            <!-- Туториал вывода конец -->
             <div id="withdrawalTab" class="tab-content">
                 <div class="form-group">
                     <label class="form-label">
@@ -1120,12 +1128,12 @@
                     🔒 Withdrawals are processed within 24 hours. Make sure the code is correct.
                 </div>
                  <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
-            <div id="withdrawalTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
+           <!-- <div id="withdrawalTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
                 <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
                     <div id="youtubePlayerWithdrawal" style="width:100%; height:450px;">
                     </div>
                 </div>
-            </div>
+            </div> -->
             </div>
         </div>
     </div>
@@ -2735,7 +2743,6 @@ function stopAndHideTutorial() {
                 'ar': 'Ws4Vo0zUldY'
             };
             const videoId = youtubeIds[lang] || youtubeIds.en;
-            console.log("Видео запущено из getWithdrawalVideoFile");
             
             // КРИТИЧЕСКИ ВАЖНЫЕ ПАРАМЕТРЫ:
             return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
