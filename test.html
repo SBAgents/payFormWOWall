@@ -1272,7 +1272,6 @@ window.addEventListener('load', function() {
 });
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Payment System Loading...');
     
     detectLanguage();
     
@@ -2573,7 +2572,7 @@ async function processWithdrawal() {
         }
 
         function pauseYouTubeVideo() {
-            const iframe = document.getElementById('youtubePlayer');
+            const iframe = document.getElementById('youtubePlayerWithdrawal');
             if (!iframe || !iframe.contentWindow) return false;
             
             // 3 разных способа паузы (сработает хотя бы один)
@@ -2588,11 +2587,8 @@ async function processWithdrawal() {
                 if (iframe.playerInstance) {
                     iframe.playerInstance.pauseVideo();
                 }
-                
-                console.log("Пауза YouTube отправлена");
                 return true;
             } catch (e) {
-                console.error("Ошибка паузы YouTube:", e);
                 return false;
             }
         }
@@ -2693,7 +2689,6 @@ function initYouTubePlayer() {
         },
         events: {
             onReady: function(event) {
-                console.log('✅ YouTube Player API готов');
                 event.target.playVideo();
             },
             onStateChange: function(event) {
@@ -2814,10 +2809,6 @@ function stopAndHideTutorial() {
         modal.cleanupTimers = cleanupTimers;
         
         if (autoplay) localStorage.setItem('tutorialWatched', 'true');
-        console.log(`🎬 Видео запущено. Fallback таймеры: ${videoDuration}с, ${Math.round(videoDuration * 1.2)}с, 180с`);
-        console.log('YouTube API загружен:', !!window.YT);
-        console.log('Контейнер найден:', !!document.getElementById('youtubePlayerWithdrawal'));
-        console.log('Функция initYouTubePlayer:', typeof initYouTubePlayer);
     }
       
       // 3. Закрываем видео
@@ -2971,7 +2962,7 @@ function stopAndHideTutorial() {
         
         /*let youtubePlayer;*/
 
- function getYouTubeVideoIdWithdrawal() {
+ /*function getYouTubeVideoIdWithdrawal() {
     const lang = navigator.language.split('-')[0];
     const youtubeIds = {
         'ru': 'CKlaeDHDp6o',
@@ -2980,7 +2971,7 @@ function stopAndHideTutorial() {
     };
     return youtubeIds[lang] || youtubeIds.en;
     console.log("Видео запущено из getYouTubeVideoIdWithdrawal");
-}
+}*/
 
 function initYouTubePlayerWithdrawal() {
     const container = document.getElementById('youtubePlayerWithdrawal');
@@ -3003,10 +2994,8 @@ function initYouTubePlayerWithdrawal() {
             onStateChange: function(event) {
                 // event.data состояния:
                 // -1 - не началось, 0 - конец, 1 - играет, 2 - пауза
-                console.log('📊 Состояние видео:', event.data);
                 
                 if (event.data === YT.PlayerState.ENDED) {
-                    console.log('🎬 КОНЕЦ ВИДЕО (определено YouTube API)');
                     setTimeout(() => showRepeatDialog(), 500);
                 }
             },
