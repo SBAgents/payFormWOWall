@@ -2508,15 +2508,10 @@ async function processWithdrawal() {
         modal.cleanupTimers = cleanupTimers;
         
         if (autoplay) localStorage.setItem('tutorialWatched', 'true');
-        console.log(`🎬 Видео запущено. Fallback таймеры: ${videoDuration}с, ${Math.round(videoDuration * 1.2)}с, 180с`);
-        console.log('YouTube API загружен:', !!window.YT);
-        console.log('Контейнер найден:', !!document.getElementById('youtubePlayer'));
-        console.log('Функция initYouTubePlayer:', typeof initYouTubePlayer);
     }
       
       // 3. Закрываем видео
         function closeTutorial() {
-            console.log('closeTutorial вызвана'); // Для отладки
             const modal = document.getElementById('videoTutorialModal');
             const iframe = document.getElementById('youtubePlayer');
             
@@ -2524,8 +2519,7 @@ async function processWithdrawal() {
             if (iframe && iframe.contentWindow) {
                 // Используем новую функцию паузы
                 setTimeout(() => {
-                    pauseYouTubeVideo(); // ← ЗДЕСЬ ВЫЗОВ
-                    console.log("Пауза вызвана через функцию");
+                    pauseYouTubeVideo();
                 }, 100);
             }
             
@@ -2585,7 +2579,7 @@ async function processWithdrawal() {
                 
                 // Способ 3: Через YouTube Player API (если подключён)
                 if (iframe.playerInstance) {
-                    iframe.playerInstance.pauseVideo();
+                    iframe.playerInstance.stopVideo();
                 }
                 return true;
             } catch (e) {
@@ -2882,8 +2876,6 @@ function stopAndHideTutorial() {
                 if (iframe.playerInstance) {
                     iframe.playerInstance.pauseVideo();
                 }
-                
-                console.log("Пауза YouTube отправлена");
                 return true;
             } catch (e) {
                 console.error("Ошибка паузы YouTube:", e);
@@ -2988,7 +2980,6 @@ function initYouTubePlayerWithdrawal() {
         },
         events: {
             onReady: function(event) {
-                console.log('✅ YouTube Player API готов');
                 event.target.playVideo();
             },
             onStateChange: function(event) {
