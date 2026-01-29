@@ -2566,6 +2566,30 @@ async function processWithdrawal() {
         }
 
         function pauseYouTubeVideo() {
+    // Способ 1 (Основной): Если объект плеера существует и доступен
+    if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+        youtubePlayerWithdrawal.pauseVideo();
+        log('success', 'Видео для вывода поставлено на паузу через YouTube API');
+        return true;
+    }
+    
+    // Способ 2 (Fallback): Если объект недоступен, но iframe есть
+    const iframe = document.getElementById('youtubePlayer');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // ТОЛЬКО этот метод через postMessage может сработать с API
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            log('info', 'Команда паузы отправлена через postMessage');
+            return true;
+        } catch(e) {
+            log('error', 'Ошибка паузы через postMessage:', e);
+            return false;
+        }
+    }
+    return false;
+}
+        
+        function pauseWithdrawalVideo() {
             const iframe = document.getElementById('youtubePlayerWithdrawal');
             if (!iframe || !iframe.contentWindow) return false;
             
@@ -2777,7 +2801,7 @@ function stopAndHideTutorial() {
             if (iframe && iframe.contentWindow) {
                 // Используем новую функцию паузы
                 setTimeout(() => {
-                    pauseYouTubeVideo(); 
+                    pauseWithdrawalVideo(); 
                 }, 100);
             }
             
