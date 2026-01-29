@@ -2731,7 +2731,7 @@ function stopAndHideTutorial() {
 
 // ТУТОРИАЛ ВЫВОДА НАЧАЛО
       // 1. Определяем язык и выбираем видеофайл
-         function getWithdrawalVideoFile() {
+         /*function getWithdrawalVideoFile() {
             const lang = navigator.language.split('-')[0];
             const youtubeIds = {
                 'ru': 'CKlaeDHDp6o',
@@ -2743,7 +2743,7 @@ function stopAndHideTutorial() {
             
             // КРИТИЧЕСКИ ВАЖНЫЕ ПАРАМЕТРЫ:
             return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
-        }
+        }*/
       
       // 2. Показываем видео (автозапуск при первом просмотре)
      function showWithdrawalTutorial(autoplay = false) {
@@ -2962,7 +2962,7 @@ function stopAndHideTutorial() {
         
         /*let youtubePlayer;*/
 
- /*function getYouTubeVideoIdWithdrawal() {
+ function getYouTubeVideoIdWithdrawal() {
     const lang = navigator.language.split('-')[0];
     const youtubeIds = {
         'ru': 'CKlaeDHDp6o',
@@ -2971,7 +2971,7 @@ function stopAndHideTutorial() {
     };
     return youtubeIds[lang] || youtubeIds.en;
     console.log("Видео запущено из getYouTubeVideoIdWithdrawal");
-}*/
+}
 
 function initYouTubePlayerWithdrawal() {
     const container = document.getElementById('youtubePlayerWithdrawal');
