@@ -924,6 +924,13 @@
             font-size: 36px;
         }
     }
+.withdrawalTutor {
+  color: #D0E41E;
+  width: 100%;
+  text-align: center; 
+  margin: 10px 0 0 0;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -1085,6 +1092,7 @@
                 <button class="btn" onclick="processWithdrawal()" id="withdrawBtn" data-i18n="withdrawal.request_button">
                     Request Withdrawal
                 </button>
+                <div class="withdrawalTutor" data-i18n="tutorial.link" onclick="showWithdrawalTutorial(autoplay = false)"> Video tutorial</div>
                 
                 <div class="note" data-i18n="withdrawal.note">
                     🔒 Withdrawals are processed within 24 hours. Make sure the code is correct.
