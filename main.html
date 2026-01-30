@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -536,7 +537,7 @@
         display: block;
     }
 
-    /* ПОПАП РЕЗУЛЬТАТА ДЕПОЗИТА */
+         /* ПОПАП РЕЗУЛЬТАТА ДЕПОЗИТА */
     .deposit-popup {
         position: fixed;
         top: 50%;
@@ -811,7 +812,7 @@
 
     /* ПРИМЕЧАНИЯ */
     .note {
-        margin-top: 25px;
+        margin-top: 10px;
         padding: 15px;
         background: rgba(255, 255, 255, 0.05);
         border-radius: 8px;
@@ -924,6 +925,13 @@
             font-size: 36px;
         }
     }
+  
+.withdrawalAddress {
+  color: #D0E41E;
+  width: 100%;
+  text-align: center; 
+  margin: 10px 0 0 0;
+}
 .withdrawalTutor {
   color: #D0E41E;
   width: 100%;
@@ -956,10 +964,19 @@
         <div id="consoleContent"></div>
     </div>
 
+    <!-- Языковой переключатель -->
+   <!-- <div class="language-selector">
+        <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="changeLanguage('ru')">RU</button>
+        <button class="lang-btn" onclick="changeLanguage('fr')">FR</button>
+        <button class="lang-btn" onclick="changeLanguage('ar')">AR</button>
+    </div> -->
+
     <div class="container" id="mainContainer">
     <!-- Хедер -->
     <div class="header">
         <div class="logo" data-i18n="title">Payment system</div>
+        <!-- <div class="subtitle" data-i18n="subtitle">Secure deposits & withdrawals</div> -->
     </div>
 
         <!-- Переключатель вкладок -->
@@ -1040,12 +1057,20 @@
             <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВИДЕОТУТОРИАЛА -->
             <div id="videoTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
                 <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
-                    <divdiv id="youtubePlayer" style="width:100%; height:450px;">
+                    <div id="youtubePlayer" style="width:100%; height:450px;">
                     </div>
                 </div>
             </div>
 
             <!-- Вкладка Вывода -->
+            <!-- Туториал вывода начало-->
+            <div id="withdrawalTutorialModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; border-radius: 3%; height: 100%; backdrop-filter: blur(15px); z-index: 10000; justify-content: center; align-items: center;">
+                <div style="position: relative; width: 90%; max-width: 800px; background: transparent; border-radius: 3%; overflow: hidden; border: 2px solid var(--accent-color);">
+                    <div id="youtubePlayerWithdrawal" style="width:100%; height:450px;">
+                    </div>
+                </div>
+            </div>
+            <!-- Туториал вывода конец -->
             <div id="withdrawalTab" class="tab-content">
                 <div class="form-group">
                     <label class="form-label">
@@ -1092,6 +1117,12 @@
                 <button class="btn" onclick="processWithdrawal()" id="withdrawBtn" data-i18n="withdrawal.request_button">
                     Request Withdrawal
                 </button>
+                <div class="withdrawalAddress">
+                    <span data-i18n="agent.city">City: </span>
+                    <span>Agent city</span>
+                    <span data-i18n="agent.street">Street: </span>
+                    <span> agent street</span>
+                </div>
                 <div class="withdrawalTutor" data-i18n="tutorial.link" onclick="showWithdrawalTutorial(autoplay = false)"> Video tutorial</div>
                 
                 <div class="note" data-i18n="withdrawal.note">
@@ -1243,7 +1274,6 @@ window.addEventListener('load', function() {
 });
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Payment System Loading...');
     
     detectLanguage();
     
@@ -1368,7 +1398,9 @@ const translations = {
         'tutorial.repeat_title': 'Tutorial finished',
         'tutorial.repeat_text': 'Want to watch again?',
         'tutorial.repeat_yes': 'Watch again',
-        'tutorial.repeat_no': 'I understand'
+        'tutorial.repeat_no': 'I understand',
+        'agent.city': 'City',
+        'agent.street': 'Street'
     },
     
     ru: {
@@ -1429,7 +1461,9 @@ const translations = {
         'tutorial.repeat_title': 'Обучение завершено',
         'tutorial.repeat_text': 'Хотите посмотреть ещё раз?',
         'tutorial.repeat_yes': 'Посмотреть ещё раз',
-        'tutorial.repeat_no': 'Я всё понял'
+        'tutorial.repeat_no': 'Я всё понял',
+        'agent.city': 'Город',
+        'agent.street': 'Улица'
     },
     
     fr: {
@@ -1490,7 +1524,9 @@ const translations = {
         'tutorial.repeat_title': 'Tutoriel terminé',
         'tutorial.repeat_text': 'Voulez-vous regarder à nouveau?',
         'tutorial.repeat_yes': 'Regarder à nouveau',
-        'tutorial.repeat_no': 'J\'ai compris'
+        'tutorial.repeat_no': 'J\'ai compris',
+        'agent.city': 'Ville',
+        'agent.street': 'de rue'
     },
     
     ar: {
@@ -1551,7 +1587,9 @@ const translations = {
         'tutorial.repeat_title': 'انتهى البرنامج التعليمي',
         'tutorial.repeat_text': 'هل تريد المشاهدة مرة أخرى؟',
         'tutorial.repeat_yes': 'شاهد مرة أخرى',
-        'tutorial.repeat_no': 'لقد فهمت'
+        'tutorial.repeat_no': 'لقد فهمت',
+        'agent.city': 'مدينة',
+        'agent.street': 'شارعي'
     }
 };
 
@@ -1734,7 +1772,7 @@ function switchTab(tabName) {
         contentArea.style.display = 'block';
     } else {
         // Если видим — скрываем
-        contentArea.style.display = 'none';
+        contentArea.style.display = 'block';
     }
 
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -2480,15 +2518,10 @@ async function processWithdrawal() {
         modal.cleanupTimers = cleanupTimers;
         
         if (autoplay) localStorage.setItem('tutorialWatched', 'true');
-        console.log(`🎬 Видео запущено. Fallback таймеры: ${videoDuration}с, ${Math.round(videoDuration * 1.2)}с, 180с`);
-        console.log('YouTube API загружен:', !!window.YT);
-        console.log('Контейнер найден:', !!document.getElementById('youtubePlayer'));
-        console.log('Функция initYouTubePlayer:', typeof initYouTubePlayer);
     }
       
       // 3. Закрываем видео
         function closeTutorial() {
-            console.log('closeTutorial вызвана'); // Для отладки
             const modal = document.getElementById('videoTutorialModal');
             const iframe = document.getElementById('youtubePlayer');
             
@@ -2496,8 +2529,7 @@ async function processWithdrawal() {
             if (iframe && iframe.contentWindow) {
                 // Используем новую функцию паузы
                 setTimeout(() => {
-                    pauseYouTubeVideo(); // ← ЗДЕСЬ ВЫЗОВ
-                    console.log("Пауза вызвана через функцию");
+                    pauseYouTubeVideo();
                 }, 100);
             }
             
@@ -2544,29 +2576,28 @@ async function processWithdrawal() {
         }
 
         function pauseYouTubeVideo() {
-            const iframe = document.getElementById('youtubePlayer');
-            if (!iframe || !iframe.contentWindow) return false;
-            
-            // 3 разных способа паузы (сработает хотя бы один)
-            try {
-                // Способ 1: Стандартная команда YouTube
-                iframe.contentWindow.postMessage('{"event":"command","func":"pauseYouTubeVideo","args":""}', '*');
-                
-                // Способ 2: Альтернативный формат
-                iframe.contentWindow.postMessage('{"method":"pause"}', '*');
-                
-                // Способ 3: Через YouTube Player API (если подключён)
-                if (iframe.playerInstance) {
-                    iframe.playerInstance.pauseVideo();
-                }
-                
-                console.log("Пауза YouTube отправлена");
-                return true;
-            } catch (e) {
-                console.error("Ошибка паузы YouTube:", e);
-                return false;
-            }
+    // Способ 1 (Основной): Если объект плеера существует и доступен
+    if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+        youtubePlayer.pauseVideo();
+        log('success', 'Видео для вывода поставлено на паузу через YouTube API');
+        return true;
+    }
+    
+    // Способ 2 (Fallback): Если объект недоступен, но iframe есть
+    const iframe = document.getElementById('youtubePlayer');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // ТОЛЬКО этот метод через postMessage может сработать с API
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            log('info', 'Команда паузы отправлена через postMessage');
+            return true;
+        } catch(e) {
+            log('error', 'Ошибка паузы через postMessage:', e);
+            return false;
         }
+    }
+    return false;
+}
 
         //4. Уточняем, нужно ли повторить видео пользователю
         function showRepeatDialog() {
@@ -2664,7 +2695,6 @@ function initYouTubePlayer() {
         },
         events: {
             onReady: function(event) {
-                console.log('✅ YouTube Player API готов');
                 event.target.playVideo();
             },
             onStateChange: function(event) {
@@ -2691,6 +2721,7 @@ function stopAndHideTutorial() {
     // 1. Останавливаем видео, но НЕ уничтожаем плеер
     if (window.youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
         youtubePlayer.pauseVideo(); // Пауза вместо stopVideo()
+        // youtubePlayer.seekTo(0); // Если нужно сбросить на начало при закрытии
     }
     
     // 2. Удаляем диалоги подтверждения
@@ -2703,6 +2734,315 @@ function stopAndHideTutorial() {
     console.log('Модалка скрыта, плеер на паузе');
 }
 //ВИДЕО ТУТОРИАЛ КОНЕЦ
+
+// ТУТОРИАЛ ВЫВОДА НАЧАЛО
+      // 1. Определяем язык и выбираем видеофайл
+         function getWithdrawalVideoFile() {
+            const lang = navigator.language.split('-')[0];
+            const youtubeIds = {
+                'ru': 'CKlaeDHDp6o',
+                'en': 'nZu93LRos5w', 
+                'ar': 'Ws4Vo0zUldY'
+            };
+            const videoId = youtubeIds[lang] || youtubeIds.en;
+            
+            // КРИТИЧЕСКИ ВАЖНЫЕ ПАРАМЕТРЫ:
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1`;
+        }
+      
+      // 2. Показываем видео (автозапуск при первом просмотре)
+     function showWithdrawalTutorial(autoplay = false) {
+        const modal = document.getElementById('withdrawalTutorialModal');
+        const iframe = document.getElementById('youtubePlayerWithdrawal');
+        
+        // Устанавливаем URL с параметрами
+        iframe.src = getWithdrawalVideoFile();
+        modal.style.display = 'flex';
+         setTimeout(() => {
+                initYouTubePlayerWithdrawal();
+            }, 1000);
+        
+        // 5. Очистка таймеров при закрытии модалки
+        const cleanupTimers = function() {
+            clearTimeout(mainTimer);
+            clearTimeout(extendedTimer);
+            clearTimeout(maxTimer);
+            modal.removeEventListener('close', cleanupTimers);
+        };
+        
+        // Вешаем очистку на закрытие
+        modal.addEventListener('close', cleanupTimers);
+        
+        // 6. Сохраняем функцию очистки для ручного вызова
+        modal.cleanupTimers = cleanupTimers;
+        
+        if (autoplay) localStorage.setItem('tutorialWatched', 'true');
+    }
+
+function pauseWithdrawalVideo() {
+    // Способ 1 (Основной): Если объект плеера существует и доступен
+    if (window.youtubePlayerWithdrawal && typeof youtubePlayerWithdrawal.pauseVideo === 'function') {
+        youtubePlayerWithdrawal.pauseVideo();
+        log('success', 'Видео для вывода поставлено на паузу через YouTube API');
+        return true;
+    }
+    
+    // Способ 2 (Fallback): Если объект недоступен, но iframe есть
+    const iframe = document.getElementById('youtubePlayerWithdrawal');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // ТОЛЬКО этот метод через postMessage может сработать с API
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            log('info', 'Команда паузы отправлена через postMessage');
+            return true;
+        } catch(e) {
+            log('error', 'Ошибка паузы через postMessage:', e);
+            return false;
+        }
+    }
+    
+    log('warning', 'Объект youtubePlayerWithdrawal или iframe не найден');
+    return false;
+}
+      
+      // 3. Закрываем видео
+        function closeWithdrawalTutorial() {
+            const modal = document.getElementById('withdrawalTutorialModal');
+            const iframe = document.getElementById('youtubePlayerWithdrawal');
+            
+            // Пауза видео
+            if (iframe && iframe.contentWindow) {
+                // Используем новую функцию паузы
+                setTimeout(() => {
+                    pauseWithdrawalVideo(); 
+                }, 100);
+            }
+            
+            // Создаём или находим контейнер для диалога подтверждения
+            let confirmDialog = modal.querySelector('.close-confirm-dialog');
+            if (!confirmDialog) {
+                confirmDialog = document.createElement('div');
+                confirmDialog.className = 'close-confirm-dialog';
+                confirmDialog.innerHTML = `
+                    <div class="confirm-content">
+                        <p class="confirm-title" data-i18n="tutorial.close_confirm_title">Close tutorial?</p>
+                        <p class="confirm-text" data-i18n="tutorial.close_confirm_text">Are you sure you want to close?</p>
+                        <div class="confirm-buttons">
+                            <button class="confirm-btn confirm-no" data-i18n="tutorial.close_confirm_no">No, continue</button>
+                            <button class="confirm-btn confirm-yes" data-i18n="tutorial.close_confirm_yes">Yes, close</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('withdrawalTutorialModal').appendChild(confirmDialog);
+                
+                // Назначаем обработчики кнопок
+                confirmDialog.querySelector('.confirm-yes').onclick = function() {
+                    confirmDialog.remove();
+                    iframe.src = '';
+                    modal.style.display = 'none';
+                };
+                
+                confirmDialog.querySelector('.confirm-no').onclick = function() {
+                    // Возобновляем воспроизведение
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    confirmDialog.remove();
+                };
+            }
+
+        // В функции закрытия модалки добавь:
+        if (modal._videoObserver) {
+            modal._videoObserver.disconnect();
+            delete modal._videoObserver;
+        }
+            
+            // Показываем диалог
+            confirmDialog.style.display = 'block';
+            applyTranslations(state.currentLanguage); // Применяем переводы
+        }
+
+       /* function pauseYouTubeVideo() {
+            const iframe = document.getElementById('youtubePlayerWithdrawal');
+            if (!iframe || !iframe.contentWindow) return false;
+            
+            // 3 разных способа паузы (сработает хотя бы один)
+            try {
+                // Способ 1: Стандартная команда YouTube
+                iframe.contentWindow.postMessage('{"event":"command","func":"stopYouTubeVideo","args":""}', '*');
+                
+                // Способ 2: Альтернативный формат
+                iframe.contentWindow.postMessage('{"method":"pause"}', '*');
+                
+                // Способ 3: Через YouTube Player API (если подключён)
+                if (iframe.playerInstance) {
+                    iframe.playerInstance.pauseVideo();
+                }
+                return true;
+            } catch (e) {
+                console.error("Ошибка паузы YouTube:", e);
+                return false;
+            }
+        }*/
+
+        function pauseYouTubeVideo() {
+    // Способ 1 (Основной): Если объект плеера существует и доступен
+    if (window.youtubePlayerWithdrawal && typeof youtubePlayerWithdrawal.pauseVideo === 'function') {
+        youtubePlayerWithdrawal.pauseVideo();
+        log('success', 'Видео для вывода поставлено на паузу через YouTube API');
+        return true;
+    }
+    
+    // Способ 2 (Fallback): Если объект недоступен, но iframe есть
+    const iframe = document.getElementById('youtubePlayerWithdrawal');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // ТОЛЬКО этот метод через postMessage может сработать с API
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            log('info', 'Команда паузы отправлена через postMessage');
+            return true;
+        } catch(e) {
+            log('error', 'Ошибка паузы через postMessage:', e);
+            return false;
+        }
+    }
+    
+    log('warning', 'Объект youtubePlayerWithdrawal или iframe не найден');
+    return false;
+}
+
+        //4. Уточняем, нужно ли повторить видео пользователю
+        function showRepeatDialog() {
+            const modal = document.getElementById('withdrawalTutorialModal');
+            const iframe = document.getElementById('youtubePlayerWithdrawal');
+            
+            // Создаём диалог (такая же структура как в closeTutorial)
+            const repeatDialog = document.createElement('div');
+            repeatDialog.className = 'close-confirm-dialog';
+            repeatDialog.innerHTML = `
+                <div class="confirm-content">
+                    <p class="confirm-title" data-i18n="tutorial.repeat_title">Tutorial finished</p>
+                    <p class="confirm-text" data-i18n="tutorial.repeat_text">Want to watch again?</p>
+                    <div class="confirm-buttons">
+                        <button class="confirm-btn repeat-yes" data-i18n="tutorial.repeat_yes">Watch again</button>
+                        <button class="confirm-btn repeat-no" data-i18n="tutorial.repeat_no">I understand</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('withdrawalTutorialModal').appendChild(repeatDialog);
+            repeatDialog.style.display = 'block';
+            applyTranslations(state.currentLanguage);
+            
+            // Обработчик "Watch again" - перезапуск видео
+            repeatDialog.querySelector('.repeat-yes').onclick = function() {
+                // Перематываем на начало и играем
+                iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0, true]}', '*');
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                repeatDialog.remove(); // Удаляем диалог
+            };
+            
+            // Обработчик "I understand" - закрытие
+            repeatDialog.querySelector('.repeat-no').onclick = function() {
+                iframe.src = ''; // Останавливаем видео
+                modal.style.display = 'none'; // Закрываем модалку
+                repeatDialog.remove(); // Удаляем диалог
+            };
+        }
+      
+      // 5. Проверяем первый ли это визит
+      /*function checkFirstVisit() {
+            const hasWatched = localStorage.getItem('tutorialWatched');
+            
+            if (!hasWatched) {
+                setTimeout(() => {
+                    showTutorial(true);
+                }, 1000);
+            }
+        }*/
+      
+      // 6. Инициализируем всё после загрузки страницы
+      window.addEventListener('load', function() {
+            // Даем время на загрузку основной страницы
+            setTimeout(() => {
+                // 1. Назначаем клик на фон модалки
+                document.getElementById('withdrawalTutorialModal').onclick = function(e) {
+                    if (e.target === this) closeWithdrawalTutorial();
+                };
+                
+                // 2. Проверяем первый визит (автозапуск видео)
+                checkFirstVisit();
+                
+                // Логируем
+                if (typeof logToConsole === 'function') {
+                    logToConsole('success', 'Туториал инициализирован');
+                }
+            }, 1000);
+        });
+        
+        /*let youtubePlayer;*/
+
+ function getYouTubeVideoIdWithdrawal() {
+    const lang = navigator.language.split('-')[0];
+    const youtubeIds = {
+        'ru': 'CKlaeDHDp6o',
+        'en': 'nZu93LRos5w', 
+        'ar': 'Ws4Vo0zUldY'
+    };
+    return youtubeIds[lang] || youtubeIds.en;
+    console.log("Видео запущено из getYouTubeVideoIdWithdrawal");
+}
+
+function initYouTubePlayerWithdrawal() {
+    const container = document.getElementById('youtubePlayerWithdrawal');
+    const videoId = getYouTubeVideoIdWithdrawal(); // Твоя функция получения ID
+    
+    youtubePlayer = new YT.Player(container, {
+        videoId: videoId,
+        playerVars: {
+            autoplay: 1,
+            mute: 0,
+            controls: 1,
+            rel: 0,
+            modestbranding: 1
+        },
+        events: {
+            onReady: function(event) {
+                event.target.playVideo();
+            },
+            onStateChange: function(event) {
+                // event.data состояния:
+                // -1 - не началось, 0 - конец, 1 - играет, 2 - пауза
+                
+                if (event.data === YT.PlayerState.ENDED) {
+                    setTimeout(() => showRepeatDialog(), 500);
+                }
+            },
+            onError: function(error) {
+                console.error('❌ Ошибка YouTube:', error.data);
+            }
+        }
+    });
+}
+        
+// Скрываем модальное окно
+function stopAndHideTutorialWithdrawal() {
+    const modal = document.getElementById('withdrawalTutorialModal');
+    
+    // 1. Останавливаем видео, но НЕ уничтожаем плеер
+    if (window.youtubePlayerWithdrawal && typeof youtubePlayer.pauseVideo === 'function') {
+        youtubePlayer.pauseVideo(); // Пауза вместо stopVideo()
+        // youtubePlayer.seekTo(0); // Если нужно сбросить на начало при закрытии
+    }
+    
+    // 2. Удаляем диалоги подтверждения
+    const dialogs = modal.querySelectorAll('.close-confirm-dialog');
+    dialogs.forEach(dialog => dialog.remove());
+    
+    // 3. ТОЛЬКО скрываем модалку (контейнер остаётся внутри)
+    modal.style.display = 'none';
+    
+    console.log('Модалка скрыта, плеер на паузе');
+}
+// ТУТОРИАЛ ВЫВОДА КОНЕЦ
     </script>
 </body>
 </html>
